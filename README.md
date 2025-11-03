@@ -1,36 +1,133 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# PIEE – Drop anything. Done in a blink. 🚀
 
-## Getting Started
+A modern, responsive, and beautiful landing page built with **Next.js**, **Tailwind CSS**, and **Radix UI**, designed for PIEE – Drop anything. Done in a blink.
 
-First, run the development server:
+PIEE auto-detects your file or clipboard content and runs the perfect micro-tool. It's **offline-first**, **privacy-focused**, and built for pure speed.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+---
+
+## ✨ Features
+
+- ⚡ **Modern UI** with Radix UI and Tailwind CSS
+- 🌙 **Dark Mode Support** using `next-themes`
+- 📦 **Feature-rich Sections** including:
+  - Hero section with gradient highlights
+  - Feature cards with tooltips & hover interactions
+  - Accordion-based FAQs
+  - Responsive CTA and footer
+- 📊 **Interactive UI Components**: HoverCards, Tabs, Accordion, Tooltips, Cards, Badges
+- 💡 **Centralized Library** to manage your prompts
+- 🔐 **Access Control** and visibility settings
+- 🏷️ **Tagging System** for organization
+- 📈 **Analytics** to track prompt performance
+- 🧪 **Playground** to execute prompts directly
+- 🔄 Fully **Responsive** and **Mobile-Optimized**
+
+---
+
+## 🧩 Tech Stack
+
+- **Framework**: [Next.js](https://nextjs.org/) with Turbopack
+- **Styling**: Tailwind CSS & CSS variables
+- **UI Library**: [Radix UI](https://www.radix-ui.com/) + [Lucide Icons](https://lucide.dev/)
+- **State Management**: React Hooks
+- **Theme Management**: [next-themes](https://github.com/pacocoursey/next-themes)
+- **Animation & Motion**: [motion](https://motion.dev/) primitives
+- **Data Platform**: [Supabase](https://supabase.com/) (Optional, for future integration)
+
+---
+
+## 📦 Installation
+
+1. **Clone the repo:**
+   ```csharp
+   git clone https://github.com/JayashBhandary/pie_landing.git
+   cd pie-landing
+   ```
+2. **Install dependencies:**
+   ```csharp
+   bun install
+   ```
+   
+3. **Run the development server:**
+   ```csharp
+   bun run dev
+   ```
+   
+4. **Open http://localhost:3000 in your browser.**
+
+**📁 Project Structure**
+```csharp
+.
+├── app/                # Next.js App directory
+│   ├── layout.tsx
+│   ├── page.tsx
+│   └── globals.css
+├── components/         # Reusable UI components
+│   ├── ui/             # Shadcn-based UI elements
+│   ├── motion-primitives/
+│   └── waitlist.tsx
+├── public/             # Static assets
+├── tailwind.config.ts
+├── postcss.config.js
+└── README.md           # You are here!
 ```
+**📜 Scripts**
+| Script          | Description                    |
+| --------------- | ------------------------------ |
+| `bun run dev`   | Run the dev server (Turbopack) |
+| `bun run build` | Build the app                  |
+| `bun run start` | Start the production server    |
+| `bun run lint`  | Run ESLint for code quality    |
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**🛠️ Dependencies**
+<details>
+<summary>Click to view all dependencies</summary>
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Core
+- `next@15.5.3`
+- `react@19.1.1`
+- `react-dom@19.1.1`
+- `tailwindcss@4.1.13`
+- `next-themes@0.4.6`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+### UI / Styling
+- `@radix-ui/*` (all primitives)
+- `lucide-react`
+- `clsx`
+- `class-variance-authority`
+- `tailwind-merge`
+- `tw-animate-css`
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Utilities
+- `react-hook-form`
+- `zod`
+- `cmdk`
+- `sonner`
+- `motion`
+- `embla-carousel-react`
+- `@supabase/supabase-js`
+- `react-day-picker`
+- `recharts`
+- `input-otp`
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+---
 
-## Deploy on Vercel
+### Dev Dependencies
+- `eslint`, `eslint-config-next`, `@types/*`
+- `postcss`, `autoprefixer`
+- `typescript`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+</details>
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+**📣 Want to Contribute?**
+
+Feel free to open issues, submit PRs, or suggest ideas. Let’s build something great together.
+
+**💜 Special Thanks**
+
+To the open-source libraries and the amazing frontend community that makes this project possible.
