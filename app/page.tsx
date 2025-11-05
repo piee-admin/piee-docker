@@ -26,11 +26,58 @@ import Link from "next/link";
 import { useAuth } from "./context/AuthContext";
 import Login from "./Login";
 // Updated icons
-import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github } from "lucide-react"; // Added Github
+import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download } from "lucide-react"; // Added Github
 
 // --- GitHub Repo Link ---
 // !! REPLACE THIS with your actual GitHub repository URL
-const GITHUB_URL = "https://github.com/piee-dev/piee-core";
+const REPO_URL = "https://github.com/piee-dev/piee-core";
+const API_URL = "https://api.github.com/repos/piee-dev/piee-core";
+
+export function StarOnGitHub() {
+  const [stars, setStars] = useState<number | null>(null);
+  const [error, setError] = useState(false);
+
+  useEffect(() => {
+    async function fetchStars() {
+      try {
+        const res = await fetch(API_URL, {
+          headers: { Accept: "application/vnd.github.v3+json" },
+          cache: "no-store",
+        });
+        if (!res.ok) throw new Error("GitHub API failed");
+        const data = await res.json();
+        setStars(data.stargazers_count ?? null);
+      } catch {
+        setError(true);
+      }
+    }
+    fetchStars();
+  }, []);
+
+  return (
+    <a
+      href={REPO_URL}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label="Star PIEE Core on GitHub"
+      className="inline-flex items-center"
+    >
+      <Button
+        variant="outline"
+        size="sm"
+        className="flex items-center gap-2 rounded-full border border-border/50 px-3 py-1 text-sm font-medium hover:bg-muted transition-all cursor-pointer"
+      >
+        <Github className="h-4 w-4" />
+        <span>Star</span>
+        {!error && stars !== null && (
+          <span className="ml-1 bg-primary/10 text-primary px-2 py-[1px] rounded-full text-xs font-semibold">
+            {stars}
+          </span>
+        )}
+      </Button>
+    </a>
+  );
+}
 
 export function Header() {
   const { user, logOut } = useAuth();
@@ -41,7 +88,7 @@ export function Header() {
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "FAQ", link: "#faq" },
-    { name: "GitHub", link: GITHUB_URL },
+    { name: "GitHub", link: REPO_URL },
   ];
 
   const handleLoginSuccess = () => {
@@ -68,14 +115,14 @@ export function Header() {
               </DropdownMenu>
             )}
           </div> */
-          
+
   return (
     <header className="sticky top-0 z-50 w-full">
       <Navbar>
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-          
+
         </NavBody>
 
         <MobileNav>
@@ -86,8 +133,8 @@ export function Header() {
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             />
           </MobileNavHeader>
-          <MobileNavMenu 
-            isOpen={isMobileMenuOpen} 
+          <MobileNavMenu
+            isOpen={isMobileMenuOpen}
             onClose={() => setIsMobileMenuOpen(false)}
           >
             {navItems.map((item, i) => {
@@ -146,30 +193,118 @@ export function Header() {
 }
 
 // --- Hero (Updated for "PIEE" + Open Source) ---
-const Hero = () => (
+export const Hero = () => (
   <section className="relative pt-24 pb-32 text-center">
+    {/* 🌟 Centered StarOnGitHub */}
+    <div className="flex justify-center mb-6">
+      <StarOnGitHub />
+    </div>
+
     <div className="container mx-auto px-4 max-w-4xl">
+      {/* 🧠 Heading */}
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-        Drop anything. <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">Done in a blink.</span>
+        Drop anything.{" "}
+        <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
+          Done in a blink.
+        </span>
       </h1>
+
+      {/* 💬 Subtitle */}
       <p className="mt-6 text-lg md:text-xl text-muted-foreground">
-        Meet <span className="font-semibold text-primary">PIEE</span>, the universal 
-        <span className="font-semibold"> open-source </span> 
-        creative command palette.
-        Compress images, trim videos, and format code with a single shortcut.
+        Meet <span className="font-semibold text-primary">PIEE</span>, the
+        universal{" "}
+        <span className="font-semibold">open-source</span> creative command
+        palette. Compress images, trim videos, and format code with a single
+        shortcut.
       </p>
+
+      {/* ⚡ Action Buttons */}
       <div className="mt-10 flex justify-center gap-4 flex-wrap">
-        <Button size="lg" className="px-8 py-6 font-bold">Download Beta</Button>
-        <Button asChild variant="outline" size="lg" className="px-8 py-6 font-bold">
-          <Link href={GITHUB_URL} target="_blank">
+        <Button asChild size="lg" className="px-8 py-6 font-bold">
+          <Link href={REPO_URL} target="_blank">
+            <Download className="mr-2 h-5 w-5" />
+            Download Beta
+          </Link>
+        </Button>
+
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="px-8 py-6 font-bold"
+        >
+          <Link href={REPO_URL} target="_blank">
             <Github className="mr-2 h-5 w-5" />
             Star on GitHub
+          </Link>
+        </Button>
+
+        <Button
+          asChild
+          variant="outline"
+          size="lg"
+          className="px-8 py-6 font-bold"
+        >
+          <Link href="/dashboard">
+            <LayoutDashboardIcon className="mr-2 h-5 w-5" />
+            Dashboard
           </Link>
         </Button>
       </div>
     </div>
   </section>
 );
+
+const DashboardHero = () => (
+  <section className="relative pt-16 pb-12">
+    <div className="container mx-auto px-4 max-w-6xl">
+      {/* Greeting + Subtitle */}
+      <div className="text-center md:text-left">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
+          Welcome back, <span className="text-primary">Jayash</span> 👋
+        </h1>
+        <p className="mt-3 text-muted-foreground text-lg">
+          Here’s a quick look at your workspace. Manage assets, monitor progress, or start something new.
+        </p>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="mt-8 flex justify-center md:justify-start flex-wrap gap-4">
+        <Button size="lg" className="px-6 py-5 font-semibold">
+          <Plus className="mr-2 h-5 w-5" />
+          New Project
+        </Button>
+        <Button variant="outline" size="lg" className="px-6 py-5 font-semibold">
+          <Settings className="mr-2 h-5 w-5" />
+          Settings
+        </Button>
+        <Button asChild variant="secondary" size="lg" className="px-6 py-5 font-semibold">
+          <a href="https://github.com/piee-dev/piee-core" target="_blank">
+            <Github className="mr-2 h-5 w-5" />
+            View on GitHub
+          </a>
+        </Button>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {[
+          { label: "Active Projects", value: "12" },
+          { label: "Files Uploaded", value: "248" },
+          { label: "Tasks Completed", value: "93%" },
+        ].map((stat, i) => (
+          <Card key={i} className="shadow-sm border border-border/40">
+            <CardContent className="p-6 text-center">
+              <h3 className="text-3xl font-bold text-primary">{stat.value}</h3>
+              <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  </section>
+);
+
 
 // --- Features (Unchanged from last step) ---
 const features = [
@@ -295,7 +430,8 @@ export default function Page() {
         <Hero />
         <Features />
         {/* Added FAQ Section here */}
-        <FAQ /> 
+
+        <FAQ />
         <CTA />
       </main>
     </>

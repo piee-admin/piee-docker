@@ -16,11 +16,11 @@ PIEE auto-detects your file or clipboard content and runs the perfect micro-tool
   - Accordion-based FAQs
   - Responsive CTA and footer
 - 📊 **Interactive UI Components**: HoverCards, Tabs, Accordion, Tooltips, Cards, Badges
-- 💡 **Centralized Library** to manage your prompts
+- 💡 **Centralized Library** to manage your files
 - 🔐 **Access Control** and visibility settings
 - 🏷️ **Tagging System** for organization
-- 📈 **Analytics** to track prompt performance
-- 🧪 **Playground** to execute prompts directly
+- 📈 **Analytics** to track system performance
+- 🧪 **Playground** to execute task directly
 - 🔄 Fully **Responsive** and **Mobile-Optimized**
 
 ---
@@ -40,8 +40,8 @@ PIEE auto-detects your file or clipboard content and runs the perfect micro-tool
 ## 📦 Installation
 
 1. **Clone the repo:**
-   ```csharp
-   git clone https://github.com/JayashBhandary/pie_landing.git
+   ```python
+   git clone https://github.com/piee-admin/piee-web.git
    cd pie-landing
    ```
 2. **Install dependencies:**
@@ -129,5 +129,3 @@ PIEE auto-detects your file or clipboard content and runs the perfect micro-tool
 Feel free to open issues, submit PRs, or suggest ideas. Let’s build something great together.
 
 **💜 Special Thanks**
-
-To the open-source libraries and the amazing frontend community that makes this project possible.
