@@ -1,10 +1,11 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
+import { useAuth } from "@/app/context/AuthContext"
 import {
   BookOpen,
   Bot,
-  Command,
   Frame,
   LifeBuoy,
   Map,
@@ -28,162 +29,159 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 
-const data = {
-  user: {
-    name: "Jayash Bhandary",
-    email: "findjayash@gmail.com",
-    avatar: "/images/profile.png",
-  },
-  navMain: [
-    {
-      title: "Playground",
-      url: "#",
-      icon: SquareTerminal,
-      isActive: true,
-      items: [
-        {
-          title: "History",
-          url: "#",
-        },
-        {
-          title: "Starred",
-          url: "#",
-        },
-        {
-          title: "Settings",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Settings",
-      url: "#",
-      icon: Settings2,
-      items: [
-        {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
-        },
-      ],
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Support",
-      url: "#",
-      icon: LifeBuoy,
-    },
-    {
-      title: "Feedback",
-      url: "#",
-      icon: Send,
-    },
-  ],
-  projects: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: Frame,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: PieChart,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: Map,
-    },
-  ],
-}
+import { SpinnerPiee } from "@/components/ui/spinner"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const { user, loading } = useAuth()
+
+
+
+  // 👤 User info fallback
+  const currentUser = user
+    ? {
+        name: user.displayName || "User",
+        email: user.email || "No email",
+        avatar: user.photoURL || "/images/logo.png",
+      }
+    : {
+        name: "Guest",
+        email: "guest@piee.app",
+        avatar: "/images/logo.png",
+      }
+
+  // 📚 Sidebar navigation (Dashboard paths)
+  // 🧭 Main navigation (for creative tools and AI utilities)
+const navMain = [
+  {
+    title: "Dashboard",
+    url: "/dashboard",
+    icon: SquareTerminal,
+    isActive: true,
+    items: [
+      { title: "Overview", url: "/dashboard/overview" },
+      { title: "Activity", url: "/dashboard/activity" },
+      { title: "Shortcuts", url: "/dashboard/shortcuts" },
+    ],
+  },
+  {
+    title: "Creative Tools",
+    url: "/dashboard/tools",
+    icon: Bot,
+    items: [
+      { title: "Image Tools", url: "/dashboard/tools/image" },     // compress, resize, convert
+      { title: "Video Tools", url: "/dashboard/tools/video" },     // trim, crop, convert
+      { title: "Code Formatter", url: "/dashboard/tools/code" },   // JS, TS, Python, etc.
+      { title: "Audio Tools", url: "/dashboard/tools/audio" },     // cut, normalize, merge
+      { title: "PDF Tools", url: "/dashboard/tools/pdf" },         // merge, split, compress
+    ],
+  },
+  {
+    title: "AI Models",
+    url: "/dashboard/ai",
+    icon: Bot,
+    items: [
+      { title: "Text Generation", url: "/dashboard/ai/text" },
+      { title: "Image Generation", url: "/dashboard/ai/image" },
+      { title: "Video Generation", url: "/dashboard/ai/video" },
+      { title: "Speech & Audio", url: "/dashboard/ai/audio" },
+      { title: "Prompt Library", url: "/dashboard/ai/prompts" },
+    ],
+  },
+  {
+    title: "Automation",
+    url: "/dashboard/automation",
+    icon: Frame,
+    items: [
+      { title: "Workflows", url: "/dashboard/automation/workflows" },
+      { title: "Integrations", url: "/dashboard/automation/integrations" },
+      { title: "Triggers", url: "/dashboard/automation/triggers" },
+    ],
+  },
+  {
+    title: "Documentation",
+    url: "/dashboard/docs",
+    icon: BookOpen,
+    items: [
+      { title: "Introduction", url: "/dashboard/docs/intro" },
+      { title: "Quick Start", url: "/dashboard/docs/get-started" },
+      { title: "API Reference", url: "/dashboard/docs/api" },
+      { title: "CLI Guide", url: "/dashboard/docs/cli" },
+      { title: "Changelog", url: "/dashboard/docs/changelog" },
+    ],
+  },
+  {
+    title: "Settings",
+    url: "/dashboard/settings",
+    icon: Settings2,
+    items: [
+      { title: "Account", url: "/dashboard/settings/account" },
+      { title: "Billing", url: "/dashboard/settings/billing" },
+      { title: "Workspace", url: "/dashboard/settings/workspace" },
+      { title: "Limits", url: "/dashboard/settings/limits" },
+    ],
+  },
+]
+const navSecondary = [
+  { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
+  { title: "Feedback", url: "/dashboard/feedback", icon: Send },
+  { title: "Community", url: "https://discord.gg/piee", icon: Map }, // external link (example)
+]
+const projects = [
+  { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
+  { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
+  { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
+]
+
+
   return (
     <Sidebar variant="inset" {...props}>
-      <SidebarHeader>
+      {/* 🌟 PIEE Header */}
+      <SidebarHeader className="pb-3 border-b border-border/40">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="text-sidebar-primary-foreground flex aspect-square size-8 items-center justify-center rounded-lg">
-                  <img
-                    src='/images/logo.png'
-                    alt="logo"
-                    width={30}
-                    height={30}
+              <a href="/dashboard" className="flex items-center gap-3">
+                <div className="flex aspect-square size-9 items-center justify-center rounded-lg bg-muted">
+                  <Image
+                    src="/images/logo.png"
+                    alt="PIEE Logo"
+                    width={36}
+                    height={36}
+                    priority
                   />
                 </div>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">PIEE APP</span>
-                  <span className="truncate text-xs">Pro</span>
+                  <span className="truncate font-semibold tracking-tight text-base">
+                    PIEE
+                  </span>
+                  <span className="truncate text-[11px] text-muted-foreground font-medium">
+                    {user ? "Pro Workspace" : "Guest Mode"}
+                  </span>
                 </div>
               </a>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
+
+        {/* 🪄 PIEE Tagline */}
+        <div className="mt-3 px-2 text-xs text-muted-foreground leading-relaxed">
+          <p className="font-medium text-foreground">
+            The universal open-source creative command palette.
+          </p>
+          <p>Compress images, trim videos, and format code with a single shortcut.</p>
+        </div>
       </SidebarHeader>
+
+      {/* 📦 Sidebar Content */}
       <SidebarContent>
-        <NavMain items={data.navMain} />
-        <NavProjects projects={data.projects} />
-        <NavSecondary items={data.navSecondary} className="mt-auto" />
+        <NavMain items={navMain} />
+        <NavProjects projects={projects} />
+        <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
+
+      {/* 👤 Sidebar Footer */}
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={currentUser} />
       </SidebarFooter>
     </Sidebar>
   )

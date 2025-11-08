@@ -1,7 +1,7 @@
 'use client';
 
 import { Button } from '@/components/ui/button';
-import { useAuth } from './context/AuthContext';
+import { useAuth } from '../app/context/AuthContext';
 
 type LoginProps = {
   onSuccess?: () => void; // optional callback

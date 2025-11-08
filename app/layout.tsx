@@ -71,29 +71,30 @@ export default function RootLayout({
   console.log(selfURL)
   return (
     <html
-  lang="en"
-  className={`${inter.className}  w-full`}
-  suppressHydrationWarning
->
-  <head />
-  <body className="min-h-screen w-full bg-background text-foreground antialiased">
-     <AuthProvider>
-    <ThemeProvider
-      attribute="class"
-      defaultTheme="system"
-      enableSystem
-      disableTransitionOnChange
+      lang="en"
+      className={`${inter.className}  w-full`}
+      suppressHydrationWarning
     >
-      {children}
-       <Suspense fallback={null}>
-        <PageViewTracker />
-      </Suspense>
-      <GoogleAnalytics gaId="G-VPDZFWSGWY" />
-      <Toaster />
-    </ThemeProvider>
-    </AuthProvider>
-  </body>
-</html>
+      <head />
+      <body className="min-h-screen w-full bg-background text-foreground antialiased">
+
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+        >
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+          <Suspense fallback={null}>
+            <PageViewTracker />
+          </Suspense>
+          <GoogleAnalytics gaId="G-VPDZFWSGWY" />
+          <Toaster />
+        </ThemeProvider>
+      </body>
+    </html>
 
   );
 }

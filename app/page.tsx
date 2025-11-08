@@ -24,7 +24,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 import { useAuth } from "./context/AuthContext";
-import Login from "./Login";
+import Login from "../components/Login";
 // Updated icons
 import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download } from "lucide-react"; // Added Github
 

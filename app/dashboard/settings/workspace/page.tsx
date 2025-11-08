@@ -1,0 +1,1 @@
+export default function Page(){return (<div className="flex flex-col h-full w-full p-8"><h1 className="text-3xl font-semibold tracking-tight capitalize">$(basename app/dashboard/settings/workspace)</h1><p className="text-muted-foreground">This is the $(basename app/dashboard/settings/workspace) page.</p></div>)}

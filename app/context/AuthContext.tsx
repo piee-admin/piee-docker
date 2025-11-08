@@ -1,82 +1,127 @@
-'use client';
+// app/context/AuthContext.tsx
+'use client'
 
+import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
 import {
-  createContext,
-  useContext,
-  useEffect,
-  useState,
-  useMemo,
-  ReactNode,
-} from 'react';
-import {
-  onAuthStateChanged,
+  onIdTokenChanged,
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
-  User, // 👈 Import the User type
-  UserCredential, // 👈 Import for the signIn return type
-} from 'firebase/auth';
-import { auth } from '../firebase';
+  setPersistence,
+  browserLocalPersistence,
+  User,
+  UserCredential,
+} from 'firebase/auth'
+import { auth } from '@/app/firebase'
 
-// 1. Define the shape of the context's value
-interface AuthContextType {
-  user: User | null;
-  loading: boolean;
-  signIn: () => Promise<UserCredential>;
-  logOut: () => Promise<void>;
+type AuthContextType = {
+  user: User | null
+  loading: boolean
+  signIn: () => Promise<UserCredential>
+  logOut: () => Promise<void>
 }
 
-// 2. Create the context with a default undefined value
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType | undefined>(undefined)
 
-// 3. Define the props for the provider component
-interface AuthProviderProps {
-  children: ReactNode;
-}
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  const [user, setUser] = useState<User | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [initialized, setInitialized] = useState(false)
 
-export function AuthProvider({ children }: AuthProviderProps) {
-  // 4. Type the state variables
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
-
+  // hydrate immediately from localStorage
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    // Cleanup subscription on unmount
-    return () => unsubscribe();
-  }, []);
+    try {
+      const cached = localStorage.getItem('pieeUser')
+      if (cached) {
+        const parsed = JSON.parse(cached)
+        setUser(parsed)
+        setLoading(false) // stop blocking
+      } else {
+        setLoading(true)
+      }
+    } catch (err) {
+      console.error('Auth hydrate error', err)
+      localStorage.removeItem('pieeUser')
+      setLoading(true)
+    }
+  }, [])
 
-  const signIn = (): Promise<UserCredential> => {
-    const provider = new GoogleAuthProvider();
-    return signInWithPopup(auth, provider);
-  };
+  // background Firebase sync using onIdTokenChanged
+  useEffect(() => {
+    let unsub: (() => void) | null = null
 
-  const logOut = (): Promise<void> => {
-    return signOut(auth);
-  };
+    const init = async () => {
+      try {
+        await setPersistence(auth, browserLocalPersistence)
+      } catch (err) {
+        console.warn('setPersistence failed', err)
+      }
 
-  // Memoize the context value to prevent unnecessary re-renders
-  const value = useMemo(
-    () => ({
-      user,
-      loading,
-      signIn,
-      logOut,
-    }),
-    [user, loading]
-  );
+      unsub = onIdTokenChanged(auth, (fbUser) => {
+        // debug
+        console.debug('onIdTokenChanged → fbUser', !!fbUser, fbUser?.uid)
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+        if (fbUser) {
+          // only write to storage if different
+          try {
+            localStorage.setItem('pieeUser', JSON.stringify({
+              uid: fbUser.uid,
+              displayName: fbUser.displayName,
+              email: fbUser.email,
+              photoURL: fbUser.photoURL,
+              // avoid token objects — keep minimal profile fields
+            }))
+          } catch (e) {
+            console.error('localStorage set error', e)
+          }
+          setUser(fbUser)
+        } else {
+          localStorage.removeItem('pieeUser')
+          setUser(null)
+        }
+
+        setLoading(false)
+        setInitialized(true)
+      })
+    }
+
+    init()
+
+    return () => {
+      if (unsub) unsub()
+    }
+  }, [])
+
+  const signIn = async () => {
+    const provider = new GoogleAuthProvider()
+    const result = await signInWithPopup(auth, provider)
+    // store minimal user object (avoid internal token blobs)
+    const minimal = {
+      uid: result.user.uid,
+      displayName: result.user.displayName,
+      email: result.user.email,
+      photoURL: result.user.photoURL,
+    }
+    localStorage.setItem('pieeUser', JSON.stringify(minimal))
+    setUser(result.user)
+    setLoading(false)
+    return result
+  }
+
+  const logOut = async () => {
+    await signOut(auth)
+    localStorage.removeItem('pieeUser')
+    setUser(null)
+    setLoading(false)
+  }
+
+  const value = useMemo(() => ({ user, loading, signIn, logOut }), [user, loading])
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>
 }
 
-// 5. Create a custom hook for easy, type-safe access
-export function useAuth(): AuthContextType {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    // This error is helpful for development!
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+export function useAuth() {
+  const ctx = useContext(AuthContext)
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider')
+  return ctx
 }
