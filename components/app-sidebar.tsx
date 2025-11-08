@@ -30,6 +30,7 @@ import {
 } from "@/components/ui/sidebar"
 
 import { SpinnerPiee } from "@/components/ui/spinner"
+import Link from "next/link"
 
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth()
@@ -39,98 +40,101 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   // 👤 User info fallback
   const currentUser = user
     ? {
-        name: user.displayName || "User",
-        email: user.email || "No email",
-        avatar: user.photoURL || "/images/logo.png",
-      }
+      name: user.displayName || "User",
+      email: user.email || "No email",
+      avatar: user.photoURL || "/images/logo.png",
+    }
     : {
-        name: "Guest",
-        email: "guest@piee.app",
-        avatar: "/images/logo.png",
-      }
+      name: "Guest",
+      email: "guest@piee.app",
+      avatar: "/images/logo.png",
+    }
 
   // 📚 Sidebar navigation (Dashboard paths)
   // 🧭 Main navigation (for creative tools and AI utilities)
-const navMain = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: SquareTerminal,
-    isActive: true,
-    items: [
-      { title: "Overview", url: "/dashboard/overview" },
-      { title: "Activity", url: "/dashboard/activity" },
-      { title: "Shortcuts", url: "/dashboard/shortcuts" },
-    ],
-  },
-  {
-    title: "Creative Tools",
-    url: "/dashboard/tools",
-    icon: Bot,
-    items: [
-      { title: "Image Tools", url: "/dashboard/tools/image" },     // compress, resize, convert
-      { title: "Video Tools", url: "/dashboard/tools/video" },     // trim, crop, convert
-      { title: "Code Formatter", url: "/dashboard/tools/code" },   // JS, TS, Python, etc.
-      { title: "Audio Tools", url: "/dashboard/tools/audio" },     // cut, normalize, merge
-      { title: "PDF Tools", url: "/dashboard/tools/pdf" },         // merge, split, compress
-    ],
-  },
-  {
-    title: "AI Models",
-    url: "/dashboard/ai",
-    icon: Bot,
-    items: [
-      { title: "Text Generation", url: "/dashboard/ai/text" },
-      { title: "Image Generation", url: "/dashboard/ai/image" },
-      { title: "Video Generation", url: "/dashboard/ai/video" },
-      { title: "Speech & Audio", url: "/dashboard/ai/audio" },
-      { title: "Prompt Library", url: "/dashboard/ai/prompts" },
-    ],
-  },
-  {
-    title: "Automation",
-    url: "/dashboard/automation",
-    icon: Frame,
-    items: [
-      { title: "Workflows", url: "/dashboard/automation/workflows" },
-      { title: "Integrations", url: "/dashboard/automation/integrations" },
-      { title: "Triggers", url: "/dashboard/automation/triggers" },
-    ],
-  },
-  {
-    title: "Documentation",
-    url: "/dashboard/docs",
-    icon: BookOpen,
-    items: [
-      { title: "Introduction", url: "/dashboard/docs/intro" },
-      { title: "Quick Start", url: "/dashboard/docs/get-started" },
-      { title: "API Reference", url: "/dashboard/docs/api" },
-      { title: "CLI Guide", url: "/dashboard/docs/cli" },
-      { title: "Changelog", url: "/dashboard/docs/changelog" },
-    ],
-  },
-  {
-    title: "Settings",
-    url: "/dashboard/settings",
-    icon: Settings2,
-    items: [
-      { title: "Account", url: "/dashboard/settings/account" },
-      { title: "Billing", url: "/dashboard/settings/billing" },
-      { title: "Workspace", url: "/dashboard/settings/workspace" },
-      { title: "Limits", url: "/dashboard/settings/limits" },
-    ],
-  },
-]
-const navSecondary = [
-  { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
-  { title: "Feedback", url: "/dashboard/feedback", icon: Send },
-  { title: "Community", url: "https://discord.gg/piee", icon: Map }, // external link (example)
-]
-const projects = [
-  { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
-  { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
-  { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
-]
+  const navMain = [
+    {
+      title: "Dashboard",
+      url: "/dashboard",
+      icon: SquareTerminal,
+      isActive: true,
+      items: [
+        { title: "Overview", url: "/dashboard/overview" },
+        { title: "Activity", url: "/dashboard/activity" },
+        { title: "Shortcuts", url: "/dashboard/shortcuts" },
+      ],
+    },
+    {
+      title: "Creative Tools",
+      url: "/dashboard/tools",
+      icon: Bot,
+      isActive: true,
+      items: [
+        { title: "Image Tools", url: "/dashboard/tools/image" },     // compress, resize, convert
+        { title: "Video Tools", url: "/dashboard/tools/video" },     // trim, crop, convert
+        { title: "Code Formatter", url: "/dashboard/tools/code" },   // JS, TS, Python, etc.
+        { title: "Audio Tools", url: "/dashboard/tools/audio" },     // cut, normalize, merge
+        { title: "PDF Tools", url: "/dashboard/tools/pdf" },         // merge, split, compress
+      ],
+    },
+    {
+      title: "AI Models",
+      url: "/dashboard/ai",
+      icon: Bot,
+      isActive: true,
+      items: [
+        { title: "Text Generation", url: "/dashboard/ai/text" },
+        { title: "Image Generation", url: "/dashboard/ai/image" },
+        { title: "Video Generation", url: "/dashboard/ai/video" },
+        { title: "Speech & Audio", url: "/dashboard/ai/audio" },
+        { title: "Prompt Library", url: "/dashboard/ai/prompts" },
+      ],
+    },
+    {
+      title: "Automation",
+      url: "/dashboard/automation",
+      icon: Frame,
+      isActive: true,
+      items: [
+        { title: "Workflows", url: "/dashboard/automation/workflows" },
+        { title: "Integrations", url: "/dashboard/automation/integrations" },
+        { title: "Triggers", url: "/dashboard/automation/triggers" },
+      ],
+    },
+    {
+      title: "Documentation",
+      url: "/dashboard/docs",
+      icon: BookOpen,
+      items: [
+        { title: "Introduction", url: "/dashboard/docs/intro" },
+        { title: "Quick Start", url: "/dashboard/docs/get-started" },
+        { title: "API Reference", url: "/dashboard/docs/api" },
+        { title: "CLI Guide", url: "/dashboard/docs/cli" },
+        { title: "Changelog", url: "/dashboard/docs/changelog" },
+      ],
+    },
+    {
+      title: "Settings",
+      url: "/dashboard/settings",
+      icon: Settings2,
+      items: [
+        { title: "Account", url: "/dashboard/settings/account" },
+        { title: "Billing", url: "/dashboard/settings/billing" },
+        { title: "Workspace", url: "/dashboard/settings/workspace" },
+        { title: "Limits", url: "/dashboard/settings/limits" },
+      ],
+    },
+  ]
+  const navSecondary = [
+    { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
+    { title: "Feedback", url: "/dashboard/feedback", icon: Send },
+    { title: "Community", url: "https://discord.gg/sR9bN3wW", icon: Map }, // external link (example)
+  ]
+  const projects = [
+    { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
+    { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
+    { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
+  ]
 
 
   return (
@@ -140,7 +144,7 @@ const projects = [
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <a href="/dashboard" className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center gap-3">
                 <div className="flex aspect-square size-9 items-center justify-center rounded-lg bg-muted">
                   <Image
                     src="/images/logo.png"
@@ -158,18 +162,13 @@ const projects = [
                     {user ? "Pro Workspace" : "Guest Mode"}
                   </span>
                 </div>
-              </a>
+              </Link>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
 
         {/* 🪄 PIEE Tagline */}
-        <div className="mt-3 px-2 text-xs text-muted-foreground leading-relaxed">
-          <p className="font-medium text-foreground">
-            The universal open-source creative command palette.
-          </p>
-          <p>Compress images, trim videos, and format code with a single shortcut.</p>
-        </div>
+
       </SidebarHeader>
 
       {/* 📦 Sidebar Content */}
@@ -186,3 +185,11 @@ const projects = [
     </Sidebar>
   )
 }
+
+
+/**  <div className="mt-3 px-2 text-xs text-muted-foreground leading-relaxed">
+          <p className="font-medium text-foreground">
+            The universal open-source creative command palette.
+          </p>
+          <p>Compress images, trim videos, and format code with a single shortcut.</p>
+        </div> */
