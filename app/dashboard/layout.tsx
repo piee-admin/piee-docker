@@ -29,6 +29,7 @@ import { SpinnerPiee } from "@/components/ui/spinner"
 import { useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { NavUser } from "@/components/nav-user"
 
 export default function DashboardLayout({
   children,
@@ -39,6 +40,19 @@ export default function DashboardLayout({
   const [openLogin, setOpenLogin] = useState(false)
   const pathname = usePathname()
   const pathSegments = pathname.split("/").filter(Boolean)
+
+  const currentUser = user
+    ? {
+      name: user.displayName || "User",
+      email: user.email || "No email",
+      avatar: user.photoURL || "/images/logo.png",
+    }
+    : {
+      name: "Guest",
+      email: "guest@piee.app",
+      avatar: "/images/logo.png",
+    }
+
 
   // 🌀 Loading screen
   if (loading && !user) {
@@ -91,8 +105,28 @@ export default function DashboardLayout({
           </div>
 
           {/* Right: Avatar / Login */}
+          
           <div className="flex items-center gap-2 sm:gap-4">
-            {!user ? (
+            <NavUser user={currentUser} />
+          </div>
+
+          {/* Login modal */}
+         
+        </header>
+
+        {/* BODY */}
+        <main className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-4 md:p-6">
+          <div className="flex-1 w-full h-full bg-background rounded-lg border border-border/40 p-3 sm:p-4 md:p-6 lg:p-8">
+            {children}
+          </div>
+        </main>
+      </SidebarInset>
+    </SidebarProvider>
+  )
+}
+
+
+/**{!user ? (
               <Button
                 size="sm"
                 variant="secondary"
@@ -117,20 +151,4 @@ export default function DashboardLayout({
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
-            )}
-          </div>
-
-          {/* Login modal */}
-          <LoginDialog open={openLogin} onOpenChange={setOpenLogin} />
-        </header>
-
-        {/* BODY */}
-        <main className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="flex-1 w-full h-full bg-background rounded-lg border border-border/40 p-3 sm:p-4 md:p-6 lg:p-8">
-            {children}
-          </div>
-        </main>
-      </SidebarInset>
-    </SidebarProvider>
-  )
-}
+            )} <LoginDialog open={openLogin} onOpenChange={setOpenLogin} /> */

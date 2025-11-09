@@ -179,13 +179,19 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarContent>
 
       {/* 👤 Sidebar Footer */}
-      <SidebarFooter>
-        <NavUser user={currentUser} />
+      <SidebarFooter className="border-t border-border p-4">
+        <div className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
+          <p>Version 0.0.1+b</p>
+          <p>
+            Made with <span className="inline-block">❤️</span> in India.
+          </p>
+        </div>
       </SidebarFooter>
     </Sidebar>
   )
 }
 
+/** <NavUser user={currentUser} /> */
 
 /**  <div className="mt-3 px-2 text-xs text-muted-foreground leading-relaxed">
           <p className="font-medium text-foreground">
