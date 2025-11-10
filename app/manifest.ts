@@ -4,7 +4,7 @@ export default function manifest(): MetadataRoute.Manifest {
   return {
     name: "PIEE",
     short_name: "PIEE",
-    description: "Organize, manage, and optimize your AI prompts.",
+    description: "Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source.",
     start_url: "/dashboard",
     display: "standalone",
     display_override: ["fullscreen", "minimal-ui"],

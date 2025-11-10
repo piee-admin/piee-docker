@@ -27,9 +27,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "PIEE - Organize, Manage, and Optimize Your AI Prompts",
-  description: "The ultimate platform for AI enthusiasts, developers, and teams to create, store, and collaborate on prompts — both public and private — seamlessly."
-};
+title: "PIEE — The Universal Open-Source Creative Command Palette",
+  description:
+    "Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source.",
+  };
 
 
 // --- Root Layout ---
@@ -46,23 +47,23 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
-        <meta property="og:title" content="PIEE - AI Prompt Management Platform" />
-        <meta property="og:description" content="Create, store, and collaborate on AI prompts effortlessly with PIEE — the platform for teams and developers." />
+        <meta property="og:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
+        <meta property="og:description" content="Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source." />
         <meta property="og:url" content="https://piee.app" />
         <meta property="og:site_name" content="PIEE" />
         <meta property="og:image" content="https://piee.app/api/og" />
         <meta property="og:image:width" content="1200" />
         <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="PIEE OG Image" />
+        <meta property="og:image:alt" content="PIEE — The Universal Creative Command Palette" />
         <meta property="og:type" content="website" />
 
-
         <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="PIEE - AI Prompt Management Platform" />
-        <meta name="twitter:description" content="Create, store, and collaborate on AI prompts effortlessly with PIEE — the GitHub-style platform for developers." />
+        <meta name="twitter:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
+        <meta name="twitter:description" content="Compress images, trim videos, and format code with a single shortcut — locally and open-source." />
         <meta name="twitter:image" content="https://piee.app/api/og" />
+
       </head>
       <body className="min-h-screen w-full bg-background text-foreground antialiased">
 
