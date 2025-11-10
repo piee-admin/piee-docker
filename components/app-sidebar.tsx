@@ -13,6 +13,15 @@ import {
   Send,
   Settings2,
   SquareTerminal,
+  Instagram,
+  Music2,
+  Video,
+  Grid,
+  Upload,
+  Hash,
+  Type,
+  Calendar,
+  BarChart3,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -35,23 +44,18 @@ import Link from "next/link"
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const { user, loading } = useAuth()
 
-
-
-  // 👤 User info fallback
   const currentUser = user
     ? {
-      name: user.displayName || "User",
-      email: user.email || "No email",
-      avatar: user.photoURL || "/images/logo.png",
-    }
+        name: user.displayName || "User",
+        email: user.email || "No email",
+        avatar: user.photoURL || "/images/logo.png",
+      }
     : {
-      name: "Guest",
-      email: "guest@piee.app",
-      avatar: "/images/logo.png",
-    }
+        name: "Guest",
+        email: "guest@piee.app",
+        avatar: "/images/logo.png",
+      }
 
-  // 📚 Sidebar navigation (Dashboard paths)
-  // 🧭 Main navigation (for creative tools and AI utilities)
   const navMain = [
     {
       title: "Dashboard",
@@ -65,23 +69,40 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
     {
+      title: "Instagram Tools",
+      url: "/dashboard/instagram",
+      icon: Instagram,
+      isActive: true,
+      items: [
+        { title: "Reel Downloader", url: "/dashboard/instagram/reel-downloader", icon: Video },
+        { title: "Audio Downloader", url: "/dashboard/instagram/audio-downloader", icon: Music2 },
+        { title: "Wall Preview", url: "/dashboard/instagram/wall-preview", icon: Grid },
+        { title: "Test Upload Preview", url: "/dashboard/instagram/test-upload", icon: Upload },
+        { title: "Hashtag Generator", url: "/dashboard/instagram/hashtag-generator", icon: Hash },
+        { title: "Caption Generator", url: "/dashboard/instagram/caption-generator", icon: Type },
+        { title: "Post Scheduler", url: "/dashboard/instagram/scheduler", icon: Calendar },
+        { title: "Profile Analyzer", url: "/dashboard/instagram/analyzer", icon: BarChart3 },
+      ],
+    },
+    {
       title: "Creative Tools",
       url: "/dashboard/tools",
       icon: Bot,
-      isActive: true,
+      isActive: false,
       items: [
-        { title: "Image Tools", url: "/dashboard/tools/image" },     // compress, resize, convert
-        { title: "Video Tools", url: "/dashboard/tools/video" },     // trim, crop, convert
-        { title: "Code Formatter", url: "/dashboard/tools/code" },   // JS, TS, Python, etc.
-        { title: "Audio Tools", url: "/dashboard/tools/audio" },     // cut, normalize, merge
-        { title: "PDF Tools", url: "/dashboard/tools/pdf" },         // merge, split, compress
+        { title: "Image Tools", url: "/dashboard/tools/image" },
+        { title: "Video Tools", url: "/dashboard/tools/video" },
+        { title: "Code Formatter", url: "/dashboard/tools/code" },
+        { title: "Audio Tools", url: "/dashboard/tools/audio" },
+        { title: "PDF Tools", url: "/dashboard/tools/pdf" },
       ],
     },
+    
     {
       title: "AI Models",
       url: "/dashboard/ai",
       icon: Bot,
-      isActive: true,
+      isActive: false,
       items: [
         { title: "Text Generation", url: "/dashboard/ai/text" },
         { title: "Image Generation", url: "/dashboard/ai/image" },
@@ -94,7 +115,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       title: "Automation",
       url: "/dashboard/automation",
       icon: Frame,
-      isActive: true,
+      isActive: false,
       items: [
         { title: "Workflows", url: "/dashboard/automation/workflows" },
         { title: "Integrations", url: "/dashboard/automation/integrations" },
@@ -125,21 +146,22 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       ],
     },
   ]
+
   const navSecondary = [
     { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
     { title: "Feedback", url: "/dashboard/feedback", icon: Send },
-    { title: "Community", url: "https://discord.gg/sR9bN3wW", icon: Map }, // external link (example)
+    { title: "Community", url: "https://discord.gg/sR9bN3wW", icon: Map },
   ]
+
   const projects = [
     { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
     { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
     { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
   ]
 
-
   return (
     <Sidebar variant="inset" {...props}>
-      {/* 🌟 PIEE Header */}
+      {/* 🌟 Header */}
       <SidebarHeader className="pb-3 border-b border-border/40">
         <SidebarMenu>
           <SidebarMenuItem>
@@ -166,36 +188,24 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
-
-        {/* 🪄 PIEE Tagline */}
-
       </SidebarHeader>
 
-      {/* 📦 Sidebar Content */}
+      {/* 📦 Content */}
       <SidebarContent>
         <NavMain items={navMain} />
         <NavProjects projects={projects} />
         <NavSecondary items={navSecondary} className="mt-auto" />
       </SidebarContent>
 
-      {/* 👤 Sidebar Footer */}
+      {/* 👤 Footer */}
       <SidebarFooter className="border-t border-border p-4">
         <div className="flex flex-col items-start gap-1 text-xs text-muted-foreground">
           <p>Version 0.0.1+b</p>
           <p>
-            Made with <span className="inline-block">❤️</span> in India.
+            Made with <span className="inline-block animate-bounce">❤️</span> in India.
           </p>
         </div>
       </SidebarFooter>
     </Sidebar>
   )
 }
-
-/** <NavUser user={currentUser} /> */
-
-/**  <div className="mt-3 px-2 text-xs text-muted-foreground leading-relaxed">
-          <p className="font-medium text-foreground">
-            The universal open-source creative command palette.
-          </p>
-          <p>Compress images, trim videos, and format code with a single shortcut.</p>
-        </div> */

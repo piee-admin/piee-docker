@@ -26,40 +26,10 @@ const inter = Inter({
   variable: "--font-inter",      // optional CSS variable
 });
 
-const selfURL = process.env.NEXT_PUBLIC_SELF_URL!;
-
-// --- Metadata ---
-export const metadata = {
+export const metadata: Metadata = {
   title: "PIEE - Organize, Manage, and Optimize Your AI Prompts",
-  description:
-    "The ultimate platform for AI enthusiasts, developers, and teams to create, store, and collaborate on prompts — both public and private — seamlessly.",
-  openGraph: {
-    title: "PIEE - AI Prompt Management Platform",
-    description:
-      "Create, store, and collaborate on AI prompts effortlessly with PIE — the platform for teams and developers.",
-    url: `https://${selfURL}`,
-    siteName: "PIEE",
-    images: [
-      {
-        url: `https://${selfURL}/api/og`,
-        width: 1200,
-        height: 630,
-        alt: "OG Image for PIE - AI Prompt Management Platform",
-      },
-    ],
-    type: "website",
-  },
-  twitter: {
-    card: "summary_large_image",
-    title: "PIEE - AI Prompt Management Platform",
-    description:
-      "Create, store, and collaborate on AI prompts effortlessly with PIE — the GitHub-style platform for teams and developers.",
-    images: [
-      `https://${selfURL}/api/og`,
-    ],
-  },
+  description: "The ultimate platform for AI enthusiasts, developers, and teams to create, store, and collaborate on prompts — both public and private — seamlessly."
 };
-
 
 
 // --- Root Layout ---
@@ -68,14 +38,32 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  console.log(selfURL)
+
   return (
     <html
       lang="en"
       className={`${inter.className}  w-full`}
       suppressHydrationWarning
     >
-      <head />
+      <head>
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+        <meta property="og:title" content="PIEE - AI Prompt Management Platform" />
+        <meta property="og:description" content="Create, store, and collaborate on AI prompts effortlessly with PIEE — the platform for teams and developers." />
+        <meta property="og:url" content="https://piee.app" />
+        <meta property="og:site_name" content="PIEE" />
+        <meta property="og:image" content="https://piee.app/api/og" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="PIEE OG Image" />
+        <meta property="og:type" content="website" />
+
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="PIEE - AI Prompt Management Platform" />
+        <meta name="twitter:description" content="Create, store, and collaborate on AI prompts effortlessly with PIEE — the GitHub-style platform for developers." />
+        <meta name="twitter:image" content="https://piee.app/api/og" />
+      </head>
       <body className="min-h-screen w-full bg-background text-foreground antialiased">
 
         <ThemeProvider
@@ -98,3 +86,32 @@ export default function RootLayout({
 
   );
 }
+
+
+/**icons: {
+    icon: "/favicon.ico",
+    apple: "/icons/icon-192x192.png",
+  },
+  openGraph: {
+    title: "PIEE - AI Prompt Management Platform",
+    description:
+      "Create, store, and collaborate on AI prompts effortlessly with PIEE — the platform for teams and developers.",
+    url: "https://piee.app",
+    siteName: "PIEE",
+    images: [
+      {
+        url: "https://piee.app/api/og",
+        width: 1200,
+        height: 630,
+        alt: "PIEE OG Image",
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "PIEE - AI Prompt Management Platform",
+    description:
+      "Create, store, and collaborate on AI prompts effortlessly with PIEE — the GitHub-style platform for developers.",
+    images: ["https://piee.app/api/og"],
+  }, */
