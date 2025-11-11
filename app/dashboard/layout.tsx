@@ -75,7 +75,7 @@ export default function DashboardLayout({
             <Separator orientation="vertical" className="h-4 mx-1 sm:mx-2" />
 
             <Breadcrumb>
-              <BreadcrumbList>
+              <BreadcrumbList className="text-xs sm:text-sm md:text-base">
                 {pathSegments.map((segment, index) => {
                   const href = "/" + pathSegments.slice(0, index + 1).join("/")
                   const isLast = index === pathSegments.length - 1
@@ -87,7 +87,7 @@ export default function DashboardLayout({
                     <BreadcrumbItem key={href}>
                       {index > 0 && <BreadcrumbSeparator />}
                       {isLast ? (
-                        <BreadcrumbPage className="truncate max-w-[100px] sm:max-w-none">
+                        <BreadcrumbPage className="truncate max-w-[80px] sm:max-w-none">
                           {label}
                         </BreadcrumbPage>
                       ) : (
@@ -102,16 +102,17 @@ export default function DashboardLayout({
                 })}
               </BreadcrumbList>
             </Breadcrumb>
+
           </div>
 
           {/* Right: Avatar / Login */}
-          
+
           <div className="flex items-center gap-2 sm:gap-4">
             <NavUser user={currentUser} />
           </div>
 
           {/* Login modal */}
-         
+
         </header>
 
         {/* BODY */}
