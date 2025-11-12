@@ -1,0 +1,56 @@
+name: ✨ Feature Request
+description: Suggest a new feature or improvement for PIEE
+title: "[FEATURE] <short description>"
+labels: ["enhancement", "discussion needed"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        We love new ideas! 💜  
+        Please describe your feature clearly so we can consider adding it to PIEE.
+
+  - type: input
+    id: feature_title
+    attributes:
+      label: Feature Title
+      placeholder: "Example: Add drag-and-drop upload for files"
+    validations:
+      required: true
+
+  - type: textarea
+    id: problem
+    attributes:
+      label: Problem or Motivation
+      description: What problem does this feature solve?
+      placeholder: "Users currently have to click 'Upload' manually every time."
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Proposed Solution
+      description: Describe your proposed feature or improvement.
+      placeholder: "Implement drag-and-drop zone for quick uploads."
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives Considered
+      placeholder: "Users can copy-paste files, but it's less efficient."
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority Level
+      options:
+        - Low
+        - Medium
+        - High
+      default: 1
+
+  - type: checkboxes
+    id: confirmation
+    attributes:
+      label: Confirmation
+      options:
+        - label: "I have searched for existing feature requests to avoid duplicates"
+          required: true

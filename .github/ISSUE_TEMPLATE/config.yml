@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 📚 PIEE Documentation
+    url: https://piee.app/docs
+    about: Check out the official docs before opening a new issue.
+  - name: 💬 Discussions
+    url: https://github.com/piee-admin/piee-web/discussions
+    about: For feature ideas, feedback, or general questions.

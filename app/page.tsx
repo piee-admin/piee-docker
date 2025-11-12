@@ -207,7 +207,7 @@ export const Hero = () => (
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
         Drop anything.{" "}
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
-          Done in a blink.
+         Automagically done in a blink.
         </span>
       </h1>
 

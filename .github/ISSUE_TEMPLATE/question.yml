@@ -1,0 +1,22 @@
+name: 💬 Question or Discussion
+description: Ask a question or start a discussion about PIEE
+title: "[QUESTION] <short description>"
+labels: ["question", "discussion"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Got a question about PIEE? Drop it here! We'll respond as soon as possible. 💭
+
+  - type: input
+    id: question
+    attributes:
+      label: Question
+      placeholder: "Example: How does PIEE auto-detect clipboard content?"
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Add any related information, screenshots, or references.
+      placeholder: "I’m trying to build a similar feature and want to understand the detection logic."
