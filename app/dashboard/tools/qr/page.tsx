@@ -61,7 +61,7 @@ export default function QRGeneratorPage() {
               QR Code Generator
             </CardTitle>
             <CardDescription>
-              Create beautiful, custom QR codes instantly.
+              Create beautiful, custom QR codes instantly. This is test
             </CardDescription>
           </CardHeader>
 
