@@ -58,7 +58,7 @@ export default function QRGeneratorPage() {
         <Card className="shadow-2xl border border-border/40 bg-card/80 backdrop-blur-xl">
           <CardHeader className="text-center space-y-2">
             <CardTitle className="text-3xl font-semibold tracking-tight flex items-center justify-center gap-2">
-              <Sparkles className="text-primary" /> QR Code Generator
+              QR Code Generator
             </CardTitle>
             <CardDescription>
               Create beautiful, custom QR codes instantly.
