@@ -1,3 +1,4 @@
+
 import type { Metadata } from "next";
 import { Montserrat, Poppins, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -6,7 +7,7 @@ import "./globals.css";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import PageViewTracker from "@/components/PageViewTracker";
 import { Suspense } from "react";
-import { AuthProvider } from "./context/AuthContext";
+import { AuthProvider, useAuth } from "./context/AuthContext";
 
 // --- Google Fonts ---
 const poppins = Poppins({
@@ -27,10 +28,10 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-title: "PIEE — The Universal Open-Source Creative Command Palette",
+  title: "PIEE — The Universal Open-Source Creative Command Palette",
   description:
     "Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source.",
-  };
+};
 
 
 // --- Root Layout ---
@@ -63,7 +64,7 @@ export default function RootLayout({
         <meta name="twitter:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
         <meta name="twitter:description" content="Compress images, trim videos, and format code with a single shortcut — locally and open-source." />
         <meta name="twitter:image" content="https://piee.app/api/og" />
-
+        
       </head>
       <body className="min-h-screen w-full bg-background text-foreground antialiased">
 

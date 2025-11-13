@@ -3,7 +3,7 @@
 import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
-import { ImageIcon, VideoIcon, Code2, AudioLines, FileText } from "lucide-react"
+import { ImageIcon, VideoIcon, Code2, AudioLines, FileText, QrCode } from "lucide-react"
 
 const tools = [
   {
@@ -35,6 +35,12 @@ const tools = [
     description: "Merge, split, and compress PDF documents.",
     icon: FileText,
     href: "/dashboard/tools/pdf",
+  },
+  {
+    title: "QR Tool",
+    description: "Create QR code with url.",
+    icon: QrCode,
+    href: "/dashboard/tools/qr",
   },
 ]
 

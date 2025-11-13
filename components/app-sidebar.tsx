@@ -96,6 +96,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         { title: "Code Formatter", url: "/dashboard/tools/code" },
         { title: "Audio Tools", url: "/dashboard/tools/audio" },
         { title: "PDF Tools", url: "/dashboard/tools/pdf" },
+        { title: "QR Tool", url: "/dashboard/tools/qr" },
       ],
     },
     
