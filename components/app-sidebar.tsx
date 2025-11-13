@@ -22,6 +22,7 @@ import {
   Type,
   Calendar,
   BarChart3,
+  QrCode,
 } from "lucide-react"
 
 import { NavMain } from "@/components/nav-main"
@@ -157,8 +158,9 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
     { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
     { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
     { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
+    { name: "QR Code Genrator", url: "/dashboard/projects/qrcode-generator", icon:QrCode  }
   ]
-
+  
   return (
     <Sidebar variant="inset" {...props}>
       {/* 🌟 Header */}
