@@ -1,5 +1,6 @@
 import * as React from "react"
 import { type LucideIcon, Twitter, Github, Instagram, Globe } from "lucide-react"
+
 import {
   SidebarGroup,
   SidebarGroupContent,
@@ -7,20 +8,27 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+
 import Link from "next/link"
+
+// ------------------------------------
+// FIXED TYPES
+// ------------------------------------
+export type SecondaryNavItem = {
+  title: string
+  url: string
+  icon?: LucideIcon // ⬅ FIX — make optional
+}
 
 export function NavSecondary({
   items,
   ...props
 }: {
-  items: {
-    title: string
-    url: string
-    icon: LucideIcon
-  }[]
+  items: SecondaryNavItem[]
 } & React.ComponentPropsWithoutRef<typeof SidebarGroup>) {
+  
   // Social links (icons only)
-  const socialLinks = [
+  const socialLinks: { icon: LucideIcon; url: string }[] = [
     { icon: Twitter, url: "https://twitter.com/pieeapp" },
     { icon: Github, url: "https://github.com/piee-dev" },
     { icon: Instagram, url: "https://instagram.com/piee.app" },
@@ -52,7 +60,8 @@ export function NavSecondary({
             <SidebarMenuItem key={item.title}>
               <SidebarMenuButton asChild size="sm">
                 <Link href={item.url}>
-                  <item.icon />
+                  {/* TS-safe icon: checks if exists */}
+                  {item.icon && <item.icon className="h-4 w-4 mr-2" />}
                   <span>{item.title}</span>
                 </Link>
               </SidebarMenuButton>

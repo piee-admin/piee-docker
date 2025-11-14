@@ -8,7 +8,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import PageViewTracker from "@/components/PageViewTracker";
 import { Suspense } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
-
+import { CommandPalette } from "@/components/command-palette";
 // --- Google Fonts ---
 const poppins = Poppins({
   weight: ["400", "700"],   // optional, choose weights you need
@@ -64,7 +64,7 @@ export default function RootLayout({
         <meta name="twitter:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
         <meta name="twitter:description" content="Compress images, trim videos, and format code with a single shortcut — locally and open-source." />
         <meta name="twitter:image" content="https://piee.app/api/og" />
-        
+
       </head>
       <body className="min-h-screen w-full bg-background text-foreground antialiased">
 
@@ -76,6 +76,7 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <CommandPalette />
           </AuthProvider>
           <Suspense fallback={null}>
             <PageViewTracker />
