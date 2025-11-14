@@ -222,13 +222,7 @@ export const Hero = () => (
 
       {/* ⚡ Action Buttons */}
       <div className="mt-10 flex justify-center gap-4 flex-wrap">
-        <Button asChild size="lg" className="px-8 py-6 font-bold">
-          <Link href={REPO_URL} target="_blank">
-            <Download className="mr-2 h-5 w-5" />
-            Download Beta
-          </Link>
-        </Button>
-
+        
         <Button
           asChild
           variant="outline"
@@ -439,3 +433,11 @@ export default function Page() {
     </>
   );
 }
+
+/**<Button asChild size="lg" className="px-8 py-6 font-bold">
+          <Link href={REPO_URL} target="_blank">
+            <Download className="mr-2 h-5 w-5" />
+            Download Beta
+          </Link>
+        </Button>
+ */
