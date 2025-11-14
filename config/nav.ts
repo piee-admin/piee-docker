@@ -177,5 +177,4 @@ export const projects = [
     { name: "Image Toolkit", url: "/dashboard/projects/image-toolkit", icon: Frame },
     { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
     { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
-    { name: "QR Code Genrator", url: "/dashboard/projects/qrcode-generator", icon: QrCode },
 ]
