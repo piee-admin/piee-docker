@@ -58,22 +58,7 @@ export const navMain: NavSection[] = [
             { title: "Shortcuts", url: "/dashboard/shortcuts" },
         ],
     },
-    {
-        title: "Instagram Tools",
-        url: "/dashboard/instagram",
-        icon: Instagram,
-        isActive: true,
-        items: [
-            { title: "Reel Downloader", url: "/dashboard/instagram/reel-downloader", icon: Video },
-            { title: "Audio Downloader", url: "/dashboard/instagram/audio-downloader", icon: Music2 },
-            { title: "Wall Preview", url: "/dashboard/instagram/wall-preview", icon: Grid },
-            { title: "Test Upload Preview", url: "/dashboard/instagram/test-upload", icon: Upload },
-            { title: "Hashtag Generator", url: "/dashboard/instagram/hashtag-generator", icon: Hash },
-            { title: "Caption Generator", url: "/dashboard/instagram/caption-generator", icon: Type },
-            { title: "Post Scheduler", url: "/dashboard/instagram/scheduler", icon: Calendar },
-            { title: "Profile Analyzer", url: "/dashboard/instagram/analyzer", icon: BarChart3 },
-        ],
-    },
+    
     {
         title: "Creative Tools",
         url: "/dashboard/tools",
@@ -178,3 +163,21 @@ export const projects = [
     { name: "Video Editor", url: "/dashboard/projects/video-editor", icon: PieChart },
     { name: "Code Formatter Suite", url: "/dashboard/projects/code-suite", icon: Map },
 ]
+
+
+/***{
+        title: "Instagram Tools",
+        url: "/dashboard/instagram",
+        icon: Instagram,
+        isActive: true,
+        items: [
+            { title: "Reel Downloader", url: "/dashboard/instagram/reel-downloader", icon: Video },
+            { title: "Audio Downloader", url: "/dashboard/instagram/audio-downloader", icon: Music2 },
+            { title: "Wall Preview", url: "/dashboard/instagram/wall-preview", icon: Grid },
+            { title: "Test Upload Preview", url: "/dashboard/instagram/test-upload", icon: Upload },
+            { title: "Hashtag Generator", url: "/dashboard/instagram/hashtag-generator", icon: Hash },
+            { title: "Caption Generator", url: "/dashboard/instagram/caption-generator", icon: Type },
+            { title: "Post Scheduler", url: "/dashboard/instagram/scheduler", icon: Calendar },
+            { title: "Profile Analyzer", url: "/dashboard/instagram/analyzer", icon: BarChart3 },
+        ],
+    }, */

@@ -116,11 +116,13 @@ export default function DashboardLayout({
         </header>
 
         {/* BODY */}
-        <main className="flex-1 flex flex-col overflow-y-auto p-3 sm:p-4 md:p-6">
-          <div className="flex-1 w-full h-full bg-background rounded-lg border border-border/40 p-3 sm:p-4 md:p-6 lg:p-8">
+        <main className="flex-1 flex flex-col overflow-y-auto p-1 sm:p-3 md:p-4">
+          <div className="flex-1 w-full h-full bg-background rounded sm:rounded-lg border border-border/40 p-2 sm:p-4 md:p-6 lg:p-8">
             {children}
           </div>
         </main>
+
+
       </SidebarInset>
     </SidebarProvider>
   )
