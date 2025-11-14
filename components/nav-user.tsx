@@ -33,6 +33,7 @@ import {
 import { Button } from "@/components/ui/button"
 import { useAuth } from "@/app/context/AuthContext"
 import { useRouter } from "next/navigation"
+import { ThemeToggleMenuItem } from "./theme-toggle-menu"
 
 export function NavUser({
   user,
@@ -103,7 +104,7 @@ export function NavUser({
                   {user.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
-              
+
               <ChevronsUpDown className="ml-auto size-4" />
             </SidebarMenuButton>
           </DropdownMenuTrigger>
@@ -155,6 +156,11 @@ export function NavUser({
                 Notifications
               </DropdownMenuItem>
             </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+
+            {/* 🌗 Theme toggle added here */}
+            <ThemeToggleMenuItem />
 
             <DropdownMenuSeparator />
 

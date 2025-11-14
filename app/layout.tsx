@@ -9,6 +9,7 @@ import PageViewTracker from "@/components/PageViewTracker";
 import { Suspense } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CommandPalette } from "@/components/command-palette";
+
 // --- Google Fonts ---
 const poppins = Poppins({
   weight: ["400", "700"],   // optional, choose weights you need
@@ -72,7 +73,6 @@ export default function RootLayout({
           attribute="class"
           defaultTheme="system"
           enableSystem
-          disableTransitionOnChange
         >
           <AuthProvider>
             {children}
