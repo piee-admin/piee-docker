@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import { AppSidebar } from "@/components/app-sidebar"
 import {
@@ -16,46 +16,63 @@ import {
 } from "@/components/ui/breadcrumb"
 import { Separator } from "@/components/ui/separator"
 import { useAuth } from "@/app/context/AuthContext"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-} from "@/components/ui/dropdown-menu"
-import { Button } from "@/components/ui/button"
-import { LoginDialog } from "@/components/LoginDialog"
 import { SpinnerPiee } from "@/components/ui/spinner"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
 import { NavUser } from "@/components/nav-user"
+import { useAppStore } from "../store/useAppStore"
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  const { user, logOut, loading } = useAuth()
-  const [openLogin, setOpenLogin] = useState(false)
+  const { user, loading } = useAuth()
   const pathname = usePathname()
   const pathSegments = pathname.split("/").filter(Boolean)
+  const { userInfo, fetchUserInfo, clearUserInfo } = useAppStore()
 
-  const currentUser = user
+  const [fetching, setFetching] = useState(true)
+
+  // 🔄 Sync Firebase Auth → Zustand Store (fetch Supabase user info)
+  useEffect(() => {
+    const syncUserInfo = async () => {
+      if (user) {
+        try {
+          await fetchUserInfo()
+        } catch (err) {
+          console.error("Failed to fetch Supabase user:", err)
+        } finally {
+          setFetching(false)
+        }
+      } else {
+        clearUserInfo()
+        setFetching(false)
+      }
+    }
+
+    syncUserInfo()
+  }, [user, fetchUserInfo, clearUserInfo])
+
+  const currentUser = userInfo
     ? {
-      name: user.displayName || "User",
-      email: user.email || "No email",
-      avatar: user.photoURL || "/images/logo.png",
-    }
+        name: userInfo.name,
+        email: userInfo.email,
+        avatar: userInfo.photo_url || "/images/logo.png",
+        plan_type: userInfo.plan_type,
+        credits: userInfo.credits,
+      }
     : {
-      name: "Guest",
-      email: "guest@piee.app",
-      avatar: "/images/logo.png",
-    }
+        name: "Guest",
+        email: "guest@piee.app",
+        avatar: "/images/logo.png",
+        plan_type: "free",
+        credits: 0,
+      }
 
-
-  // 🌀 Loading screen
-  if (loading && !user) {
+  // 🌀 Full-screen spinner during initial auth + store sync
+  if ((loading && !user) || fetching) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <SpinnerPiee className="size-8" />
@@ -102,17 +119,12 @@ export default function DashboardLayout({
                 })}
               </BreadcrumbList>
             </Breadcrumb>
-
           </div>
 
-          {/* Right: Avatar / Login */}
-
+          {/* Right: Avatar / User Menu */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <NavUser user={currentUser} />
+            <NavUser  />
           </div>
-
-          {/* Login modal */}
-
         </header>
 
         {/* BODY */}
@@ -121,13 +133,10 @@ export default function DashboardLayout({
             {children}
           </div>
         </main>
-
-
       </SidebarInset>
     </SidebarProvider>
   )
 }
-
 
 /**{!user ? (
               <Button

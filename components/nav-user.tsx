@@ -1,4 +1,4 @@
-"use client"
+'use client'
 
 import {
   BadgeCheck,
@@ -7,6 +7,7 @@ import {
   CreditCard,
   LogOut,
   Sparkles,
+  Coins,
 } from "lucide-react"
 
 import {
@@ -34,44 +35,36 @@ import { Button } from "@/components/ui/button"
 import { useAuth } from "@/app/context/AuthContext"
 import { useRouter } from "next/navigation"
 import { ThemeToggleMenuItem } from "./theme-toggle-menu"
+import { useAppStore } from "@/app/store/useAppStore"
 
-export function NavUser({
-  user,
-}: {
-  user: {
-    name: string
-    email: string
-    avatar: string
-  }
-}) {
+export function NavUser() {
   const { isMobile } = useSidebar()
   const { logOut, signIn } = useAuth()
   const router = useRouter()
+  const { userInfo, fetchUserInfo } = useAppStore()
 
-  // ✅ Logout handler
+  // ✅ Handle login and logout
   const handleLogout = async () => {
     try {
       await logOut()
-      console.log("✅ User logged out successfully")
-      router.push("/") // redirect to homepage or login page
+      router.push("/")
     } catch (error) {
       console.error("❌ Error logging out:", error)
     }
   }
 
-  // ✅ Login handler
   const handleLogin = async () => {
     try {
       await signIn()
-      console.log("✅ User signed in successfully")
-      router.refresh() // refresh to update sidebar
+      await fetchUserInfo()
+      router.refresh()
     } catch (error) {
       console.error("❌ Error logging in:", error)
     }
   }
 
-  // 🧠 If no user (guest) → show simple Login button
-  if (!user || user.email === "guest@piee.app") {
+  // 🧠 If not logged in → show simple Login button
+  if (!userInfo) {
     return (
       <SidebarMenu>
         <SidebarMenuItem>
@@ -88,7 +81,11 @@ export function NavUser({
     )
   }
 
-  // 🧍 Authenticated user dropdown
+  // ✅ Authenticated user dropdown
+  const isFreePlan = userInfo.plan_type === "free"
+  const planLabel =
+    userInfo.plan_type.charAt(0).toUpperCase() + userInfo.plan_type.slice(1)
+
   return (
     <SidebarMenu>
       <SidebarMenuItem>
@@ -99,9 +96,9 @@ export function NavUser({
               className="data-[state=open]:bg-sidebar-accent data-[state=open]:text-sidebar-accent-foreground"
             >
               <Avatar className="h-8 w-8 rounded-lg">
-                <AvatarImage src={user.avatar} alt={user.name} />
+                <AvatarImage src={userInfo.photo_url} alt={userInfo.name} />
                 <AvatarFallback className="rounded-lg">
-                  {user.name?.charAt(0).toUpperCase() || "U"}
+                  {userInfo.name?.charAt(0).toUpperCase() || "U"}
                 </AvatarFallback>
               </Avatar>
 
@@ -119,31 +116,55 @@ export function NavUser({
             <DropdownMenuLabel className="p-0 font-normal">
               <div className="flex items-center gap-2 px-1 py-1.5 text-left text-sm">
                 <Avatar className="h-8 w-8 rounded-lg">
-                  <AvatarImage src={user.avatar} alt={user.name} />
+                  <AvatarImage src={userInfo.photo_url} alt={userInfo.name} />
                   <AvatarFallback className="rounded-lg">
-                    {user.name?.charAt(0).toUpperCase() || "U"}
+                    {userInfo.name?.charAt(0).toUpperCase() || "U"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="grid flex-1 text-left text-sm leading-tight">
-                  <span className="truncate font-medium">{user.name}</span>
-                  <span className="truncate text-xs">{user.email}</span>
+                  <span className="truncate font-medium">{userInfo.name}</span>
+                  <span className="truncate text-xs">{userInfo.email}</span>
                 </div>
               </div>
             </DropdownMenuLabel>
 
             <DropdownMenuSeparator />
 
+            {/* 💳 Plan Info */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
+              <DropdownMenuItem disabled>
+                <BadgeCheck />
+                <span className="ml-2">Plan: {planLabel}</span>
+              </DropdownMenuItem>
+              <DropdownMenuItem disabled>
+                <Coins />
+                <span className="ml-2">Credits: {userInfo.credits}</span>
               </DropdownMenuItem>
             </DropdownMenuGroup>
 
             <DropdownMenuSeparator />
 
+            {/* 🌟 Upgrade */}
             <DropdownMenuGroup>
-              <DropdownMenuItem>
+              <DropdownMenuItem
+                onClick={() => alert("Upgrade flow coming soon 🚀")}
+                disabled={!isFreePlan}
+                className={`${
+                  isFreePlan
+                    ? ""
+                    : "opacity-50 cursor-not-allowed"
+                }`}
+              >
+                <Sparkles className="mr-2" />
+                {isFreePlan ? "Upgrade to Pro" : "Pro Plan Active"}
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+
+            <DropdownMenuSeparator />
+
+            {/* 🧾 Account / Billing / Notifications */}
+            <DropdownMenuGroup>
+              <DropdownMenuItem onClick={()=>router.push('/dashboard/settings/account')}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>
@@ -159,13 +180,16 @@ export function NavUser({
 
             <DropdownMenuSeparator />
 
-            {/* 🌗 Theme toggle added here */}
+            {/* 🌗 Theme toggle */}
             <ThemeToggleMenuItem />
 
             <DropdownMenuSeparator />
 
-            {/* ✅ Logout option */}
-            <DropdownMenuItem onClick={handleLogout} className="cursor-pointer">
+            {/* 🚪 Logout */}
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="cursor-pointer"
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

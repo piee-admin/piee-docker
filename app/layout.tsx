@@ -76,13 +76,14 @@ export default function RootLayout({
         >
           <AuthProvider>
             {children}
+            <Toaster />
             <CommandPalette />
           </AuthProvider>
           <Suspense fallback={null}>
             <PageViewTracker />
           </Suspense>
           <GoogleAnalytics gaId="G-VPDZFWSGWY" />
-          <Toaster />
+          
         </ThemeProvider>
       </body>
     </html>
