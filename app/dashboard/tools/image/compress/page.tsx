@@ -1,9 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Upload, Download, MoveHorizontal, Layers, Loader2, CheckCircle2, Calculator, Eye } from "lucide-react";
-import { Button } from "@/components/ui/button"; // Assuming you have shadcn UI
-import { Slider } from "@/components/ui/slider"; // Assuming you have shadcn UI
+import { Upload, Download, MoveHorizontal, Layers, Loader2, CheckCircle2, Calculator } from "lucide-react";
 
 export default function ImageCompressor() {
   const [imageFile, setImageFile] = useState<File | null>(null);
@@ -25,7 +23,6 @@ export default function ImageCompressor() {
 
   // Compare Slider State
   const [sliderPosition, setSliderPosition] = useState(50);
-  const [isHoveringComparison, setIsHoveringComparison] = useState(false);
   const compareContainerRef = useRef<HTMLDivElement>(null);
 
   const formatBytes = (bytes: number) => {
@@ -49,7 +46,7 @@ export default function ImageCompressor() {
     setPreviewUrl(url);
   };
 
-  // --- CORE COMPRESSION FUNCTION ---
+  // --- CORE COMPRESSION HELPER ---
   const getCompressedBlob = async (img: HTMLImageElement, q: number, fmt: string): Promise<{ url: string, size: number, blob: Blob }> => {
     return new Promise((resolve) => {
         const canvas = document.createElement("canvas");
@@ -288,24 +285,23 @@ export default function ImageCompressor() {
             </div>
           </div>
 
-          {/* ---------------- RIGHT: NEW COMPARISON UI ---------------- */}
+          {/* ---------------- RIGHT: CLASSIC COMPARISON PREVIEW ---------------- */}
           <div className="lg:col-span-8 flex flex-col h-full">
-             <div className="p-1 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative">
+             <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative">
                 
-                {/* Comparison Header */}
-                <div className="absolute top-4 left-4 right-4 z-20 flex justify-between pointer-events-none">
-                     <div className={`bg-black/70 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full text-xs font-medium transition-opacity duration-300 ${isHoveringComparison ? 'opacity-0' : 'opacity-100'}`}>
-                        Original
-                     </div>
-                     <div className={`bg-black/70 backdrop-blur-md border border-white/10 px-3 py-1.5 rounded-full text-xs font-medium text-emerald-400 transition-opacity duration-300 ${isHoveringComparison ? 'opacity-0' : 'opacity-100'}`}>
-                        Compressed
-                     </div>
+                <div className="flex justify-between items-center mb-4">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50 flex items-center gap-2">
+                        Quality Comparison
+                    </h2>
+                    {compressedUrl && (
+                        <div className="flex items-center gap-2 text-xs text-emerald-400/80 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 animate-in fade-in">
+                            <CheckCircle2 className="w-3 h-3" /> Ready to download
+                        </div>
+                    )}
                 </div>
 
                 <div 
-                    className="flex-1 relative rounded-xl overflow-hidden bg-[#111] min-h-[500px] flex items-center justify-center select-none group"
-                    onMouseEnter={() => setIsHoveringComparison(true)}
-                    onMouseLeave={() => setIsHoveringComparison(false)}
+                    className="flex-1 relative rounded-xl overflow-hidden bg-[#000] border border-white/5 min-h-[500px] flex items-center justify-center select-none group"
                 >
                     {/* Transparency Grid */}
                     <div className="absolute inset-0 opacity-20 pointer-events-none" 
@@ -320,10 +316,10 @@ export default function ImageCompressor() {
                              <p>Ready to compress</p>
                         </div>
                     ) : (
-                        /* NEW SPLIT VIEW SLIDER */
+                        /* CLASSIC SPLIT VIEW SLIDER */
                         <div 
                             ref={compareContainerRef}
-                            className="relative w-full h-full max-h-[75vh] cursor-ew-resize z-10"
+                            className="relative w-full h-full max-h-[75vh] cursor-col-resize z-10"
                             onMouseMove={handleMouseMove}
                             onTouchMove={handleTouchMove}
                         >
@@ -332,28 +328,31 @@ export default function ImageCompressor() {
                                 src={compressedUrl} 
                                 className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" 
                             />
+                             <div className="absolute top-4 right-4 bg-emerald-900/90 text-white text-xs px-2 py-1 rounded border border-white/10 shadow-xl">
+                                Compressed ({Math.round(quality * 100)}%)
+                             </div>
 
                             {/* 2. Foreground (Original/Left Side) - Clipped */}
                             <div 
-                                className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none"
+                                className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none border-r border-white/50 shadow-[0_0_20px_rgba(0,0,0,0.5)]"
                                 style={{ width: `${sliderPosition}%` }}
                             >
                                 <img 
                                     src={previewUrl!} 
                                     className="absolute top-0 left-0 w-full h-full object-contain max-w-none" 
                                 />
+                                <div className="absolute top-4 left-4 bg-black/60 text-white text-xs px-2 py-1 rounded border border-white/10">
+                                    Original
+                                </div>
                             </div>
 
-                            {/* 3. THE DIVIDER LINE (New Look) */}
+                            {/* 3. THE CLASSIC DIVIDER LINE */}
                             <div 
-                                className="absolute top-0 bottom-0 w-1 bg-white/80 shadow-[0_0_10px_rgba(0,0,0,0.5)] pointer-events-none"
+                                className="absolute top-0 bottom-0 w-px bg-white/60 left-[50%] pointer-events-none"
                                 style={{ left: `${sliderPosition}%` }}
                             >
-                                {/* Handle */}
-                                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-16 bg-white/20 backdrop-blur-md border border-white/40 rounded-full flex flex-col items-center justify-center gap-1 shadow-2xl">
-                                    <div className="w-0.5 h-3 bg-white/80 rounded-full"></div>
-                                    <div className="w-0.5 h-3 bg-white/80 rounded-full"></div>
-                                    <MoveHorizontal className="w-4 h-4 text-white absolute" />
+                                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center justify-center">
+                                    <MoveHorizontal className="w-4 h-4 text-black" />
                                 </div>
                             </div>
                         </div>
@@ -372,13 +371,17 @@ export default function ImageCompressor() {
 
                 {/* Download Bar */}
                 {compressedUrl && (
-                    <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-20 w-[90%] max-w-md">
+                     <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 animate-in slide-in-from-bottom-2">
+                        <div className="text-sm text-white/40 hidden sm:block">
+                            Format: <span className="text-white/60 uppercase">{format.split('/')[1]}</span>
+                        </div>
+                        
                         <a
                             href={compressedUrl}
                             download={`compressed_${imageFile?.name.split('.')[0]}.${format === 'image/jpeg' ? 'jpg' : 'webp'}`}
-                            className="w-full py-4 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-2xl shadow-black/50 hover:scale-[1.02]"
+                            className="w-full sm:w-auto py-3 px-8 bg-white text-black rounded-xl font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
                         >
-                            <Download className="w-5 h-5" /> 
+                            <Download className="w-4 h-4" /> 
                             Download {formatBytes(compressedSize)}
                         </a>
                     </div>
