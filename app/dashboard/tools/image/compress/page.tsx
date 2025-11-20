@@ -1,27 +1,33 @@
 "use client";
 
 import React, { useState, useRef, useEffect } from "react";
-import { Upload, Download, MoveHorizontal, Layers, Loader2, CheckCircle2, Calculator } from "lucide-react";
+import { Upload, Download, MoveHorizontal, Layers, Loader2, CheckCircle2, Calculator, Archive, X, FileImage } from "lucide-react";
+import JSZip from "jszip";
+
+// Type definition
+type ImageItem = {
+  id: string;
+  file: File;
+  previewUrl: string;
+  compressedUrl: string | null;
+  originalSize: number;
+  compressedSize: number;
+  status: "pending" | "compressing" | "done";
+};
 
 export default function ImageCompressor() {
-  const [imageFile, setImageFile] = useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [compressedUrl, setCompressedUrl] = useState<string | null>(null);
+  const [items, setItems] = useState<ImageItem[]>([]);
   
   // Settings
   const [quality, setQuality] = useState<number>(0.8); 
   const [format, setFormat] = useState<"image/jpeg" | "image/webp">("image/jpeg");
-  const [isCompressing, setIsCompressing] = useState(false);
-
-  // Target Size Logic
-  const [targetSizeKB, setTargetSizeKB] = useState<string>("");
+  const [targetSizeKB, setTargetSizeKB] = useState<string>(""); // Restored State
+  
+  // Processing States
+  const [isGlobalProcessing, setIsGlobalProcessing] = useState(false);
   const [isCalculating, setIsCalculating] = useState(false);
 
-  // Stats
-  const [originalSize, setOriginalSize] = useState<number>(0);
-  const [compressedSize, setCompressedSize] = useState<number>(0);
-
-  // Compare Slider State
+  // Compare Slider (Single View)
   const [sliderPosition, setSliderPosition] = useState(50);
   const compareContainerRef = useRef<HTMLDivElement>(null);
 
@@ -34,112 +40,161 @@ export default function ImageCompressor() {
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
-    setImageFile(file);
-    setOriginalSize(file.size);
-    setCompressedUrl(null);
-    setTargetSizeKB(""); // Reset target
-    
-    const url = URL.createObjectURL(file);
-    setPreviewUrl(url);
+    const newItems: ImageItem[] = Array.from(files).map((file) => ({
+      id: Math.random().toString(36).substr(2, 9),
+      file,
+      previewUrl: URL.createObjectURL(file),
+      compressedUrl: null,
+      originalSize: file.size,
+      compressedSize: 0,
+      status: "pending",
+    }));
+
+    setItems((prev) => [...prev, ...newItems]);
+    setTargetSizeKB(""); // Reset target when new files added
   };
 
-  // --- CORE COMPRESSION HELPER ---
-  const getCompressedBlob = async (img: HTMLImageElement, q: number, fmt: string): Promise<{ url: string, size: number, blob: Blob }> => {
+  const removeItem = (id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  };
+
+  // --- CORE HELPER: Compress Single File ---
+  const compressSingleImage = async (item: ImageItem, q: number, fmt: string): Promise<ImageItem> => {
     return new Promise((resolve) => {
-        const canvas = document.createElement("canvas");
-        const ctx = canvas.getContext("2d");
-        if (!ctx) return;
+        const img = new Image();
+        img.src = item.previewUrl;
+        img.onload = () => {
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            if (!ctx) return;
 
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx.drawImage(img, 0, 0);
+            canvas.width = img.width;
+            canvas.height = img.height;
+            ctx.drawImage(img, 0, 0);
 
-        canvas.toBlob((blob) => {
-            if (!blob) return;
-            resolve({
-                url: URL.createObjectURL(blob),
-                size: blob.size,
-                blob: blob
-            });
-        }, fmt, q);
+            canvas.toBlob((blob) => {
+                if (!blob) return;
+                resolve({
+                    ...item,
+                    compressedUrl: URL.createObjectURL(blob),
+                    compressedSize: blob.size,
+                    status: "done"
+                });
+            }, fmt, q);
+        };
     });
   };
 
-  // --- ALGORITHM: Binary Search for Target Size ---
+  // --- ALGORITHM: Binary Search for Target Size (Restored) ---
   const calculateQualityForSize = async () => {
+    if (!items[0] || !targetSizeKB) return;
     const targetBytes = parseFloat(targetSizeKB) * 1024;
-    if (!targetBytes || !previewUrl || targetBytes <= 0) return;
+    if (targetBytes <= 0) return;
 
     setIsCalculating(true);
     
+    // We use the first image as the reference to calculate quality
+    const referenceItem = items[0];
     const img = new Image();
-    img.src = previewUrl;
+    img.src = referenceItem.previewUrl;
     await img.decode();
+
+    // Helper for binary search
+    const getBlobSize = (q: number): Promise<number> => {
+        return new Promise(resolve => {
+            const canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            const ctx = canvas.getContext("2d");
+            ctx?.drawImage(img, 0, 0);
+            canvas.toBlob(blob => resolve(blob?.size || 0), format, q);
+        });
+    };
 
     let min = 0.01;
     let max = 1.0;
     let bestQuality = 0.5;
     let attempts = 0;
 
-    // Try up to 7 times to find the closest quality
-    while (attempts < 7) {
+    while (attempts < 7) { // 7 steps of precision
         const mid = (min + max) / 2;
-        const result = await getCompressedBlob(img, mid, format);
+        const size = await getBlobSize(mid);
         
-        if (Math.abs(result.size - targetBytes) < 5000) { // Within 5KB is "close enough"
+        if (Math.abs(size - targetBytes) < 5000) { 
             bestQuality = mid;
             break;
         }
-
-        if (result.size > targetBytes) {
-            max = mid; // Too big, try lower quality
-        } else {
-            min = mid; // Too small, try higher quality
-            bestQuality = mid; // Keep this as a valid candidate since it fits under the limit
+        if (size > targetBytes) max = mid;
+        else {
+            min = mid;
+            bestQuality = mid;
         }
         attempts++;
     }
 
-    setQuality(bestQuality);
+    setQuality(bestQuality); // This triggers the useEffect to re-compress everything
     setIsCalculating(false);
   };
 
-  // --- Standard Compression Effect ---
+  // --- EFFECT: Compress All Items ---
   useEffect(() => {
-    if (!imageFile || !previewUrl) return;
-    if (isCalculating) return; // Don't auto-compress while searching for size
+    if (items.length === 0) return;
+    if (isCalculating) return; // Pause while calculating target size
 
-    const compressImage = async () => {
-      setIsCompressing(true);
+    const processQueue = async () => {
+      setIsGlobalProcessing(true);
       
-      const img = new Image();
-      img.src = previewUrl;
-      await img.decode();
-      
-      const result = await getCompressedBlob(img, quality, format);
-      
-      setCompressedUrl(result.url);
-      setCompressedSize(result.size);
-      setIsCompressing(false);
+      const processed = await Promise.all(
+        items.map(async (item) => {
+            // Only re-compress if pending or if global settings changed
+            return await compressSingleImage(item, quality, format);
+        })
+      );
+
+      setItems(processed);
+      setIsGlobalProcessing(false);
     };
 
-    const debounceTimer = setTimeout(compressImage, 200);
-    return () => clearTimeout(debounceTimer);
+    const debounce = setTimeout(processQueue, 400);
+    return () => clearTimeout(debounce);
+  }, [items.length, quality, format, isCalculating]); 
 
-  }, [imageFile, previewUrl, quality, format, isCalculating]);
 
+  // --- ZIP DOWNLOAD ---
+  const downloadZip = async () => {
+    const zip = new JSZip();
+    for (const item of items) {
+        if (item.compressedUrl) {
+            const response = await fetch(item.compressedUrl);
+            const blob = await response.blob();
+            const ext = format.split('/')[1];
+            zip.file(`compressed_${item.file.name.split('.')[0]}.${ext}`, blob);
+        }
+    }
+    const content = await zip.generateAsync({ type: "blob" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(content);
+    link.download = "images_bundle.zip";
+    link.click();
+  };
 
-  // --- Slider Logic ---
+  // --- Render Helpers ---
+  const isBatchMode = items.length > 1;
+  const activeItem = items[0];
+  const totalSaved = items.reduce((acc, item) => acc + (item.originalSize - item.compressedSize), 0);
+  const totalOriginal = items.reduce((acc, item) => acc + item.originalSize, 0);
+  const totalPercent = totalOriginal > 0 ? Math.round((totalSaved / totalOriginal) * 100) : 0;
+
+  // Slider Logic
   const handleMouseMove = (e: React.MouseEvent) => {
     if (!compareContainerRef.current) return;
     const rect = compareContainerRef.current.getBoundingClientRect();
     const x = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
     setSliderPosition((x / rect.width) * 100);
   };
-
   const handleTouchMove = (e: React.TouchEvent) => {
     if (!compareContainerRef.current) return;
     const rect = compareContainerRef.current.getBoundingClientRect();
@@ -147,19 +202,15 @@ export default function ImageCompressor() {
     setSliderPosition((x / rect.width) * 100);
   };
 
-  const savings = originalSize > 0 ? Math.round(((originalSize - compressedSize) / originalSize) * 100) : 0;
-  const isSaving = savings > 0;
-
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-white/20">
-      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-emerald-900/20 via-[#09090b] to-[#09090b] pointer-events-none -z-10" />
-
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-zinc-800">
+      
       <div className="max-w-[1600px] mx-auto">
         <div className="flex items-center gap-3 mb-2">
-            <Layers className="w-8 h-8 text-emerald-500" />
-            <h1 className="text-4xl font-bold tracking-tight">Smart Compressor</h1>
+            <Layers className="w-8 h-8 text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-white">Smart Compressor</h1>
         </div>
-        <p className="text-white/40 mb-8 ml-11">Optimize images by quality or target file size.</p>
+        <p className="text-zinc-400 mb-8 ml-11">Optimize images by quality or target file size.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -167,35 +218,26 @@ export default function ImageCompressor() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Upload Card */}
-            <div className="p-5 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md">
-              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-white/20 rounded-xl bg-black/20 cursor-pointer hover:bg-white/5 transition group">
-                {!imageFile ? (
-                    <div className="flex flex-col items-center">
-                        <Upload className="w-6 h-6 text-emerald-400 mb-2 opacity-70 group-hover:scale-110 transition-transform" />
-                        <p className="text-sm text-white/60">Upload Image</p>
-                    </div>
-                ) : (
-                    <div className="flex items-center gap-4 px-4 w-full">
-                        <img src={previewUrl!} className="w-14 h-14 rounded bg-black object-contain border border-white/10" />
-                        <div className="overflow-hidden text-left flex-1">
-                             <p className="text-sm font-medium truncate">{imageFile.name}</p>
-                             <p className="text-xs text-white/40">{formatBytes(originalSize)}</p>
-                        </div>
-                        <div className="text-xs bg-white/10 px-2 py-1 rounded">Change</div>
-                    </div>
-                )}
-                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
+              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-zinc-700 rounded-xl bg-black/20 cursor-pointer hover:bg-zinc-800/50 transition group">
+                <div className="flex flex-col items-center">
+                    <Upload className="w-6 h-6 text-zinc-400 mb-2 group-hover:scale-110 transition-transform" />
+                    <p className="text-sm text-zinc-400">
+                        {items.length > 0 ? "Add more images" : "Upload Images"}
+                    </p>
+                </div>
+                <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
               </label>
             </div>
 
             {/* Settings Card */}
-            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md space-y-8">
+            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md space-y-8">
                 
-                {/* OPTION 1: Manual Quality Slider */}
+                {/* 1. Manual Quality Slider */}
                 <div>
                     <div className="flex justify-between mb-4 items-end">
-                        <label className="text-xs font-bold text-white/60 uppercase tracking-wider">Manual Quality</label>
-                        <span className="text-emerald-400 font-mono text-sm font-bold">{Math.round(quality * 100)}%</span>
+                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Global Quality</label>
+                        <span className="text-white font-mono text-sm font-bold">{Math.round(quality * 100)}%</span>
                     </div>
                     <input 
                         type="range" 
@@ -203,21 +245,22 @@ export default function ImageCompressor() {
                         value={quality}
                         onChange={(e) => {
                             setQuality(parseFloat(e.target.value));
-                            setTargetSizeKB(""); // Clear target size if manual slider is moved
+                            setTargetSizeKB(""); // Clear target size if user moves slider manually
                         }}
-                        disabled={!imageFile || isCalculating}
-                        className="w-full h-2 bg-white/10 rounded-lg appearance-none cursor-pointer accent-emerald-500 disabled:opacity-30"
+                        disabled={items.length === 0 || isCalculating}
+                        className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
                     />
                 </div>
 
+                {/* DIVIDER */}
                 <div className="relative flex items-center justify-center">
-                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-white/10"></div></div>
-                    <span className="relative bg-[#121214] px-2 text-xs text-white/30 uppercase">OR</span>
+                    <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-zinc-800"></div></div>
+                    <span className="relative bg-[#09090b] px-2 text-xs text-zinc-500 uppercase">OR</span>
                 </div>
 
-                {/* OPTION 2: Target Size Input */}
+                {/* 2. Target File Size Input (RESTORED) */}
                 <div>
-                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">Target File Size</label>
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Target File Size</label>
                     <div className="flex gap-2">
                         <div className="relative flex-1">
                             <input 
@@ -225,167 +268,187 @@ export default function ImageCompressor() {
                                 placeholder="e.g. 500"
                                 value={targetSizeKB}
                                 onChange={(e) => setTargetSizeKB(e.target.value)}
-                                disabled={!imageFile}
-                                className="w-full bg-black/20 border border-white/10 rounded-lg py-2.5 pl-3 pr-10 text-sm focus:outline-none focus:border-emerald-500 transition-colors"
+                                disabled={items.length === 0}
+                                className="w-full bg-black/40 border border-zinc-700 rounded-lg py-2.5 pl-3 pr-10 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-zinc-600"
                             />
-                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-white/40 font-medium">KB</span>
+                            <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500 font-medium">KB</span>
                         </div>
                         <button 
                             onClick={calculateQualityForSize}
-                            disabled={!targetSizeKB || !imageFile || isCalculating}
-                            className="bg-emerald-600 hover:bg-emerald-500 disabled:bg-white/5 disabled:text-white/30 text-white px-4 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
+                            disabled={!targetSizeKB || items.length === 0 || isCalculating}
+                            className="bg-white hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-600 text-black px-4 rounded-lg text-sm font-medium transition-colors flex items-center gap-2"
                         >
                             {isCalculating ? <Loader2 className="w-4 h-4 animate-spin"/> : <Calculator className="w-4 h-4" />}
                             Auto
                         </button>
                     </div>
                     {targetSizeKB && quality < 1 && !isCalculating && (
-                        <p className="text-[10px] text-emerald-400/70 mt-2 flex items-center gap-1">
-                            <CheckCircle2 className="w-3 h-3"/> Optimized to ~{targetSizeKB}KB (Quality: {Math.round(quality * 100)}%)
+                        <p className="text-[10px] text-zinc-400 mt-2 flex items-center gap-1">
+                            <CheckCircle2 className="w-3 h-3 text-white"/> Optimized to ~{targetSizeKB}KB (Quality: {Math.round(quality * 100)}%)
                         </p>
                     )}
                 </div>
 
                 {/* Format Selector */}
                 <div>
-                    <label className="text-xs font-bold text-white/60 uppercase tracking-wider mb-3 block">Output Format</label>
+                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Output Format</label>
                     <div className="grid grid-cols-2 gap-3">
                         <button
                             onClick={() => setFormat("image/jpeg")}
                             className={`py-3 rounded-lg border text-sm font-medium transition-all flex flex-col items-center gap-1
-                                ${format === "image/jpeg" ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'}`}
+                                ${format === "image/jpeg" ? 'bg-white text-black border-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                         >   
                             <span>JPEG</span>
                         </button>
                         <button
                             onClick={() => setFormat("image/webp")}
                             className={`py-3 rounded-lg border text-sm font-medium transition-all flex flex-col items-center gap-1
-                                ${format === "image/webp" ? 'bg-emerald-500/10 border-emerald-500 text-emerald-400' : 'bg-white/5 border-white/10 text-white/40 hover:bg-white/10'}`}
+                                ${format === "image/webp" ? 'bg-white text-black border-white' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
                         >   
                             <span>WEBP</span>
                         </button>
                     </div>
                 </div>
 
-                {/* Comparison Stats */}
-                {compressedUrl && (
-                    <div className="bg-black/40 rounded-xl p-4 border border-white/5 flex justify-between items-center">
-                        <div>
-                            <p className="text-white/40 text-xs mb-1">Result Size</p>
-                            <p className={`text-xl font-bold font-mono ${isSaving ? 'text-emerald-400' : 'text-white'}`}>{formatBytes(compressedSize)}</p>
+                {/* Stats & ZIP Download */}
+                {items.length > 0 && (
+                    <div className="bg-black/40 rounded-xl p-4 border border-zinc-800 space-y-2">
+                        <div className="flex justify-between text-sm text-zinc-400">
+                            <span>Total Images:</span>
+                            <span className="text-white">{items.length}</span>
                         </div>
-                        <div className="text-right">
-                            <p className="text-white/40 text-xs mb-1">Saved</p>
-                            <p className={`text-xl font-bold font-mono ${isSaving ? 'text-emerald-400' : 'text-red-400'}`}>
-                                {isSaving ? `-${savings}%` : '+0%'}
-                            </p>
+                        <div className="flex justify-between text-sm text-zinc-400">
+                            <span>Total Saved:</span>
+                            <span className="text-white">-{totalPercent}%</span>
                         </div>
+                        {isBatchMode && (
+                            <button 
+                                onClick={downloadZip}
+                                disabled={isGlobalProcessing}
+                                className="w-full mt-4 py-3 bg-white hover:bg-zinc-200 disabled:bg-zinc-800 disabled:text-zinc-500 text-black rounded-lg font-bold transition-all flex items-center justify-center gap-2"
+                            >
+                                {isGlobalProcessing ? <Loader2 className="w-4 h-4 animate-spin"/> : <Archive className="w-4 h-4"/>}
+                                Download All (ZIP)
+                            </button>
+                        )}
                     </div>
                 )}
             </div>
           </div>
 
-          {/* ---------------- RIGHT: CLASSIC COMPARISON PREVIEW ---------------- */}
+          {/* ---------------- RIGHT: PREVIEW ---------------- */}
           <div className="lg:col-span-8 flex flex-col h-full">
-             <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative">
+             <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative min-h-[600px]">
                 
-                <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-white/50 flex items-center gap-2">
-                        Quality Comparison
-                    </h2>
-                    {compressedUrl && (
-                        <div className="flex items-center gap-2 text-xs text-emerald-400/80 bg-emerald-500/10 px-3 py-1.5 rounded-full border border-emerald-500/20 animate-in fade-in">
-                            <CheckCircle2 className="w-3 h-3" /> Ready to download
+                {/* MODE 1: EMPTY STATE */}
+                {items.length === 0 && (
+                     <div className="flex-1 flex flex-col items-center justify-center opacity-30 space-y-3">
+                        <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto border border-zinc-700">
+                           <Layers className="w-8 h-8 text-zinc-400" />
                         </div>
-                    )}
-                </div>
+                        <p className="text-zinc-400">Ready to compress</p>
+                     </div>
+                )}
 
-                <div 
-                    className="flex-1 relative rounded-xl overflow-hidden bg-[#000] border border-white/5 min-h-[500px] flex items-center justify-center select-none group"
-                >
-                    {/* Transparency Grid */}
-                    <div className="absolute inset-0 opacity-20 pointer-events-none" 
-                         style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
-                    </div>
-
-                    {!compressedUrl ? (
-                        <div className="text-center opacity-30 z-10 space-y-2">
-                             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto border border-white/10">
-                                <Layers className="w-6 h-6" />
-                             </div>
-                             <p>Ready to compress</p>
+                {/* MODE 2: SINGLE IMAGE (COMPARISON SLIDER) */}
+                {!isBatchMode && activeItem && (
+                    <div className="flex-1 flex flex-col h-full">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Quality Comparison</h2>
+                            {activeItem.status === 'done' && (
+                                <a
+                                    href={activeItem.compressedUrl!}
+                                    download={`compressed_${activeItem.file.name}`}
+                                    className="flex items-center gap-2 text-xs text-black bg-white px-3 py-1.5 rounded-full font-bold hover:bg-zinc-200 transition"
+                                >
+                                    <Download className="w-3 h-3" /> Download
+                                </a>
+                            )}
                         </div>
-                    ) : (
-                        /* CLASSIC SPLIT VIEW SLIDER */
-                        <div 
-                            ref={compareContainerRef}
-                            className="relative w-full h-full max-h-[75vh] cursor-col-resize z-10"
-                            onMouseMove={handleMouseMove}
-                            onTouchMove={handleTouchMove}
-                        >
-                            {/* 1. Background (Compressed/Right Side) */}
-                            <img 
-                                src={compressedUrl} 
-                                className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" 
-                            />
-                             <div className="absolute top-4 right-4 bg-emerald-900/90 text-white text-xs px-2 py-1 rounded border border-white/10 shadow-xl">
-                                Compressed ({Math.round(quality * 100)}%)
-                             </div>
+                        <div className="flex-1 relative rounded-xl overflow-hidden bg-[#050505] border border-zinc-800 flex items-center justify-center select-none group">
+                            <div className="absolute inset-0 opacity-10 pointer-events-none" style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}></div>
+                            
+                            {activeItem.compressedUrl ? (
+                                <div 
+                                    ref={compareContainerRef}
+                                    className="relative w-full h-full max-h-[75vh] cursor-col-resize z-10"
+                                    onMouseMove={handleMouseMove}
+                                    onTouchMove={handleTouchMove}
+                                >
+                                    <img src={activeItem.compressedUrl} className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" />
+                                    <div className="absolute top-4 right-4 bg-black/80 text-white text-xs px-2 py-1 rounded border border-zinc-700 shadow-xl backdrop-blur-md">
+                                        {formatBytes(activeItem.compressedSize)}
+                                    </div>
 
-                            {/* 2. Foreground (Original/Left Side) - Clipped */}
-                            <div 
-                                className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none border-r border-white/50 shadow-[0_0_20px_rgba(0,0,0,0.5)]"
-                                style={{ width: `${sliderPosition}%` }}
-                            >
-                                <img 
-                                    src={previewUrl!} 
-                                    className="absolute top-0 left-0 w-full h-full object-contain max-w-none" 
-                                />
-                                <div className="absolute top-4 left-4 bg-black/60 text-white text-xs px-2 py-1 rounded border border-white/10">
-                                    Original
+                                    <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none border-r border-white/50 shadow-[0_0_20px_rgba(0,0,0,0.5)]" style={{ width: `${sliderPosition}%` }}>
+                                        <img src={activeItem.previewUrl} className="absolute top-0 left-0 w-full h-full object-contain max-w-none" />
+                                        <div className="absolute top-4 left-4 bg-black/80 text-white text-xs px-2 py-1 rounded border border-zinc-700 backdrop-blur-md">
+                                            {formatBytes(activeItem.originalSize)}
+                                        </div>
+                                    </div>
+                                    <div className="absolute top-0 bottom-0 w-px bg-white/80 left-[50%] pointer-events-none" style={{ left: `${sliderPosition}%` }}>
+                                        <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center justify-center">
+                                            <MoveHorizontal className="w-4 h-4 text-black" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
-
-                            {/* 3. THE CLASSIC DIVIDER LINE */}
-                            <div 
-                                className="absolute top-0 bottom-0 w-px bg-white/60 left-[50%] pointer-events-none"
-                                style={{ left: `${sliderPosition}%` }}
-                            >
-                                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 bg-white rounded-full shadow-[0_0_20px_rgba(0,0,0,0.5)] flex items-center justify-center">
-                                    <MoveHorizontal className="w-4 h-4 text-black" />
-                                </div>
-                            </div>
+                            ) : (
+                                <Loader2 className="w-10 h-10 text-white animate-spin" />
+                            )}
                         </div>
-                    )}
-                    
-                    {/* Loading Overlay */}
-                    {(isCompressing || isCalculating) && (
-                        <div className="absolute inset-0 bg-black/60 z-30 flex items-center justify-center backdrop-blur-sm">
-                            <div className="flex flex-col items-center gap-2">
-                                <Loader2 className="w-10 h-10 text-emerald-500 animate-spin" />
-                                <span className="text-sm font-medium text-white/80">{isCalculating ? 'Calculating Size...' : 'Compressing...'}</span>
-                            </div>
-                        </div>
-                    )}
-                </div>
-
-                {/* Download Bar */}
-                {compressedUrl && (
-                     <div className="mt-6 flex items-center justify-between border-t border-white/10 pt-4 animate-in slide-in-from-bottom-2">
-                        <div className="text-sm text-white/40 hidden sm:block">
-                            Format: <span className="text-white/60 uppercase">{format.split('/')[1]}</span>
-                        </div>
-                        
-                        <a
-                            href={compressedUrl}
-                            download={`compressed_${imageFile?.name.split('.')[0]}.${format === 'image/jpeg' ? 'jpg' : 'webp'}`}
-                            className="w-full sm:w-auto py-3 px-8 bg-white text-black rounded-xl font-bold hover:bg-emerald-50 transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
-                        >
-                            <Download className="w-4 h-4" /> 
-                            Download {formatBytes(compressedSize)}
-                        </a>
                     </div>
                 )}
+
+                {/* MODE 3: BATCH LIST VIEW */}
+                {isBatchMode && (
+                    <div className="flex-1 flex flex-col h-full">
+                        <div className="flex justify-between items-center mb-4">
+                            <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Batch Queue ({items.length})</h2>
+                            <button onClick={() => setItems([])} className="text-xs text-red-400 hover:text-red-300 hover:underline">Clear All</button>
+                        </div>
+                        
+                        <div className="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar">
+                            {items.map((item) => (
+                                <div key={item.id} className="flex items-center gap-4 p-3 bg-black/40 border border-zinc-800 rounded-xl hover:border-zinc-700 transition-colors">
+                                    <div className="w-16 h-16 bg-zinc-900 rounded-lg overflow-hidden border border-zinc-800 shrink-0 relative">
+                                        <img src={item.previewUrl} className="w-full h-full object-cover" />
+                                        {item.status === 'compressing' && (
+                                            <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
+                                                <Loader2 className="w-4 h-4 text-white animate-spin" />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div className="flex-1 min-w-0">
+                                        <p className="text-sm font-medium text-zinc-200 truncate">{item.file.name}</p>
+                                        <div className="flex items-center gap-2 mt-1">
+                                            <span className="text-xs text-zinc-500 line-through">{formatBytes(item.originalSize)}</span>
+                                            <span className="text-xs text-zinc-500">→</span>
+                                            <span className="text-xs text-white font-bold">
+                                                {item.compressedSize > 0 ? formatBytes(item.compressedSize) : "..."}
+                                            </span>
+                                            {item.compressedSize > 0 && (
+                                                <span className="text-[10px] text-zinc-300 bg-zinc-800 px-1.5 py-0.5 rounded">
+                                                    -{Math.round(((item.originalSize - item.compressedSize) / item.originalSize) * 100)}%
+                                                </span>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                        {item.status === 'done' && (
+                                            <a href={item.compressedUrl!} download={`compressed_${item.file.name}`} className="p-2 hover:bg-zinc-800 rounded-lg text-zinc-400 hover:text-white transition">
+                                                <Download className="w-4 h-4" />
+                                            </a>
+                                        )}
+                                        <button onClick={() => removeItem(item.id)} className="p-2 hover:bg-red-500/10 rounded-lg text-zinc-500 hover:text-red-400 transition">
+                                            <X className="w-4 h-4" />
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+                )}
+
              </div>
           </div>
 
