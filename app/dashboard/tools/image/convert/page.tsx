@@ -1,18 +1,58 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { FileImage, Download, Upload, Settings2, RefreshCcw, Loader2 } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { 
+  FileImage, 
+  Download, 
+  Upload, 
+  Settings2, 
+  RefreshCcw, 
+  Loader2, 
+  Check, 
+  ChevronDown, 
+  ArrowRight 
+} from "lucide-react";
 
 export default function ConvertImagePage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
+  
+  // Settings
   const [outputFormat, setOutputFormat] = useState("png");
   const [quality, setQuality] = useState(0.9); // 0.1 to 1.0
-  const [convertedUrl, setConvertedUrl] = useState<string | null>(null);
   const [isConverting, setIsConverting] = useState(false);
-  const [fileSize, setFileSize] = useState<string | null>(null);
+  
+  // Stats
+  const [originalSize, setOriginalSize] = useState<string>("");
+  const [convertedSize, setConvertedSize] = useState<string>("");
 
-  // Format bytes to readable string
+  // Dropdown State
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  // Format Options
+  const formatOptions = [
+    { value: "png", label: "PNG", desc: "Lossless & Transparency" },
+    { value: "jpeg", label: "JPEG", desc: "Small File Size" },
+    { value: "webp", label: "WEBP", desc: "Modern Web Standard" },
+    { value: "avif", label: "AVIF", desc: "Next-Gen Compression" },
+    { value: "bmp", label: "BMP", desc: "Bitmap Image" },
+    { value: "ico", label: "ICO", desc: "Favicon Format" },
+  ];
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsDropdownOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // Format bytes
   const formatBytes = (bytes: number) => {
     if (bytes === 0) return "0 Bytes";
     const k = 1024;
@@ -21,13 +61,14 @@ export default function ConvertImagePage() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + " " + sizes[i];
   };
 
-  const handleFileChange = (e: any) => {
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
     setImageFile(file);
     setPreviewUrl(URL.createObjectURL(file));
-    setConvertedUrl(null); // Reset output when new file uploaded
+    setConvertedUrl(null); 
+    setOriginalSize(formatBytes(file.size));
   };
 
   const handleConvert = async () => {
@@ -35,7 +76,7 @@ export default function ConvertImagePage() {
 
     setIsConverting(true);
 
-    // Small timeout to allow UI to show loading state
+    // Small timeout for UI reactivity
     setTimeout(async () => {
       const img = new Image();
       img.src = previewUrl;
@@ -49,14 +90,19 @@ export default function ConvertImagePage() {
       canvas.height = img.height;
       ctx.drawImage(img, 0, 0);
 
-      // Handle Quality for Jpeg/Webp
-      const mimeType = `image/${outputFormat === 'jpg' ? 'jpeg' : outputFormat}`;
+      // Map format to MIME type
+      let mimeType = `image/${outputFormat}`;
+      if (outputFormat === 'jpg') mimeType = 'image/jpeg';
+      if (outputFormat === 'ico') mimeType = 'image/x-icon'; // Note: Browser support varies
+
+      // Convert
+      // Note: AVIF support depends on the browser (Chrome/Firefox support it)
       const converted = canvas.toDataURL(mimeType, quality);
       
-      // Calculate new file size roughly
-      const head = "data:image/*;base64,";
+      // Calculate size
+      const head = `data:${mimeType};base64,`;
       const size = Math.round((converted.length - head.length) * 3 / 4);
-      setFileSize(formatBytes(size));
+      setConvertedSize(formatBytes(size));
 
       setConvertedUrl(converted);
       setIsConverting(false);
@@ -64,161 +110,171 @@ export default function ConvertImagePage() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-white/20">
-      {/* Background Ambient Glow */}
-      <div className="fixed top-0 left-0 w-full h-full bg-[radial-gradient(ellipse_at_top,_var(--tw-gradient-stops))] from-slate-900/40 via-[#09090b] to-[#09090b] pointer-events-none -z-10" />
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-zinc-800">
+      
+      <div className="max-w-[1600px] mx-auto">
+        <div className="flex items-center gap-3 mb-2">
+            <RefreshCcw className="w-8 h-8 text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-white">Image Converter</h1>
+        </div>
+        <p className="text-zinc-400 mb-8 ml-11">Transform images into modern formats instantly.</p>
 
-      <div className="max-w-6xl mx-auto">
-        <h1 className="text-4xl font-bold mb-2 tracking-tight">Image Converter</h1>
-        <p className="text-white/40 mb-8">Transform your images with professional precision.</p>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-10">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
-          {/* ---------------- LEFT: CONFIGURATION ---------------- */}
-          <div className="flex flex-col gap-6">
+          {/* ---------------- LEFT: CONTROLS (1/3) ---------------- */}
+          <div className="lg:col-span-4 space-y-6">
             
             {/* Upload Card */}
-            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md shadow-xl">
-              <h2 className="text-lg mb-4 font-medium flex items-center gap-2 text-white/90">
-                <FileImage className="w-5 h-5 text-white/70" /> Input Image
-              </h2>
-
-              <label className={`relative group border border-dashed border-white/20 bg-black/20 p-8 rounded-xl block text-center cursor-pointer transition-all duration-300 ${!imageFile ? 'hover:bg-white/5 hover:border-white/40' : ''}`}>
-                
-                {!previewUrl ? (
-                  <div className="py-8">
-                    <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4 border border-white/10 group-hover:scale-110 transition-transform">
-                        <Upload className="w-5 h-5 opacity-70" />
+            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
+              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-zinc-700 rounded-xl bg-black/20 cursor-pointer hover:bg-zinc-800/50 transition group">
+                {!imageFile ? (
+                    <div className="flex flex-col items-center">
+                        <Upload className="w-6 h-6 text-zinc-400 mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="text-sm text-zinc-400">Upload Image</p>
                     </div>
-                    <p className="text-white/90 font-medium text-sm">Click to upload or drag & drop</p>
-                    <p className="text-white/40 text-xs mt-1">Supports JPG, PNG, WEBP</p>
-                  </div>
                 ) : (
-                   <div className="relative group/preview">
-                      <img
-                        src={previewUrl}
-                        className="rounded-lg w-full max-h-64 object-contain shadow-lg"
-                      />
-                      <div className="absolute inset-0 bg-black/60 flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity rounded-lg">
-                         <p className="flex items-center gap-2 text-sm font-medium"><RefreshCcw className="w-4 h-4" /> Change Image</p>
-                      </div>
-                   </div>
+                    <div className="flex items-center gap-4 px-4 w-full">
+                        <img src={previewUrl!} className="w-14 h-14 rounded bg-black object-contain border border-zinc-700" />
+                        <div className="overflow-hidden text-left flex-1">
+                             <p className="text-sm font-medium truncate text-white">{imageFile.name}</p>
+                             <p className="text-xs text-zinc-500">{originalSize}</p>
+                        </div>
+                        <div className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-700">Change</div>
+                    </div>
                 )}
-
-                <input
-                  type="file"
-                  accept="image/*"
-                  className="hidden"
-                  onChange={handleFileChange}
-                />
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
               </label>
-              
-              {imageFile && (
-                 <div className="mt-4 flex justify-between items-center text-xs text-white/40 px-1">
-                    <span>Original: {formatBytes(imageFile.size)}</span>
-                    <span>{imageFile.name}</span>
-                 </div>
-              )}
             </div>
 
             {/* Settings Card */}
-            <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md shadow-xl">
-                <h2 className="text-lg mb-4 font-medium flex items-center gap-2 text-white/90">
-                    <Settings2 className="w-5 h-5 text-white/70" /> Configuration
-                </h2>
+            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md space-y-6">
+                <div className="flex items-center gap-2 text-zinc-500 mb-2">
+                    <Settings2 className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-wider">Configuration</span>
+                </div>
 
-                <div className="space-y-5">
-                    <div>
-                        <label className="text-white/60 text-sm mb-2 block">Target Format</label>
-                        <div className="grid grid-cols-4 gap-2">
-                            {['png', 'jpeg', 'webp', 'bmp'].map((fmt) => (
+                {/* Custom Format Dropdown */}
+                <div className="relative" ref={dropdownRef}>
+                    <label className="text-xs font-bold text-zinc-400 mb-2 block">Target Format</label>
+                    <button 
+                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        className="w-full flex items-center justify-between bg-black/40 border border-zinc-700 hover:border-zinc-600 rounded-xl py-3 px-4 text-sm text-white transition-colors focus:outline-none focus:border-white"
+                    >
+                        <div className="flex flex-col items-start">
+                            <span className="font-bold uppercase">{outputFormat}</span>
+                            <span className="text-[10px] text-zinc-500">{formatOptions.find(f => f.value === outputFormat)?.desc}</span>
+                        </div>
+                        <ChevronDown className={`w-4 h-4 text-zinc-500 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} />
+                    </button>
+
+                    {isDropdownOpen && (
+                        <div className="absolute z-50 mt-2 w-full bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-100 max-h-[300px] overflow-y-auto custom-scrollbar">
+                            {formatOptions.map((opt) => (
                                 <button
-                                    key={fmt}
-                                    onClick={() => setOutputFormat(fmt)}
-                                    className={`py-2 text-sm font-medium rounded-lg border transition-all
-                                        ${outputFormat === fmt 
-                                            ? 'bg-white text-black border-white' 
-                                            : 'bg-transparent text-white/60 border-white/10 hover:bg-white/5'}`}
+                                    key={opt.value}
+                                    onClick={() => {
+                                        setOutputFormat(opt.value);
+                                        setIsDropdownOpen(false);
+                                    }}
+                                    className={`w-full flex items-center justify-between px-4 py-3 text-sm text-left transition-colors border-b border-zinc-800/50 last:border-0
+                                        ${outputFormat === opt.value ? 'bg-zinc-800 text-white' : 'text-zinc-400 hover:bg-zinc-800/50 hover:text-zinc-200'}
+                                    `}
                                 >
-                                    {fmt.toUpperCase()}
+                                    <div>
+                                        <span className="block font-bold uppercase">{opt.label}</span>
+                                        <span className="block text-[10px] opacity-60">{opt.desc}</span>
+                                    </div>
+                                    {outputFormat === opt.value && <Check className="w-4 h-4 text-white" />}
                                 </button>
                             ))}
                         </div>
-                    </div>
-
-                    {(outputFormat === 'jpeg' || outputFormat === 'webp') && (
-                        <div className="animate-in fade-in slide-in-from-top-2">
-                            <div className="flex justify-between mb-2">
-                                <label className="text-white/60 text-sm">Quality</label>
-                                <span className="text-white/90 text-sm">{Math.round(quality * 100)}%</span>
-                            </div>
-                            <input 
-                                type="range" 
-                                min="0.1" 
-                                max="1" 
-                                step="0.1" 
-                                value={quality}
-                                onChange={(e) => setQuality(parseFloat(e.target.value))}
-                                className="w-full h-1 bg-white/20 rounded-lg appearance-none cursor-pointer accent-white"
-                            />
-                        </div>
                     )}
-
-                    {/* THEME MATCHED BUTTON */}
-                    <button
-                        onClick={handleConvert}
-                        disabled={!imageFile || isConverting}
-                        className="w-full py-3.5 bg-white text-black rounded-xl font-semibold hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-[0_0_20px_-5px_rgba(255,255,255,0.3)]"
-                    >
-                        {isConverting ? (
-                            <Loader2 className="w-5 h-5 animate-spin" />
-                        ) : (
-                            "Convert Now"
-                        )}
-                    </button>
                 </div>
-            </div>
 
+                {/* Quality Slider (Only for lossy formats) */}
+                {(outputFormat === 'jpeg' || outputFormat === 'webp' || outputFormat === 'avif') && (
+                    <div className="animate-in fade-in slide-in-from-top-2">
+                        <div className="flex justify-between mb-3">
+                            <label className="text-xs font-bold text-zinc-400">Quality</label>
+                            <span className="text-white font-mono text-xs">{Math.round(quality * 100)}%</span>
+                        </div>
+                        <input 
+                            type="range" 
+                            min="0.1" 
+                            max="1" 
+                            step="0.05" 
+                            value={quality}
+                            onChange={(e) => setQuality(parseFloat(e.target.value))}
+                            className="w-full h-2 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white"
+                        />
+                    </div>
+                )}
+
+                {/* Convert Button */}
+                <button
+                    onClick={handleConvert}
+                    disabled={!imageFile || isConverting}
+                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg mt-4"
+                >
+                    {isConverting ? (
+                        <> <Loader2 className="w-5 h-5 animate-spin" /> Converting... </>
+                    ) : (
+                        <> Convert Now <ArrowRight className="w-4 h-4" /> </>
+                    )}
+                </button>
+            </div>
           </div>
 
-          {/* ---------------- RIGHT: OUTPUT ---------------- */}
-          <div className="h-full">
-             <div className="p-6 bg-white/5 border border-white/10 rounded-2xl backdrop-blur-md h-full flex flex-col">
-                <h2 className="text-lg mb-4 font-medium flex items-center gap-2 text-white/90">
-                    <Download className="w-5 h-5 text-white/70" /> Result
-                </h2>
-
-                <div className="flex-1 flex flex-col items-center justify-center min-h-[300px] bg-black/20 rounded-xl border border-white/5 p-4 relative overflow-hidden">
-                    {!convertedUrl ? (
-                        <div className="text-center text-white/30">
-                             <div className="w-16 h-16 rounded-full bg-white/5 flex items-center justify-center mx-auto mb-4">
-                                <FileImage className="w-6 h-6 opacity-50" />
-                             </div>
-                            <p>Waiting for conversion...</p>
-                        </div>
-                    ) : (
-                        <div className="w-full h-full flex flex-col items-center animate-in zoom-in-95 duration-300">
-                            <img
-                                src={convertedUrl}
-                                className="max-w-full max-h-[400px] object-contain rounded-md shadow-2xl"
-                            />
-                            <div className="mt-4 flex items-center gap-3 text-sm bg-black/40 px-4 py-2 rounded-full border border-white/10 backdrop-blur-sm">
-                                <span className="text-white/50">Size:</span>
-                                <span className="text-white font-mono">{fileSize}</span>
-                            </div>
+          {/* ---------------- RIGHT: OUTPUT PREVIEW (2/3) ---------------- */}
+          <div className="lg:col-span-8 flex flex-col h-full">
+             <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative">
+                
+                <div className="flex justify-between items-center mb-4 z-10">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                        {convertedUrl ? "Conversion Result" : "Preview"}
+                    </h2>
+                    {convertedUrl && (
+                        <div className="flex items-center gap-2 bg-zinc-800 px-3 py-1 rounded-full border border-zinc-700">
+                             <span className="text-xs text-zinc-400 line-through">{originalSize}</span>
+                             <ArrowRight className="w-3 h-3 text-zinc-500" />
+                             <span className="text-xs text-white font-mono font-bold">{convertedSize}</span>
                         </div>
                     )}
                 </div>
 
+                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-[#050505] rounded-xl border border-zinc-800 min-h-[500px]">
+                    {/* Transparency Grid */}
+                    <div className="absolute inset-0 opacity-10 pointer-events-none" 
+                         style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
+                    </div>
+
+                    {!previewUrl ? (
+                        <div className="text-center opacity-30 z-10 space-y-3">
+                             <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto border border-zinc-700">
+                                <FileImage className="w-8 h-8 text-zinc-400" />
+                             </div>
+                             <p className="text-zinc-400">Waiting for image...</p>
+                        </div>
+                    ) : (
+                        <div className="relative z-10 w-full h-full flex items-center justify-center p-8">
+                            <img 
+                                src={convertedUrl || previewUrl} 
+                                className={`max-w-full max-h-[600px] object-contain shadow-2xl transition-all duration-500 ${isConverting ? 'opacity-50 scale-95 blur-sm' : 'opacity-100 scale-100 blur-0'}`}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Download Bar */}
                 {convertedUrl && (
-                    <div className="mt-6 animate-in fade-in slide-in-from-bottom-4">
+                    <div className="mt-6 flex justify-end animate-in slide-in-from-bottom-2">
                         <a
                             href={convertedUrl}
                             download={`converted_image.${outputFormat}`}
-                            className="w-full py-3.5 bg-white/10 border border-white/10 text-white rounded-xl font-medium hover:bg-white/20 transition-all flex items-center justify-center gap-2"
+                            className="w-full sm:w-auto py-3 px-8 bg-white text-black hover:bg-zinc-200 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
-                            <Download className="w-4 h-4" />
-                            Download Result
+                            <Download className="w-5 h-5" /> 
+                            Download {outputFormat.toUpperCase()}
                         </a>
                     </div>
                 )}
