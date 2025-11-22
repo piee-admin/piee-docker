@@ -12,6 +12,8 @@ import {
   NavbarButton,
 } from "@/components/ui/resizable-navbar";
 import { motion } from "motion/react";
+import { BorderTrail } from "@/components/motion-primitives/border-trail";
+
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -207,7 +209,7 @@ export const Hero = () => (
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
         Drop anything.{" "}
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
-         Automagically done in a blink.
+          Automagically done in a blink.
         </span>
       </h1>
 
@@ -222,7 +224,7 @@ export const Hero = () => (
 
       {/* ⚡ Action Buttons */}
       <div className="mt-10 flex justify-center gap-4 flex-wrap">
-        
+
         <Button
           asChild
           variant="outline"
@@ -251,52 +253,84 @@ export const Hero = () => (
   </section>
 );
 
-const DashboardHero = () => (
+
+
+const DashboardImageHero = () => (
   <section className="relative pt-16 pb-12">
     <div className="container mx-auto px-4 max-w-6xl">
-      {/* Greeting + Subtitle */}
-      <div className="text-center md:text-left">
-        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">
-          Welcome back, <span className="text-primary">Jayash</span> 👋
-        </h1>
-        <p className="mt-3 text-muted-foreground text-lg">
-          Here’s a quick look at your workspace. Manage assets, monitor progress, or start something new.
-        </p>
+
+      {/* Title */}
+      <h1
+        className="
+          scroll-m-20 
+          text-center 
+          text-4xl md:text-9xl font-extrabold 
+          tracking-tight text-balance
+          relative z-10
+          md:-mb-8
+        "
+      >
+        Dashboard
+      </h1>
+
+      {/* WRAPPER – clips glow to rounded radius */}
+      <div
+        className="
+          relative w-full 
+          rounded-2xl 
+          overflow-hidden
+        "
+      >
+        {/* BorderTrail with OKLCH color */}
+        <BorderTrail
+          size={200}
+          className="absolute inset-0 pointer-events-none"
+          style={{
+            boxShadow: `
+              0 0 50px 20px oklch(60.6% 0.25 292.717 / 0.4),
+              0 0 80px 40px oklch(60.6% 0.25 292.717 / 0.25),
+              0 0 120px 70px oklch(60.6% 0.25 292.717 / 0.15)
+            `,
+          }}
+        />
+
+        {/* Image Card */}
+        <div
+          className="
+            relative w-full overflow-hidden rounded-2xl
+            border bg-muted/20 z-10 shadow-xl
+          "
+        >
+          <img
+            src="/images/piee-dashboard.png"
+            alt="Dashboard Preview"
+            className="w-full h-auto object-cover"
+          />
+
+          {/* Bottom gradient */}
+          <div
+            className="
+              pointer-events-none
+              absolute bottom-0 left-0 w-full h-full
+              bg-gradient-to-t
+              from-white/60 via-white/30 to-transparent
+              dark:from-black/60 dark:via-black/30 dark:to-transparent
+            "
+          />
+
+          {/* Top shadow onto h1 */}
+          <div
+            className="
+              pointer-events-none
+              absolute top-0 left-0 w-full h-24
+              bg-gradient-to-b
+              from-black/20 to-transparent
+              dark:from-white/10 dark:to-transparent
+            "
+          />
+        </div>
       </div>
 
-      {/* Quick Actions */}
-      <div className="mt-8 flex justify-center md:justify-start flex-wrap gap-4">
-        <Button size="lg" className="px-6 py-5 font-semibold">
-          <Plus className="mr-2 h-5 w-5" />
-          New Project
-        </Button>
-        <Button variant="outline" size="lg" className="px-6 py-5 font-semibold">
-          <Settings className="mr-2 h-5 w-5" />
-          Settings
-        </Button>
-        <Button asChild variant="secondary" size="lg" className="px-6 py-5 font-semibold">
-          <a href="https://github.com/piee-dev/piee-core" target="_blank">
-            <Github className="mr-2 h-5 w-5" />
-            View on GitHub
-          </a>
-        </Button>
-      </div>
-
-      {/* Stats Cards */}
-      <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        {[
-          { label: "Active Projects", value: "12" },
-          { label: "Files Uploaded", value: "248" },
-          { label: "Tasks Completed", value: "93%" },
-        ].map((stat, i) => (
-          <Card key={i} className="shadow-sm border border-border/40">
-            <CardContent className="p-6 text-center">
-              <h3 className="text-3xl font-bold text-primary">{stat.value}</h3>
-              <p className="text-sm text-muted-foreground mt-2">{stat.label}</p>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
     </div>
   </section>
 );
@@ -424,6 +458,7 @@ export default function Page() {
       <Header />
       <main>
         <Hero />
+        <DashboardImageHero />
         <Features />
         {/* Added FAQ Section here */}
 
