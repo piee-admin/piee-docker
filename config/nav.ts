@@ -24,6 +24,7 @@ import {
     Code,
     Music,
     FileText,
+    HardDrive,
 } from "lucide-react"
 
 // -----------------------------
@@ -57,6 +58,12 @@ export const navMain: NavSection[] = [
             { title: "Activity", url: "/dashboard/activity" },
             { title: "Shortcuts", url: "/dashboard/shortcuts" },
         ],
+    },
+    {
+        title: "Files",
+        url: "/dashboard/files",
+        icon: HardDrive,
+        isActive: true,
     },
     
     {
