@@ -178,15 +178,14 @@ export default function ImageWatermark() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-zinc-100 font-sans selection:bg-zinc-800">
-      {/* Removed Purple Gradient, purely dark background now */}
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-zinc-100 font-sans selection:bg-gray-200 dark:selection:bg-zinc-800 transition-colors duration-300">
       
       <div className="max-w-[1600px] mx-auto">
         <div className="flex items-center gap-3 mb-2">
-            <ImageIcon className="w-8 h-8 text-white" />
-            <h1 className="text-4xl font-bold tracking-tight text-white">Image Watermark</h1>
+            <ImageIcon className="w-8 h-8 text-black dark:text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Image Watermark</h1>
         </div>
-        <p className="text-zinc-400 mb-8 ml-11">Protect your images with custom watermarks.</p>
+        <p className="text-gray-500 dark:text-zinc-400 mb-8 ml-11">Protect your images with custom watermarks.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -194,21 +193,21 @@ export default function ImageWatermark() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Original Image Upload */}
-            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
-              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-zinc-700 rounded-xl bg-black/20 cursor-pointer hover:bg-zinc-800/50 transition group">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-gray-300 dark:border-zinc-700 rounded-xl bg-gray-50 dark:bg-black/20 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800/50 transition group">
                 {!originalImageFile ? (
                     <div className="flex flex-col items-center">
-                        <Upload className="w-6 h-6 text-zinc-400 mb-2 group-hover:scale-110 transition-transform" />
-                        <p className="text-sm text-zinc-400">Upload Original Image</p>
+                        <Upload className="w-6 h-6 text-gray-400 dark:text-zinc-400 mb-2 group-hover:scale-110 transition-transform" />
+                        <p className="text-sm text-gray-500 dark:text-zinc-400">Upload Original Image</p>
                     </div>
                 ) : (
                     <div className="flex items-center gap-4 px-4 w-full">
-                        <img src={originalImageUrl!} className="w-14 h-14 rounded bg-black object-contain border border-zinc-700" />
+                        <img src={originalImageUrl!} className="w-14 h-14 rounded bg-gray-100 dark:bg-black object-contain border border-gray-200 dark:border-zinc-700" />
                         <div className="overflow-hidden text-left flex-1">
-                             <p className="text-sm font-medium truncate text-white">{originalImageFile.name}</p>
-                             <p className="text-xs text-zinc-500">Ready</p>
+                             <p className="text-sm font-medium truncate text-gray-900 dark:text-white">{originalImageFile.name}</p>
+                             <p className="text-xs text-gray-500 dark:text-zinc-500">Ready</p>
                         </div>
-                        <div className="text-xs bg-zinc-800 text-zinc-300 px-2 py-1 rounded border border-zinc-700">Change</div>
+                        <div className="text-xs bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-zinc-300 px-2 py-1 rounded border border-gray-200 dark:border-zinc-700">Change</div>
                     </div>
                 )}
                 <input type="file" accept="image/*" className="hidden" onChange={handleOriginalImageChange} />
@@ -216,13 +215,15 @@ export default function ImageWatermark() {
             </div>
 
             {/* Watermark Type Selector */}
-            <div className="p-4 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Watermark Type</p>
+            <div className="p-4 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
+                <p className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3 block">Watermark Type</p>
                 <div className="grid grid-cols-2 gap-3">
                     <button
                         onClick={() => setWatermarkType("text")}
                         className={`py-3 rounded-lg border text-sm font-medium transition-all flex flex-col items-center gap-1
-                            ${watermarkType === "text" ? 'bg-white text-black border-white shadow-sm' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            ${watermarkType === "text" 
+                                ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-sm' 
+                                : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
                     >   
                         <Type className="w-4 h-4" />
                         <span>Text</span>
@@ -230,7 +231,9 @@ export default function ImageWatermark() {
                     <button
                         onClick={() => setWatermarkType("image")}
                         className={`py-3 rounded-lg border text-sm font-medium transition-all flex flex-col items-center gap-1
-                            ${watermarkType === "image" ? 'bg-white text-black border-white shadow-sm' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                            ${watermarkType === "image" 
+                                ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-sm' 
+                                : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
                     >   
                         <ImageIcon className="w-4 h-4" />
                         <span>Image / Logo</span>
@@ -239,41 +242,41 @@ export default function ImageWatermark() {
             </div>
 
             {/* Settings */}
-            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md space-y-6">
+            <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md space-y-6 transition-colors">
                 
                 {watermarkType === "text" && (
                     <>
                         <div>
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Watermark Text</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-2 block">Watermark Text</label>
                             <input 
                                 type="text" 
                                 value={text} 
                                 onChange={(e) => setText(e.target.value)}
                                 disabled={!originalImageFile}
-                                className="w-full bg-black/40 border border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-white focus:outline-none focus:border-white transition-colors placeholder:text-zinc-600"
+                                className="w-full bg-gray-50 dark:bg-black/40 border border-gray-200 dark:border-zinc-700 rounded-lg py-2.5 px-3 text-sm text-gray-900 dark:text-white focus:outline-none focus:border-black dark:focus:border-white transition-colors placeholder:text-gray-400 dark:placeholder:text-zinc-600"
                                 placeholder="Enter text..."
                             />
                         </div>
                         <div>
                             <div className="flex justify-between mb-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Font Size</label>
-                                <span className="text-white font-mono text-xs">{fontSize}px</span>
+                                <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider">Font Size</label>
+                                <span className="text-gray-900 dark:text-white font-mono text-xs">{fontSize}px</span>
                             </div>
                             <input 
                                 type="range" min="10" max="200" step="1" value={fontSize} onChange={(e) => setFontSize(Number(e.target.value))}
                                 disabled={!originalImageFile}
-                                className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                                className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                             />
                         </div>
                         <div>
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Font Color</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-2 block">Font Color</label>
                             <div className="flex gap-2 items-center">
                                 <input 
                                     type="color" value={fontColor} onChange={(e) => setFontColor(e.target.value)}
                                     disabled={!originalImageFile}
-                                    className="h-10 w-14 bg-black/20 border border-zinc-700 rounded-lg p-1 cursor-pointer"
+                                    className="h-10 w-14 bg-gray-50 dark:bg-black/20 border border-gray-200 dark:border-zinc-700 rounded-lg p-1 cursor-pointer"
                                 />
-                                <span className="text-xs text-zinc-400 font-mono uppercase">{fontColor}</span>
+                                <span className="text-xs text-gray-500 dark:text-zinc-400 font-mono uppercase">{fontColor}</span>
                             </div>
                         </div>
                     </>
@@ -282,21 +285,21 @@ export default function ImageWatermark() {
                 {watermarkType === "image" && (
                     <>
                         <div>
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">Watermark Image</label>
+                            <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-2 block">Watermark Image</label>
                             <input 
                                 type="file" accept="image/*" onChange={handleWatermarkImageChange} disabled={!originalImageFile}
-                                className="file:bg-zinc-800 file:text-zinc-300 file:border-zinc-700 file:rounded-md file:px-3 file:py-1.5 file:mr-3 file:hover:cursor-pointer hover:cursor-pointer text-xs text-zinc-500 w-full border border-zinc-700 rounded-lg py-2 px-1"
+                                className="file:bg-gray-100 dark:file:bg-zinc-800 file:text-gray-700 dark:file:text-zinc-300 file:border-gray-200 dark:file:border-zinc-700 file:rounded-md file:px-3 file:py-1.5 file:mr-3 file:hover:cursor-pointer hover:cursor-pointer text-xs text-gray-500 dark:text-zinc-500 w-full border border-gray-200 dark:border-zinc-700 rounded-lg py-2 px-1"
                             />
                         </div>
                         <div>
                             <div className="flex justify-between mb-2">
-                                <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Size</label>
-                                <span className="text-white font-mono text-xs">{Math.round(imageWatermarkSize * 100)}%</span>
+                                <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider">Size</label>
+                                <span className="text-gray-900 dark:text-white font-mono text-xs">{Math.round(imageWatermarkSize * 100)}%</span>
                             </div>
                             <input 
                                 type="range" min="0.05" max="0.5" step="0.01" value={imageWatermarkSize} onChange={(e) => setImageWatermarkSize(Number(e.target.value))}
                                 disabled={!originalImageFile || !watermarkImageUrl}
-                                className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                                className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                             />
                         </div>
                     </>
@@ -305,34 +308,34 @@ export default function ImageWatermark() {
                 {/* Common Settings */}
                 <div>
                     <div className="flex justify-between mb-2">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                        <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-2">
                             <Droplets className="w-3 h-3" /> Opacity
                         </label>
-                        <span className="text-white font-mono text-xs">{Math.round(opacity * 100)}%</span>
+                        <span className="text-gray-900 dark:text-white font-mono text-xs">{Math.round(opacity * 100)}%</span>
                     </div>
                     <input 
                         type="range" min="0.01" max="1" step="0.01" value={opacity} onChange={(e) => setOpacity(Number(e.target.value))}
                         disabled={!originalImageFile}
-                        className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                        className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                     />
                 </div>
                 <div>
                     <div className="flex justify-between mb-2">
-                        <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                        <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-2">
                             <RotateCw className="w-3 h-3" /> Rotation
                         </label>
-                        <span className="text-white font-mono text-xs">{rotation}°</span>
+                        <span className="text-gray-900 dark:text-white font-mono text-xs">{rotation}°</span>
                     </div>
                     <input 
                         type="range" min="-90" max="90" step="1" value={rotation} onChange={(e) => setRotation(Number(e.target.value))}
                         disabled={!originalImageFile}
-                        className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                        className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                     />
                 </div>
 
                 {/* Position */}
                 <div>
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Position</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3 block">Position</label>
                     <div className="grid grid-cols-3 gap-2">
                         {[
                             { key: "topLeft", label: "Top Left" }, { key: "topRight", label: "Top Right" }, { key: "center", label: "Center" },
@@ -343,7 +346,9 @@ export default function ImageWatermark() {
                                 onClick={() => setPosition(pos.key as any)}
                                 disabled={!originalImageFile}
                                 className={`py-2 rounded-lg border text-xs font-medium transition-all 
-                                    ${position === pos.key ? 'bg-white border-white text-black' : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                    ${position === pos.key 
+                                        ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white' 
+                                        : 'bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
                             >   
                                 {pos.label}
                             </button>
@@ -355,15 +360,15 @@ export default function ImageWatermark() {
                 {position === "tile" && (
                     <div>
                         <div className="flex justify-between mb-2 mt-4">
-                            <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider flex items-center gap-2">
+                            <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider flex items-center gap-2">
                                 <Grid className="w-3 h-3" /> Tile Gap
                             </label>
-                            <span className="text-white font-mono text-xs">{tileGap}px</span>
+                            <span className="text-gray-900 dark:text-white font-mono text-xs">{tileGap}px</span>
                         </div>
                         <input 
                             type="range" min="0" max="200" step="10" value={tileGap} onChange={(e) => setTileGap(Number(e.target.value))}
                             disabled={!originalImageFile}
-                            className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                            className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                         />
                     </div>
                 )}
@@ -372,26 +377,26 @@ export default function ImageWatermark() {
 
           {/* ---------------- RIGHT: PREVIEW ---------------- */}
           <div className="lg:col-span-8 flex flex-col h-full">
-             <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md flex-1 flex flex-col shadow-2xl relative">
+             <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-2xl backdrop-blur-md flex-1 flex flex-col relative transition-colors">
                 
                 <div className="flex justify-between items-center mb-4 z-10">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 flex items-center gap-2">
                         Live Preview
                     </h2>
                 </div>
 
-                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-[#050505] rounded-xl border border-zinc-800 min-h-[500px]">
+                <div className="flex-1 flex items-center justify-center relative overflow-hidden bg-gray-100 dark:bg-[#050505] rounded-xl border border-gray-200 dark:border-zinc-800 min-h-[500px]">
                     {/* Transparency Grid */}
                     <div className="absolute inset-0 opacity-10 pointer-events-none" 
-                         style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
+                         style={{backgroundImage: 'radial-gradient(#888 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
                     </div>
 
                     {!originalImageUrl ? (
-                        <div className="text-center opacity-30 z-10 space-y-3">
-                             <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto border border-zinc-700">
-                                <ImageIcon className="w-8 h-8 text-zinc-400" />
+                        <div className="text-center opacity-40 z-10 space-y-3">
+                             <div className="w-20 h-20 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center mx-auto border border-gray-200 dark:border-zinc-700">
+                                <ImageIcon className="w-8 h-8 text-gray-400 dark:text-zinc-400" />
                              </div>
-                             <p className="text-zinc-400">Upload an image to start</p>
+                             <p className="text-gray-500 dark:text-zinc-400">Upload an image to start</p>
                         </div>
                     ) : (
                         <>
@@ -406,7 +411,7 @@ export default function ImageWatermark() {
                         <a
                             href={watermarkedImageUrl}
                             download={`watermarked_${originalImageFile?.name.split('.')[0]}.png`}
-                            className="w-full sm:w-auto py-3 px-8 bg-white text-black hover:bg-zinc-200 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg"
+                            className="w-full sm:w-auto py-3 px-8 bg-black text-white hover:bg-gray-800 dark:bg-white dark:text-black dark:hover:bg-zinc-200 rounded-xl font-bold transition-all flex items-center justify-center gap-2 shadow-lg"
                         >
                             <Download className="w-5 h-5" /> 
                             Download Result
