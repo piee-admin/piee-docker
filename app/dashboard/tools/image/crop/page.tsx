@@ -147,7 +147,7 @@ export default function CropImageTool() {
         height: newHeight,
         x: crop?.x || 0,
         y: crop?.y || 0,
-        width: crop?.width || 0,
+        width: crop?.width || 0, // Fixed: removed duplicate key and corrected variable
       };
       setCrop(newCropState);
       setCompletedCrop(newCropState as PixelCrop);
@@ -212,15 +212,15 @@ export default function CropImageTool() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-zinc-800">
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-zinc-800 transition-colors duration-300">
       
       <div className="max-w-[1600px] mx-auto">
         {/* Page Header */}
         <div className="flex items-center gap-3 mb-2">
-            <CropIcon className="w-8 h-8 text-white" />
-            <h1 className="text-4xl font-bold tracking-tight text-white">Crop Tool</h1>
+            <CropIcon className="w-8 h-8 text-black dark:text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Crop Tool</h1>
         </div>
-        <p className="text-zinc-400 mb-8 ml-11">Resize and crop images for social media.</p>
+        <p className="text-gray-500 dark:text-zinc-400 mb-8 ml-11">Resize and crop images for social media.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
       
@@ -228,23 +228,23 @@ export default function CropImageTool() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Upload Card */}
-            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
               <input
                 type="file"
                 accept="image/*"
                 onChange={onSelectFile}
-                className="w-full text-sm text-zinc-400 
+                className="w-full text-sm text-gray-500 dark:text-zinc-400 
                 file:mr-4 file:py-2 file:px-4 
                 file:rounded-full file:border-0 
                 file:text-xs file:font-medium 
-                file:bg-zinc-800 file:text-zinc-300 
-                hover:file:bg-zinc-700 cursor-pointer"
+                file:bg-gray-100 dark:file:bg-zinc-800 file:text-gray-700 dark:file:text-zinc-300 
+                hover:file:bg-gray-200 dark:hover:file:bg-zinc-700 cursor-pointer"
               />
             </div>
 
             {/* Aspect Ratio Controls */}
-            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md space-y-4">
-              <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider">Presets</p>
+            <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md space-y-4 transition-colors">
+              <p className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider">Presets</p>
               <div className="grid grid-cols-2 gap-2">
                 {aspectRatios.map((ratio, idx) => {
                   const Icon = ratio.icon;
@@ -255,15 +255,15 @@ export default function CropImageTool() {
                       onClick={() => handleAspectChange(ratio.value)}
                       className={`h-auto py-3 px-3 flex flex-col items-start justify-center gap-1 text-left rounded-xl border transition-all duration-200
                         ${isActive 
-                            ? "bg-white border-white text-black shadow-[0_0_15px_rgba(255,255,255,0.1)]" 
-                            : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800 hover:border-zinc-700"
+                            ? "bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-md" 
+                            : "bg-gray-50 border-gray-200 text-gray-500 hover:bg-gray-100 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800"
                         }`}
                     >
                         <div className="flex items-center gap-2 w-full">
                             <Icon className={`w-4 h-4 ${isActive ? "opacity-100" : "opacity-50"}`} />
                             <span className="font-bold text-sm">{ratio.label}</span>
                         </div>
-                        <span className={`text-[10px] font-normal truncate w-full ${isActive ? "text-zinc-500" : "text-zinc-600"}`}>
+                        <span className={`text-[10px] font-normal truncate w-full ${isActive ? "text-gray-300 dark:text-zinc-500" : "text-gray-400 dark:text-zinc-600"}`}>
                             {ratio.desc}
                         </span>
                     </button>
@@ -272,27 +272,27 @@ export default function CropImageTool() {
               </div>
 
               {/* Manual Dimensions Inputs */}
-              <div className="pt-4 border-t border-zinc-800 mt-4">
-                <p className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3">Dimensions (px)</p>
+              <div className="pt-4 border-t border-gray-100 dark:border-zinc-800 mt-4">
+                <p className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3">Dimensions (px)</p>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-bold">W</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs font-bold">W</span>
                     <input
                       type="number"
                       value={manualWidth}
                       onChange={onManualWidthChange}
                       disabled={!imgSrc}
-                      className="flex h-10 w-full rounded-lg border border-zinc-700 bg-black/40 px-3 pl-8 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white transition-colors disabled:opacity-50"
+                      className="flex h-10 w-full rounded-lg border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-black/40 px-3 pl-8 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-black dark:focus:border-white transition-colors disabled:opacity-50"
                     />
                   </div>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-zinc-500 text-xs font-bold">H</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-500 text-xs font-bold">H</span>
                     <input
                       type="number"
                       value={manualHeight}
                       onChange={onManualHeightChange}
                       disabled={!imgSrc}
-                      className="flex h-10 w-full rounded-lg border border-zinc-700 bg-black/40 px-3 pl-8 py-2 text-sm text-white placeholder:text-zinc-600 focus:outline-none focus:border-white transition-colors disabled:opacity-50"
+                      className="flex h-10 w-full rounded-lg border border-gray-200 dark:border-zinc-700 bg-gray-50 dark:bg-black/40 px-3 pl-8 py-2 text-sm text-gray-900 dark:text-white placeholder:text-gray-400 dark:placeholder:text-zinc-600 focus:outline-none focus:border-black dark:focus:border-white transition-colors disabled:opacity-50"
                     />
                   </div>
                 </div>
@@ -300,7 +300,7 @@ export default function CropImageTool() {
 
               <button
                 onClick={createCroppedImage}
-                className="w-full py-4 mt-2 bg-white text-black rounded-xl font-bold text-sm hover:bg-zinc-200 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full py-4 mt-2 bg-black text-white dark:bg-white dark:text-black rounded-xl font-bold text-sm hover:bg-gray-800 dark:hover:bg-zinc-200 transition-all shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                 disabled={!imgSrc}
               >
                 Generate Crop
@@ -309,11 +309,11 @@ export default function CropImageTool() {
             
             {/* Result Preview */}
             {croppedImage && (
-            <div className="border border-zinc-800 shadow-xl rounded-2xl p-6 bg-zinc-900/50 backdrop-blur-md animate-in slide-in-from-top-4">
-              <p className="font-bold mb-4 text-white text-sm flex items-center gap-2">
-                  <ImageIcon className="w-4 h-4 text-zinc-400"/> Result Preview
+            <div className="border border-gray-200 dark:border-zinc-800 shadow-xl rounded-2xl p-6 bg-white dark:bg-zinc-900/50 backdrop-blur-md animate-in slide-in-from-top-4 transition-colors">
+              <p className="font-bold mb-4 text-gray-900 dark:text-white text-sm flex items-center gap-2">
+                  <ImageIcon className="w-4 h-4 text-gray-400 dark:text-zinc-400"/> Result Preview
               </p>
-              <div className="flex flex-col items-center gap-4 bg-black/40 p-4 rounded-xl border border-zinc-800 border-dashed">
+              <div className="flex flex-col items-center gap-4 bg-gray-100 dark:bg-black/40 p-4 rounded-xl border border-gray-200 dark:border-zinc-800 border-dashed">
                 <img
                   src={croppedImage}
                   className="rounded-lg shadow-2xl max-h-[300px] object-contain"
@@ -322,7 +322,7 @@ export default function CropImageTool() {
                 <a
                     href={croppedImage}
                     download={`cropped-image-${Date.now()}.png`}
-                    className="w-full flex items-center justify-center gap-2 py-3 bg-white text-black rounded-lg font-bold hover:bg-zinc-200 transition-all text-sm"
+                    className="w-full flex items-center justify-center gap-2 py-3 bg-black text-white dark:bg-white dark:text-black rounded-lg font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-all text-sm"
                 >
                     <Download className="w-4 h-4" />
                     Download Result
@@ -334,11 +334,11 @@ export default function CropImageTool() {
 
           {/* Workspace (Right) */}
           <div className="lg:col-span-8 flex flex-col h-full">
-            <div className="flex-1 flex justify-center items-center border border-zinc-800 rounded-2xl p-8 bg-[#050505] min-h-[600px] relative overflow-hidden shadow-2xl">
+            <div className="flex-1 flex justify-center items-center border border-gray-200 dark:border-zinc-800 rounded-2xl p-8 bg-gray-100 dark:bg-[#050505] min-h-[600px] relative overflow-hidden shadow-sm dark:shadow-2xl transition-colors">
               
                {/* Dot Grid Background */}
                <div className="absolute inset-0 opacity-20 pointer-events-none" 
-                     style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
+                     style={{backgroundImage: 'radial-gradient(#888 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
                </div>
 
               {imgSrc ? (
@@ -359,11 +359,11 @@ export default function CropImageTool() {
                     </ReactCrop>
                 </div>
               ) : (
-                <div className="flex flex-col items-center text-zinc-600 z-10">
-                    <div className="w-24 h-24 border border-zinc-800 bg-zinc-900/50 rounded-2xl mb-4 flex items-center justify-center">
-                        <CropIcon className="w-10 h-10 opacity-50" />
+                <div className="flex flex-col items-center text-gray-500 dark:text-zinc-600 z-10">
+                    <div className="w-24 h-24 border border-gray-200 dark:border-zinc-800 bg-white dark:bg-zinc-900/50 rounded-2xl mb-4 flex items-center justify-center">
+                        <CropIcon className="w-10 h-10 opacity-30 dark:opacity-50" />
                     </div>
-                    <p className="text-lg font-medium text-zinc-500">Upload an image to start cropping</p>
+                    <p className="text-lg font-medium text-gray-500 dark:text-zinc-500">Upload an image to start cropping</p>
                 </div>
               )}
             </div>

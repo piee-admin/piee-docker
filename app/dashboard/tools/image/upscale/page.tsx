@@ -128,14 +128,14 @@ export default function ImageUpscaler() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-zinc-800">
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-zinc-800 transition-colors duration-300">
       
       <div className="max-w-[1600px] mx-auto">
         <div className="flex items-center gap-3 mb-2">
-            <ScanEye className="w-8 h-8 text-white" />
-            <h1 className="text-4xl font-bold tracking-tight text-white">Smart Upscaler</h1>
+            <ScanEye className="w-8 h-8 text-black dark:text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Smart Upscaler</h1>
         </div>
-        <p className="text-zinc-400 mb-8 ml-11">Increase resolution and enhance edge clarity.</p>
+        <p className="text-gray-500 dark:text-zinc-400 mb-8 ml-11">Increase resolution and enhance edge clarity.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -143,21 +143,21 @@ export default function ImageUpscaler() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Upload */}
-            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
-              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-zinc-700 rounded-xl bg-black/20 cursor-pointer hover:bg-zinc-800/50 transition group">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
+              <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed border-gray-300 dark:border-zinc-700 rounded-xl bg-gray-50 dark:bg-black/20 cursor-pointer hover:bg-gray-100 dark:hover:bg-zinc-800/50 transition group">
                 {!imageFile ? (
                     <>
-                        <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
-                            <Upload className="w-5 h-5 text-zinc-400" />
+                        <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center mb-3 group-hover:scale-110 transition-transform">
+                            <Upload className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
                         </div>
-                        <p className="text-sm text-zinc-400">Upload Image</p>
+                        <p className="text-sm text-gray-500 dark:text-zinc-400">Upload Image</p>
                     </>
                 ) : (
                     <div className="flex items-center gap-3 px-4">
-                        <img src={previewUrl!} className="w-12 h-12 rounded bg-black object-cover border border-zinc-700" />
+                        <img src={previewUrl!} className="w-12 h-12 rounded bg-gray-100 dark:bg-black object-cover border border-gray-200 dark:border-zinc-700" />
                         <div className="overflow-hidden">
-                             <p className="text-sm font-medium truncate w-32 text-white">{imageFile.name}</p>
-                             <p className="text-xs text-zinc-500">{originalSize.w} x {originalSize.h}</p>
+                             <p className="text-sm font-medium truncate w-32 text-gray-900 dark:text-white">{imageFile.name}</p>
+                             <p className="text-xs text-gray-500 dark:text-zinc-500">{originalSize.w} x {originalSize.h}</p>
                         </div>
                     </div>
                 )}
@@ -166,9 +166,9 @@ export default function ImageUpscaler() {
             </div>
 
             {/* Settings */}
-            <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md space-y-6">
+            <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md space-y-6 transition-colors">
                 <div>
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Scale Factor</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3 block">Scale Factor</label>
                     <div className="grid grid-cols-2 gap-3">
                         {[2, 4].map((factor) => (
                             <button
@@ -176,8 +176,8 @@ export default function ImageUpscaler() {
                                 onClick={() => setScaleFactor(factor)}
                                 className={`py-3 rounded-lg border text-sm font-medium transition-all 
                                     ${scaleFactor === factor 
-                                        ? 'bg-white text-black border-white shadow-sm' 
-                                        : 'bg-zinc-900 border-zinc-800 text-zinc-400 hover:bg-zinc-800'}`}
+                                        ? 'bg-black text-white border-black dark:bg-white dark:text-black dark:border-white shadow-md' 
+                                        : 'bg-gray-100 border-gray-200 text-gray-600 hover:bg-gray-200 dark:bg-zinc-900 dark:border-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-800'}`}
                             >
                                 {factor}x
                             </button>
@@ -187,30 +187,30 @@ export default function ImageUpscaler() {
 
                 {/* Sharpness Level */}
                 <div>
-                     <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block">Edge Sharpening</label>
-                     <div className="flex gap-2 p-1 bg-black/40 rounded-lg border border-zinc-800">
+                      <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3 block">Edge Sharpening</label>
+                      <div className="flex gap-2 p-1 bg-gray-100 dark:bg-black/40 rounded-lg border border-gray-200 dark:border-zinc-800">
                         {['None', 'Standard', 'Strong'].map((level, idx) => (
                             <button
                                 key={level}
                                 onClick={() => setSharpness(idx)}
                                 className={`flex-1 py-2 text-xs rounded-md transition-all 
                                     ${sharpness === idx 
-                                        ? 'bg-zinc-800 text-white shadow-sm border border-zinc-700' 
-                                        : 'text-zinc-500 hover:text-zinc-300'}`}
+                                        ? 'bg-white text-black border border-gray-200 shadow-sm dark:bg-zinc-800 dark:text-white dark:border-zinc-700' 
+                                        : 'text-gray-500 hover:text-gray-700 dark:text-zinc-500 dark:hover:text-zinc-300'}`}
                             >
                                 {level}
                             </button>
                         ))}
-                     </div>
-                     <p className="text-[10px] text-zinc-600 mt-2 px-1">
+                      </div>
+                      <p className="text-[10px] text-gray-500 dark:text-zinc-600 mt-2 px-1">
                         "Strong" maximizes clarity but may add noise.
-                     </p>
+                      </p>
                 </div>
 
                 <button
                     onClick={handleUpscale}
                     disabled={!imageFile || isProcessing}
-                    className="w-full py-4 bg-white text-black rounded-xl font-bold hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
+                    className="w-full py-4 bg-black text-white dark:bg-white dark:text-black rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg"
                 >
                     {isProcessing ? (
                         <> <Loader2 className="w-5 h-5 animate-spin" /> Enhancing... </>
@@ -223,22 +223,22 @@ export default function ImageUpscaler() {
 
           {/* PREVIEW AREA */}
           <div className="lg:col-span-8">
-             <div className="h-full p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md flex flex-col shadow-2xl relative">
+             <div className="h-full p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-2xl backdrop-blur-md flex flex-col relative transition-colors">
                 
                 <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500">Comparison</h2>
-                    {upscaledUrl && <span className="text-xs text-zinc-400 flex items-center gap-1"><MoveHorizontal className="w-3 h-3" /> Slide to compare</span>}
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500">Comparison</h2>
+                    {upscaledUrl && <span className="text-xs text-gray-400 dark:text-zinc-400 flex items-center gap-1"><MoveHorizontal className="w-3 h-3" /> Slide to compare</span>}
                 </div>
 
-                <div className="flex-1 relative rounded-xl overflow-hidden bg-[#050505] border border-zinc-800 min-h-[400px] flex items-center justify-center group select-none">
+                <div className="flex-1 relative rounded-xl overflow-hidden bg-gray-100 dark:bg-[#050505] border border-gray-200 dark:border-zinc-800 min-h-[400px] flex items-center justify-center group select-none">
                     {/* Transparency Grid */}
                     <div className="absolute inset-0 opacity-10 pointer-events-none" 
-                         style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
+                         style={{backgroundImage: 'radial-gradient(#888 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
                     </div>
 
                     {!upscaledUrl ? (
-                        <div className="text-center opacity-30">
-                             <p className="text-zinc-400">Upload and Process to see results</p>
+                        <div className="text-center opacity-40">
+                             <p className="text-gray-500 dark:text-zinc-400">Upload and Process to see results</p>
                         </div>
                     ) : (
                         <div 
@@ -249,14 +249,14 @@ export default function ImageUpscaler() {
                         >
                             {/* AFTER (Upscaled) */}
                             <img src={upscaledUrl} className="absolute top-0 left-0 w-full h-full object-contain pointer-events-none" />
-                             <div className="absolute top-4 right-4 bg-black/80 text-white text-xs px-2 py-1 rounded border border-zinc-700 shadow-xl z-10 backdrop-blur-md">
+                             <div className="absolute top-4 right-4 bg-white/90 dark:bg-black/80 text-black dark:text-white text-xs px-2 py-1 rounded border border-gray-200 dark:border-zinc-700 shadow-lg z-10 backdrop-blur-md">
                                 Upscaled ({scaleFactor}x)
                              </div>
 
                             {/* BEFORE (Original) */}
                             <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none border-r border-white/50 shadow-[0_0_20px_rgba(0,0,0,0.5)]" style={{ width: `${sliderPosition}%` }}>
                                 <img src={previewUrl!} className="absolute top-0 left-0 w-full h-full object-contain max-w-none" />
-                                <div className="absolute top-4 left-4 bg-black/80 text-white text-xs px-2 py-1 rounded border border-zinc-700 backdrop-blur-md">Original</div>
+                                <div className="absolute top-4 left-4 bg-white/90 dark:bg-black/80 text-black dark:text-white text-xs px-2 py-1 rounded border border-gray-200 dark:border-zinc-700 backdrop-blur-md">Original</div>
                             </div>
                             
                             {/* SLIDER HANDLE */}
@@ -274,7 +274,7 @@ export default function ImageUpscaler() {
                          <a
                             href={upscaledUrl}
                             download={`upscaled_${scaleFactor}x_${imageFile?.name}`}
-                            className="py-3 px-6 bg-white text-black rounded-xl font-bold hover:bg-zinc-200 transition-all flex items-center gap-2 shadow-lg"
+                            className="py-3 px-6 bg-black text-white dark:bg-white dark:text-black rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 transition-all flex items-center gap-2 shadow-lg"
                         >
                             <Download className="w-4 h-4" /> Download Result
                         </a>

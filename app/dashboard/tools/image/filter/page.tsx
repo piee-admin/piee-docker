@@ -80,14 +80,14 @@ export default function ImageFilterStudio() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 bg-[#09090b] text-white font-sans selection:bg-zinc-800">
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-zinc-800 transition-colors duration-300">
       
       <div className="max-w-6xl mx-auto">
         <div className="flex items-center gap-3 mb-2">
-            <Sparkles className="w-8 h-8 text-white" />
-            <h1 className="text-4xl font-bold tracking-tight text-white">Filter Studio</h1>
+            <Sparkles className="w-8 h-8 text-black dark:text-white" />
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Filter Studio</h1>
         </div>
-        <p className="text-zinc-400 mb-8 ml-11">Professional grade color grading and effects.</p>
+        <p className="text-gray-500 dark:text-zinc-400 mb-8 ml-11">Professional grade color grading and effects.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -95,27 +95,27 @@ export default function ImageFilterStudio() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Upload Card */}
-            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 mb-4 flex items-center gap-2">
                 <ImageIcon className="w-4 h-4" /> Source
               </h2>
 
-              <label className={`group relative border border-dashed border-zinc-700 bg-black/20 p-6 rounded-xl block text-center cursor-pointer transition-all hover:bg-zinc-800/50 ${!imageFile ? 'py-10' : 'py-4'}`}>
+              <label className={`group relative border border-dashed border-gray-300 dark:border-zinc-700 bg-gray-50 dark:bg-black/20 p-6 rounded-xl block text-center cursor-pointer transition-all hover:bg-gray-100 dark:hover:bg-zinc-800/50 ${!imageFile ? 'py-10' : 'py-4'}`}>
                 <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                 
                 {!previewUrl ? (
                   <div className="flex flex-col items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform">
-                        <Upload className="w-5 h-5 text-zinc-400" />
+                    <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center group-hover:scale-110 transition-transform">
+                        <Upload className="w-5 h-5 text-gray-500 dark:text-zinc-400" />
                     </div>
-                    <span className="text-sm text-zinc-400 font-medium">Upload Image</span>
+                    <span className="text-sm text-gray-500 dark:text-zinc-400 font-medium">Upload Image</span>
                   </div>
                 ) : (
                    <div className="flex items-center gap-3">
-                      <img src={previewUrl} className="w-12 h-12 rounded bg-black/50 object-cover border border-zinc-700" />
+                      <img src={previewUrl} className="w-12 h-12 rounded bg-gray-100 dark:bg-black/50 object-cover border border-gray-200 dark:border-zinc-700" />
                       <div className="text-left overflow-hidden">
-                        <p className="text-sm font-medium truncate max-w-[150px] text-white">{imageFile?.name}</p>
-                        <p className="text-xs text-zinc-500">Click to replace</p>
+                        <p className="text-sm font-medium truncate max-w-[150px] text-gray-900 dark:text-white">{imageFile?.name}</p>
+                        <p className="text-xs text-gray-500 dark:text-zinc-500">Click to replace</p>
                       </div>
                    </div>
                 )}
@@ -123,15 +123,15 @@ export default function ImageFilterStudio() {
             </div>
 
             {/* Filters & Adjustments Card */}
-            <div className="p-5 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
                 <div className="flex justify-between items-center mb-6">
-                  <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                  <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 flex items-center gap-2">
                       <Sliders className="w-4 h-4" /> Adjustments
                   </h2>
                   <button 
                     onClick={resetFilters} 
                     disabled={!imageFile}
-                    className="text-xs flex items-center gap-1.5 px-2 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 transition disabled:opacity-30"
+                    className="text-xs flex items-center gap-1.5 px-2 py-1 rounded bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-600 dark:text-zinc-300 transition disabled:opacity-30"
                   >
                     <RefreshCcw className="w-3 h-3" /> Reset
                   </button>
@@ -139,7 +139,7 @@ export default function ImageFilterStudio() {
 
                 {/* Presets Grid */}
                 <div className="mb-6">
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
+                    <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-3 block flex items-center gap-2">
                         <Wand2 className="w-3 h-3" /> Presets
                     </label>
                     <div className="grid grid-cols-3 gap-2">
@@ -148,7 +148,7 @@ export default function ImageFilterStudio() {
                                 key={preset.name}
                                 onClick={() => applyPreset(preset.values)}
                                 disabled={!imageFile}
-                                className="py-2 px-2 text-xs font-medium bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-white rounded-lg border border-zinc-800 hover:border-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
+                                className="py-2 px-2 text-xs font-medium bg-white dark:bg-zinc-900 hover:bg-gray-50 dark:hover:bg-zinc-800 text-gray-600 dark:text-zinc-400 hover:text-black dark:hover:text-white rounded-lg border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-600 transition disabled:opacity-50 disabled:cursor-not-allowed active:scale-95"
                             >
                                 {preset.name}
                             </button>
@@ -156,7 +156,7 @@ export default function ImageFilterStudio() {
                     </div>
                 </div>
 
-                <div className="space-y-5 border-t border-zinc-800 pt-6">
+                <div className="space-y-5 border-t border-gray-100 dark:border-zinc-800 pt-6">
                     {/* Sliders */}
                     {[
                         { key: 'brightness', label: 'Brightness', min: 0, max: 200, step: 1 },
@@ -169,8 +169,8 @@ export default function ImageFilterStudio() {
                     ].map((f) => (
                         <div key={f.key} className="group">
                             <div className="flex justify-between mb-2 text-xs font-medium">
-                                <span className="text-zinc-400 group-hover:text-white transition-colors">{f.label}</span>
-                                <span className="text-zinc-500 font-mono">
+                                <span className="text-gray-500 dark:text-zinc-400 group-hover:text-black dark:group-hover:text-white transition-colors">{f.label}</span>
+                                <span className="text-gray-900 dark:text-zinc-500 font-mono">
                                     {/* @ts-ignore */}
                                     {filters[f.key]}{f.unit || '%'}
                                 </span>
@@ -183,7 +183,7 @@ export default function ImageFilterStudio() {
                                 // @ts-ignore
                                 onChange={(e) => setFilters(prev => ({ ...prev, [f.key]: parseFloat(e.target.value) }))}
                                 disabled={!imageFile}
-                                className="w-full h-1.5 bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-white disabled:opacity-30"
+                                className="w-full h-1.5 bg-gray-200 dark:bg-zinc-700 rounded-lg appearance-none cursor-pointer accent-black dark:accent-white disabled:opacity-30"
                             />
                         </div>
                     ))}
@@ -193,30 +193,31 @@ export default function ImageFilterStudio() {
 
           {/* ---------------- RIGHT COLUMN: Preview ---------------- */}
           <div className="lg:col-span-8 flex flex-col h-full">
-             <div className="p-6 bg-zinc-900/50 border border-zinc-800 rounded-2xl backdrop-blur-md flex-1 flex flex-col relative overflow-hidden shadow-2xl">
+             <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-2xl backdrop-blur-md flex-1 flex flex-col relative overflow-hidden transition-colors">
                 
                 <div className="flex justify-between items-center mb-4 z-10">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 flex items-center gap-2">
                         Preview
                     </h2>
                     {imageFile && (
-                        <span className="text-xs px-2 py-1 rounded-full bg-zinc-800 text-zinc-300 border border-zinc-700 animate-pulse">
+                        <span className="text-xs px-2 py-1 rounded-full bg-green-100 text-green-700 border border-green-200 dark:bg-zinc-800 dark:text-zinc-300 dark:border-zinc-700 animate-pulse">
                             Live Preview Active
                         </span>
                     )}
                 </div>
 
-                <div className="flex-1 flex items-center justify-center bg-[#050505] rounded-xl border border-zinc-800 p-4 relative overflow-hidden min-h-[400px]">
+                <div className="flex-1 flex items-center justify-center bg-gray-100 dark:bg-[#050505] rounded-xl border border-gray-200 dark:border-zinc-800 p-4 relative overflow-hidden min-h-[400px]">
+                    {/* Dot Grid Background */}
                     <div className="absolute inset-0 opacity-10 pointer-events-none" 
-                         style={{backgroundImage: 'radial-gradient(#333 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
+                         style={{backgroundImage: 'radial-gradient(#888 1px, transparent 1px)', backgroundSize: '20px 20px'}}>
                     </div>
 
                     {!previewUrl ? (
                         <div className="text-center space-y-3 opacity-40">
-                             <div className="w-20 h-20 rounded-full bg-zinc-800 flex items-center justify-center mx-auto border border-zinc-700">
-                                <ImageIcon className="w-8 h-8 text-zinc-400" />
+                             <div className="w-20 h-20 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center mx-auto border border-gray-200 dark:border-zinc-700">
+                                <ImageIcon className="w-8 h-8 text-gray-400 dark:text-zinc-400" />
                              </div>
-                             <p className="text-sm text-zinc-500">Upload an image to start editing</p>
+                             <p className="text-sm text-gray-500 dark:text-zinc-500">Upload an image to start editing</p>
                         </div>
                     ) : (
                         <img
@@ -232,11 +233,11 @@ export default function ImageFilterStudio() {
                     )}
                 </div>
 
-                <div className="mt-6 flex justify-end pt-4 border-t border-zinc-800">
+                <div className="mt-6 flex justify-end pt-4 border-t border-gray-100 dark:border-zinc-800">
                     <button
                         onClick={handleDownload}
                         disabled={!imageFile || isProcessing}
-                        className="py-3 px-6 bg-white text-black rounded-xl font-bold hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg active:scale-95"
+                        className="py-3 px-6 bg-black text-white dark:bg-white dark:text-black rounded-xl font-bold hover:bg-gray-800 dark:hover:bg-zinc-200 disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center gap-2 shadow-lg active:scale-95"
                     >
                         {isProcessing ? (
                             <> <Loader2 className="w-4 h-4 animate-spin" /> Processing... </>

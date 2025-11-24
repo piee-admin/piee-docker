@@ -128,17 +128,17 @@ export default function ImageToPdf() {
   };
 
   return (
-    <div className="min-h-screen px-4 sm:px-10 py-10 transition-colors duration-300 bg-gray-50 dark:bg-[#09090b] text-zinc-900 dark:text-white font-sans">
+    <div className="min-h-screen px-4 sm:px-10 py-10 bg-gray-50 dark:bg-[#09090b] text-gray-900 dark:text-white font-sans selection:bg-gray-200 dark:selection:bg-zinc-800 transition-colors duration-300">
       
       <div className="max-w-[1200px] mx-auto">
         {/* Header */}
         <div className="flex items-center gap-3 mb-2">
-            <div className="p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-zinc-200 dark:border-zinc-700">
-                <FileText className="w-8 h-8 text-zinc-900 dark:text-white" />
+            <div className="p-2 bg-white dark:bg-zinc-800 rounded-xl shadow-sm border border-gray-200 dark:border-zinc-700">
+                <FileText className="w-8 h-8 text-black dark:text-white" />
             </div>
-            <h1 className="text-4xl font-bold tracking-tight text-zinc-900 dark:text-white">Image to PDF</h1>
+            <h1 className="text-4xl font-bold tracking-tight text-gray-900 dark:text-white">Image to PDF</h1>
         </div>
-        <p className="text-zinc-500 dark:text-zinc-400 mb-8 ml-14">Combine multiple images into a single PDF document. Original sizes preserved.</p>
+        <p className="text-gray-500 dark:text-zinc-400 mb-8 ml-14">Combine multiple images into a single PDF document. Original sizes preserved.</p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
           
@@ -146,49 +146,49 @@ export default function ImageToPdf() {
           <div className="lg:col-span-4 space-y-6">
             
             {/* Upload Box */}
-            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:backdrop-blur-md">
-              <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 mb-4 flex items-center gap-2">
+            <div className="p-5 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md transition-colors">
+              <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 mb-4 flex items-center gap-2">
                 <Upload className="w-4 h-4" /> Add Images
               </h2>
               <label className="flex flex-col items-center justify-center w-full h-32 border border-dashed rounded-xl cursor-pointer transition group
-                border-zinc-300 dark:border-zinc-700 
-                bg-zinc-50 dark:bg-black/20 
-                hover:bg-zinc-100 dark:hover:bg-zinc-800/50">
+                border-gray-300 dark:border-zinc-700 
+                bg-gray-50 dark:bg-black/20 
+                hover:bg-gray-100 dark:hover:bg-zinc-800/50">
                 
                 <div className="flex flex-col items-center">
                     <div className="w-10 h-10 rounded-full flex items-center justify-center mb-3 group-hover:scale-110 transition-transform
                         bg-white border border-gray-200 
                         dark:bg-zinc-800 dark:border-zinc-700">
-                        <Plus className="w-5 h-5 text-zinc-400" />
+                        <Plus className="w-5 h-5 text-gray-400 dark:text-zinc-400" />
                     </div>
-                    <p className="text-sm text-zinc-500 dark:text-zinc-400">Click to upload images</p>
+                    <p className="text-sm text-gray-500 dark:text-zinc-400">Click to upload images</p>
                 </div>
                 <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
               </label>
             </div>
 
             {/* PDF Settings */}
-            <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:backdrop-blur-md space-y-6">
+            <div className="p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm backdrop-blur-md space-y-6 transition-colors">
                 <div>
-                    <label className="text-xs font-bold text-zinc-500 uppercase tracking-wider mb-2 block">PDF Filename</label>
+                    <label className="text-xs font-bold text-gray-500 dark:text-zinc-500 uppercase tracking-wider mb-2 block">PDF Filename</label>
                     <div className="relative">
                         <input 
                             type="text" 
                             value={pdfName} 
                             onChange={(e) => setPdfName(e.target.value)}
                             className="w-full rounded-lg py-2.5 px-3 text-sm focus:outline-none transition-colors border pr-12
-                            bg-gray-50 border-gray-200 text-zinc-900 focus:border-zinc-400 placeholder:text-zinc-400
+                            bg-gray-50 border-gray-200 text-gray-900 focus:border-gray-400 placeholder:text-gray-400
                             dark:bg-black/40 dark:border-zinc-700 dark:text-white dark:focus:border-white dark:placeholder:text-zinc-600"
                             placeholder="document"
                         />
-                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-zinc-400 text-xs font-mono">.pdf</span>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 dark:text-zinc-400 text-xs font-mono">.pdf</span>
                     </div>
                 </div>
 
                 <div className="flex flex-col gap-2">
-                    <div className="flex justify-between text-sm text-zinc-500 dark:text-zinc-400">
+                    <div className="flex justify-between text-sm text-gray-500 dark:text-zinc-400">
                         <span>Total Images:</span>
-                        <span className="font-bold text-zinc-900 dark:text-white">{images.length}</span>
+                        <span className="font-bold text-gray-900 dark:text-white">{images.length}</span>
                     </div>
                 </div>
 
@@ -196,7 +196,7 @@ export default function ImageToPdf() {
                     onClick={generatePdf}
                     disabled={images.length === 0 || isGenerating}
                     className="w-full py-4 rounded-xl font-bold disabled:opacity-50 disabled:cursor-not-allowed transition-all flex items-center justify-center gap-2 shadow-lg
-                    bg-zinc-900 text-white hover:bg-zinc-800
+                    bg-black text-white hover:bg-gray-800
                     dark:bg-white dark:text-black dark:hover:bg-zinc-200"
                 >
                     {isGenerating ? (
@@ -210,10 +210,10 @@ export default function ImageToPdf() {
 
           {/* ---------------- RIGHT: IMAGE LIST ---------------- */}
           <div className="lg:col-span-8">
-             <div className="min-h-[500px] p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:backdrop-blur-md flex flex-col relative">
+             <div className="min-h-[500px] p-6 bg-white dark:bg-zinc-900/50 border border-gray-200 dark:border-zinc-800 rounded-2xl shadow-sm dark:shadow-2xl backdrop-blur-md flex flex-col relative transition-colors">
                 
                 <div className="flex justify-between items-center mb-6">
-                    <h2 className="text-sm font-semibold uppercase tracking-wider text-zinc-500 flex items-center gap-2">
+                    <h2 className="text-sm font-semibold uppercase tracking-wider text-gray-500 dark:text-zinc-500 flex items-center gap-2">
                         Selected Images
                     </h2>
                     {images.length > 0 && (
@@ -229,9 +229,9 @@ export default function ImageToPdf() {
                         <div className="w-20 h-20 rounded-full flex items-center justify-center mx-auto border
                             bg-white border-gray-200
                             dark:bg-zinc-800 dark:border-zinc-700">
-                            <FileImage className="w-8 h-8 text-zinc-400 dark:text-zinc-500" />
+                            <FileImage className="w-8 h-8 text-gray-400 dark:text-zinc-500" />
                         </div>
-                        <p className="text-zinc-500 dark:text-zinc-400">No images selected</p>
+                        <p className="text-gray-500 dark:text-zinc-400">No images selected</p>
                     </div>
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
@@ -283,8 +283,8 @@ export default function ImageToPdf() {
                         <label className="flex flex-col items-center justify-center aspect-[3/4] border border-dashed rounded-xl cursor-pointer transition-all
                             border-gray-300 hover:bg-gray-50 hover:border-gray-400
                             dark:border-zinc-800 dark:hover:bg-zinc-800/30 dark:hover:border-zinc-700">
-                            <Plus className="w-8 h-8 text-zinc-300 dark:text-zinc-600 mb-2" />
-                            <span className="text-xs font-medium text-zinc-400 dark:text-zinc-500">Add More</span>
+                            <Plus className="w-8 h-8 text-gray-300 dark:text-zinc-600 mb-2" />
+                            <span className="text-xs font-medium text-gray-400 dark:text-zinc-500">Add More</span>
                             <input type="file" accept="image/*" multiple className="hidden" onChange={handleFileChange} />
                         </label>
                     </div>
