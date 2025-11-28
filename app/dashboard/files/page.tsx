@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
 import FileUpload from "@/components/file-upload";
 import FileGrid from "@/components/file-grid";
+import { deleteFileFromFastAPI } from "@/lib/delete";
+import { toast } from "sonner";
 
 export default function FilesPage() {
   const { user } = useAuth();
@@ -50,6 +52,20 @@ export default function FilesPage() {
     setFiles((prev) => [file, ...prev]);
   };
 
+  async function handleDelete(fileId: string) {
+  try {
+    await deleteFileFromFastAPI(fileId, token!);
+
+    // Remove deleted file from UI
+    setFiles((prev) => prev.filter((f) => f.id !== fileId));
+    toast.success("File deleted successfully!");
+  } catch (err) {
+    console.error("Delete failed:", err);
+    toast.error("Failed to delete file. Please try again.");
+  }
+}
+
+
   return (
     <div className="p-6 space-y-8">
       <h1 className="text-3xl font-bold">My Drive</h1>
@@ -61,7 +77,7 @@ export default function FilesPage() {
       {loading ? (
         <p className="text-sm text-muted-foreground mt-4">Loading files…</p>
       ) : (
-        <FileGrid files={files} />
+        <FileGrid files={files} onDelete={handleDelete} />
       )}
     </div>
   );

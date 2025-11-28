@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { uploadFileToFastAPI } from "@/lib/upload";
 import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function FileUpload({ token, onUploaded }: any) {
   const [uploading, setUploading] = useState(false);
@@ -13,9 +14,11 @@ export default function FileUpload({ token, onUploaded }: any) {
       setUploading(true);
       const res = await uploadFileToFastAPI(file, token || undefined);
       onUploaded(res);
+      toast.success("File uploaded successfully!");
     } catch (e) {
       console.error(e);
       alert("Upload failed. Check console.");
+      toast.error("Failed to upload file. Please try again.");
     } finally {
       setUploading(false);
     }
