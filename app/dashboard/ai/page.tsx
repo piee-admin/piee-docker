@@ -1,1 +1,18 @@
-export default function Page(){return (<div className="flex flex-col h-full w-full p-8"><h1 className="text-3xl font-semibold tracking-tight capitalize">$(basename app/dashboard/ai)</h1><p className="text-muted-foreground">This is the $(basename app/dashboard/ai) page.</p></div>)}
+export default function AiModels() {
+  return (
+    <div className="flex flex-col h-full w-full p-2 sm:p-4">
+      <header className="mb-3 sm:mb-6">
+        <h1 className="text-xl sm:text-3xl font-semibold tracking-tight">
+          AI Models 
+        </h1>
+        <p className="text-muted-foreground text-xs sm:text-base">
+          Manage your AI models from one unified space.
+        </p>
+      </header>
+
+      <div className="flex-1 border rounded-md sm:rounded-lg bg-muted/30 flex items-center justify-center text-muted-foreground p-2 sm:p-4">
+        <p className="text-sm sm:text-base">AI Models UI will appear here.</p>
+      </div>
+    </div>
+  )
+}

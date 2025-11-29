@@ -32,7 +32,7 @@ export default function FileGrid({ files, onDelete }: any) {
 
   return (
     <>
-      <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-6 mt-6">
+      <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-6 mt-6">
         {files.map((file: any) => {
           const Icon = getFileIconComponent(file.mime_type);
           const isImage = file.mime_type?.startsWith("image/");
@@ -77,7 +77,7 @@ export default function FileGrid({ files, onDelete }: any) {
               </div>
 
               {/* FILE NAME + MENU */}
-              <div className="flex items-center justify-between mt-1 p-3">
+              <div className="flex items-center justify-between mt-1 pt-3">
                 <p
                   className="truncate font-medium text-xs cursor-pointer"
                   onClick={() => {
