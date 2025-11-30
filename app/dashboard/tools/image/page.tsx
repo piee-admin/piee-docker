@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 
 // --- IMPORT TOOLS ---
+// Assuming these exist in your structure
 import CompressTool from './tools/CompressTool';
 import ResizeTool from './tools/Resize';
 import CropTool from './tools/CropTool';
@@ -86,6 +87,19 @@ export default function ImageEditorPage() {
     return () => clearTimeout(timer);
   }, [editState, historyIndex]);
 
+  // --- IMAGE HISTORY ---
+  const [imageHistory, setImageHistory] = useState<string[]>([]);
+  const [imageHistoryIndex, setImageHistoryIndex] = useState(-1);
+  const isImageHistoryAction = useRef(false);
+
+  // Add initial image to history when uploaded
+  useEffect(() => {
+    if (imageSrc && imageHistory.length === 0) {
+      setImageHistory([imageSrc]);
+      setImageHistoryIndex(0);
+    }
+  }, [imageSrc, imageHistory.length]);
+
   const handleUndo = () => {
     // Undo for image changes (compress, resize, etc.)
     if (imageHistoryIndex > 0) {
@@ -95,7 +109,6 @@ export default function ImageEditorPage() {
       const previousImageUrl = imageHistory[newIndex];
       setImageSrc(previousImageUrl);
       
-      // Update file to match the undone image
       fetch(previousImageUrl)
         .then(r => r.blob())
         .then(blob => {
@@ -113,7 +126,6 @@ export default function ImageEditorPage() {
   };
 
   const handleRedo = () => {
-    // Redo for image changes
     if (imageHistoryIndex < imageHistory.length - 1) {
       isImageHistoryAction.current = true;
       const newIndex = imageHistoryIndex + 1;
@@ -121,7 +133,6 @@ export default function ImageEditorPage() {
       const nextImageUrl = imageHistory[newIndex];
       setImageSrc(nextImageUrl);
       
-      // Update file to match the redone image
       fetch(nextImageUrl)
         .then(r => r.blob())
         .then(blob => {
@@ -129,7 +140,6 @@ export default function ImageEditorPage() {
           setFile(newFile);
         });
     }
-    // Also handle filter redo
     else if (historyIndex < history.length - 1) {
       isHistoryAction.current = true;
       const newIndex = historyIndex + 1;
@@ -145,57 +155,36 @@ export default function ImageEditorPage() {
       setFile(selected);
       const url = URL.createObjectURL(selected);
       setImageSrc(url);
+      
+      // Reset everything
       setActiveTool(null);
       setEditState(DEFAULT_EDIT_STATE);
       setHistory([DEFAULT_EDIT_STATE]);
       setHistoryIndex(0);
+      setImageHistory([]); // Clear history so this becomes index 0 via useEffect
       setScale(1.0);
     }
   };
 
-  // --- IMAGE HISTORY (for undo/redo of actual image changes) ---
-  const [imageHistory, setImageHistory] = useState<string[]>([]);
-  const [imageHistoryIndex, setImageHistoryIndex] = useState(-1);
-  const isImageHistoryAction = useRef(false);
-
-  // Add initial image to history when uploaded
-  useEffect(() => {
-    if (imageSrc && imageHistory.length === 0) {
-      setImageHistory([imageSrc]);
-      setImageHistoryIndex(0);
-    }
-  }, [imageSrc, imageHistory.length]);
-
   // --- TOOL APPLY HANDLERS ---
-  // This is the key function that handles when tools apply changes to the image
   const handleCompressApply = (blob: Blob) => {
-    // Create new URL from compressed blob
     const newUrl = URL.createObjectURL(blob);
-    
-    // Add to image history for undo/redo BEFORE updating imageSrc
     if (!isImageHistoryAction.current) {
       const newHistory = imageHistory.slice(0, imageHistoryIndex + 1);
       newHistory.push(newUrl);
       setImageHistory(newHistory);
       setImageHistoryIndex(newHistory.length - 1);
     }
-    
-    // Update file reference FIRST (so CompressTool sees the new file size)
     const newFile = new File([blob], file?.name || 'compressed.jpg', { type: blob.type });
     setFile(newFile);
-    
-    // Update image source LAST (this triggers CompressTool to recalculate)
     setImageSrc(newUrl);
   };
 
   const handleResizeApply = (blob: Blob) => {
+    // 1. Create new URL
     const newUrl = URL.createObjectURL(blob);
-    setImageSrc(newUrl);
     
-    const newFile = new File([blob], file?.name || 'resized.jpg', { type: blob.type });
-    setFile(newFile);
-    
-    // Add to image history
+    // 2. Manage History
     if (!isImageHistoryAction.current) {
       const newHistory = imageHistory.slice(0, imageHistoryIndex + 1);
       newHistory.push(newUrl);
@@ -203,21 +192,26 @@ export default function ImageEditorPage() {
       setImageHistoryIndex(newHistory.length - 1);
     }
     
-    // DON'T close the tool panel
+    // 3. Update File Object
+    const newFile = new File([blob], file?.name || 'resized.jpg', { type: blob.type });
+    setFile(newFile);
+    
+    // 4. Update Visual Source
+    // Note: We do NOT revoke the old objectURL immediately here because 
+    // it might be needed for Undo/Redo history.
+    setImageSrc(newUrl);
   };
 
   // --- EXPORT FUNCTION ---
   const handleExport = async () => {
     if (!imageSrc) return;
     
-    // If no filters/watermarks are applied, just download the current file directly
     const hasNoEdits = editState.filter === 'none' && 
                        editState.brightness === 100 && 
                        editState.contrast === 100 && 
                        !editState.watermarkText;
     
     if (hasNoEdits && file) {
-      // Direct download of the current file (preserves compression)
       const link = document.createElement('a');
       link.download = `edited-${file.name}`;
       link.href = URL.createObjectURL(file);
@@ -225,7 +219,6 @@ export default function ImageEditorPage() {
       return;
     }
     
-    // If filters/watermarks are applied, render to canvas
     const canvas = document.createElement('canvas');
     const ctx = canvas.getContext('2d');
     const img = new Image();
@@ -255,11 +248,9 @@ export default function ImageEditorPage() {
          ctx.fillText(editState.watermarkText, canvas.width/2, canvas.height/2);
       }
       
-      // Download with appropriate format
       const link = document.createElement('a');
       link.download = `edited-${file?.name || 'image.jpg'}`;
       
-      // Preserve the compressed format if available
       const outputFormat = file?.type || 'image/jpeg';
       const quality = outputFormat === 'image/png' ? undefined : 0.92;
       
@@ -272,37 +263,20 @@ export default function ImageEditorPage() {
     };
   };
 
-  // --- RENDER HELPERS ---
   const renderActiveTool = () => {
     switch (activeTool) {
       case 'compress': 
-        return <CompressTool 
-          image={imageSrc} 
-          file={file}
-          onApply={handleCompressApply} 
-        />;
+        return <CompressTool image={imageSrc} file={file} onApply={handleCompressApply} />;
       case 'resize': 
-        return <ResizeTool 
-          image={imageSrc} 
-          onApply={handleResizeApply} 
-        />;
+        return <ResizeTool image={imageSrc} file={file} onApply={handleResizeApply} />;
       case 'crop': 
-        return <CropTool 
-          editState={editState} 
-          setEditState={setEditState} 
-        />;
+        return <CropTool editState={editState} setEditState={setEditState} />;
       case 'convert': 
         return <ConvertTool image={imageSrc} />;
       case 'filter': 
-        return <FilterTool 
-          editState={editState} 
-          setEditState={setEditState} 
-        />;
+        return <FilterTool editState={editState} setEditState={setEditState} />;
       case 'watermark': 
-        return <WatermarkTool 
-          editState={editState} 
-          setEditState={setEditState} 
-        />;
+        return <WatermarkTool editState={editState} setEditState={setEditState} />;
       case 'upscale': 
         return <UpscaleTool />;
       case 'remove-bg': 
@@ -331,7 +305,7 @@ export default function ImageEditorPage() {
             </button>
           ) : (
             <span className="text-lg font-bold flex items-center gap-2 tracking-tight text-zinc-900 dark:text-white">
-              <Layers className="text-blue-600" size={20}/> Image Tools
+              <Layers className="text-zinc-600 dark:text-zinc-400" size={20}/> Image Tools
             </span>
           )}
         </div>
@@ -359,16 +333,16 @@ export default function ImageEditorPage() {
                   className={`group flex items-center gap-3 p-3 rounded-xl text-left transition-all border
                     ${!imageSrc 
                       ? 'opacity-40 cursor-not-allowed bg-zinc-50 dark:bg-zinc-900 border-transparent' 
-                      : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-blue-400 dark:hover:border-blue-600 hover:shadow-sm'
+                      : 'bg-white dark:bg-zinc-900 border-zinc-200 dark:border-zinc-800 hover:border-zinc-400 dark:hover:border-zinc-600 hover:shadow-sm'
                     }`}
                 >
-                  <div className={`p-2.5 rounded-lg ${tool.isAI ? 'bg-blue-50 dark:bg-blue-900/20 text-blue-600' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'} group-hover:bg-blue-600 group-hover:text-white transition-colors`}>
-                    <tool.icon size={18} />
+                  <div className={`p-2.5 rounded-lg ${tool.isAI ? 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300' : 'bg-zinc-100 dark:bg-zinc-800 text-zinc-700 dark:text-zinc-300'} group-hover:bg-zinc-900 dark:group-hover:bg-white group-hover:text-white dark:group-hover:text-black transition-colors`}>
+                    {React.createElement(tool.icon, { size: 18 })}
                   </div>
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-sm text-zinc-900 dark:text-white">{tool.label}</h3>
-                      {tool.isAI && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-blue-100 dark:bg-blue-900 text-blue-600 dark:text-blue-300">AI</span>}
+                      {tool.isAI && <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-zinc-100 dark:bg-zinc-800 text-zinc-600 dark:text-zinc-300">AI</span>}
                     </div>
                     <p className="text-xs text-zinc-500 dark:text-zinc-400">{tool.desc}</p>
                   </div>
@@ -393,14 +367,14 @@ export default function ImageEditorPage() {
            <div className="flex items-center gap-2">
              {imageSrc && (
                <div className="flex items-center gap-1 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 border border-zinc-200 dark:border-zinc-800">
-                 <button onClick={() => setScale(s => Math.max(0.1, s - 0.1))} className="p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-400 transition shadow-sm"><ZoomOut size={16}/></button>
+                 <button onClick={() => setScale(s => Math.max(0.5, s - 0.1))} className="p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-400 transition shadow-sm"><ZoomOut size={16}/></button>
                  <span className="text-xs font-mono text-zinc-500 dark:text-zinc-500 w-12 text-center">{Math.round(scale * 100)}%</span>
-                 <button onClick={() => setScale(s => Math.min(3.0, s + 0.1))} className="p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-400 transition shadow-sm"><ZoomIn size={16}/></button>
+                 <button onClick={() => setScale(s => Math.min(2.0, s + 0.1))} className="p-1.5 hover:bg-white dark:hover:bg-zinc-800 rounded text-zinc-600 dark:text-zinc-400 transition shadow-sm"><ZoomIn size={16}/></button>
                </div>
              )}
              
              {imageSrc && (
-                <div className="flex items-center gap-1 ml-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 border border-zinc-200 dark:border-zinc-800">
+               <div className="flex items-center gap-1 ml-4 bg-zinc-100 dark:bg-zinc-900 rounded-lg p-1 border border-zinc-200 dark:border-zinc-800">
                    <button 
                      onClick={handleUndo} 
                      disabled={imageHistoryIndex <= 0 && historyIndex <= 0}
@@ -440,31 +414,30 @@ export default function ImageEditorPage() {
         </div>
 
         {/* Main Canvas Area */}
-        <div className="flex-1 overflow-auto p-10 pt-24 flex items-start justify-center bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] dark:bg-[radial-gradient(#27272a_1px,transparent_1px)] [background-size:16px_16px]">
+        <div className="flex-1 overflow-hidden p-10 pt-24 flex items-center justify-center bg-zinc-50 dark:bg-zinc-950">
            {!imageSrc ? (
               <div className="flex flex-col items-center justify-center h-full w-full animate-in zoom-in-95 duration-300">
-                 <button onClick={() => fileInputRef.current?.click()} className="group text-center p-12 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl hover:border-blue-500 dark:hover:border-blue-500 hover:bg-blue-50/50 dark:hover:bg-blue-900/10 transition-all">
+                 <button onClick={() => fileInputRef.current?.click()} className="group text-center p-12 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl hover:border-zinc-400 dark:hover:border-zinc-700 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-all">
                     <div className="w-20 h-20 rounded-full flex items-center justify-center mb-6 mx-auto bg-zinc-100 dark:bg-zinc-900 group-hover:scale-110 transition-transform">
-                       <UploadCloud size={32} className="text-zinc-400 dark:text-zinc-600 group-hover:text-blue-500 transition-colors"/>
+                       <UploadCloud size={32} className="text-zinc-400 dark:text-zinc-600 group-hover:text-zinc-600 dark:group-hover:text-zinc-400 transition-colors"/>
                     </div>
                     <h3 className="font-bold text-2xl text-zinc-900 dark:text-white mb-2">Upload Image</h3>
-                    <p className="text-zinc-500 dark:text-zinc-500">Drag & drop or click to browse</p>
+                    <p className="text-zinc-500 dark:text-zinc-400">Drag & drop or click to browse</p>
                  </button>
               </div>
            ) : (
              <div 
-               className="relative shadow-2xl transition-all duration-200 ease-out origin-top m-auto"
+               className="relative shadow-2xl transition-all duration-200 ease-out"
                style={{ 
-                 width: `${scale * 100}%`,
-                 minWidth: '100px',
-                 maxWidth: 'none'
+                 transform: `scale(${scale})`,
+                 transformOrigin: 'center center'
                }}
              >
                {/* THE IMAGE LAYER */}
                <img 
                  src={imageSrc} 
                  alt="Workspace" 
-                 className="w-full h-auto block bg-white dark:bg-zinc-800 rounded-sm select-none"
+                 className="max-w-full max-h-[calc(100vh-200px)] w-auto h-auto object-contain bg-white dark:bg-zinc-900 rounded-sm select-none"
                  draggable={false}
                  style={{
                    filter: `${editState.filter} brightness(${editState.brightness}%) contrast(${editState.contrast}%)`
@@ -477,7 +450,7 @@ export default function ImageEditorPage() {
                    className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none whitespace-nowrap font-bold select-none mix-blend-overlay"
                    style={{ 
                      color: editState.watermarkColor, 
-                     fontSize: `${editState.watermarkSize * scale}px`,
+                     fontSize: `${editState.watermarkSize}px`,
                      opacity: 0.8
                    }}
                  >
@@ -485,7 +458,7 @@ export default function ImageEditorPage() {
                  </div>
                )}
 
-               {/* CROP OVERLAY (Visual only) */}
+               {/* CROP OVERLAY */}
                {editState.cropActive && (
                   <div className="absolute inset-0 border-2 border-white shadow-[0_0_0_9999px_rgba(0,0,0,0.5)] z-10 pointer-events-none">
                      <div className="absolute top-0 left-0 w-4 h-4 border-t-4 border-l-4 border-white -mt-1 -ml-1"></div>
