@@ -36,6 +36,8 @@ export default function FileGrid({ files, onDelete }: any) {
         {files.map((file: any) => {
           const Icon = getFileIconComponent(file.mime_type);
           const isImage = file.mime_type?.startsWith("image/");
+          const isVideo = file.mime_type?.startsWith("video/");
+          const isPDF = file.mime_type === "application/pdf";
 
           return (
             <div
@@ -64,15 +66,16 @@ export default function FileGrid({ files, onDelete }: any) {
                     overflow-hidden
                   "
                 >
-                  {isImage ? (
+                  {(isImage || isVideo || isPDF) ? (
                     <img
-                      src={file.public_url}
+                      src={file.thumbnail_url}
                       alt={file.file_name}
-                      className="w-full h-full object-contain"
+                      className="w-full h-full object-contain rounded-lg"
                     />
                   ) : (
                     <Icon className="w-8 h-8 opacity-60" />
                   )}
+
                 </div>
               </div>
 
