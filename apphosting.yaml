@@ -1,5 +1,4 @@
-# Settings for Backend (on Cloud Run).
-# See https://firebase.google.com/docs/app-hosting/configure#cloud-run
+# Settings for Backend (Cloud Run)
 runConfig:
   minInstances: 0
   # maxInstances: 100
@@ -7,26 +6,23 @@ runConfig:
   # cpu: 1
   # memoryMiB: 512
 
+# Environment variables
 env:
   - variable: NEXT_PUBLIC_BASEURL
-    value: https://api.piee.app
+    value: "https://api.piee.app"
+    availability:
+      - BUILD
+      - RUNTIME
 
+# Build and Run Commands (using Bun)
 scripts:
   buildCommand: bun install && bunx next build
   runCommand: bunx next start
 
-
-# Environment variables and secrets.
+# Secret manager examples (commented out)
 # env:
-  # Configure environment variables.
-  # See https://firebase.google.com/docs/app-hosting/configure#user-defined-environment
-  # - variable: MESSAGE
-  #   value: Hello world!
-  #   availability:
-  #     - BUILD
-  #     - RUNTIME
-
-  # Grant access to secrets in Cloud Secret Manager.
-  # See https://firebase.google.com/docs/app-hosting/configure#secret-parameters
-  # - variable: MY_SECRET
-  #   secret: mySecretRef
+#   - variable: MY_SECRET
+#     secret: mySecretRef
+#     availability:
+#       - BUILD
+#       - RUNTIME
