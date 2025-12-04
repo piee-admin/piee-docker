@@ -14,12 +14,12 @@ env:
       - BUILD
       - RUNTIME
 
-# Build and Run Commands (using Bun)
+# Build and Run Commands (Node.js)
 scripts:
-  buildCommand: bun install && bunx next build
-  runCommand: bunx next start
+  buildCommand: npm install && npm run build
+  runCommand: npm run start
 
-# Secret manager examples (commented out)
+# Example for secrets (commented out)
 # env:
 #   - variable: MY_SECRET
 #     secret: mySecretRef
