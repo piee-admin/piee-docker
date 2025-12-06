@@ -79,6 +79,7 @@ export default function ImageEditorPage() {
   const [imageSrc, setImageSrc] = useState<string | null>(null);
   const [scale, setScale] = useState(1.0);
   const [imgDims, setImgDims] = useState<{ w: number, h: number } | null>(null);
+  const [isDragging, setIsDragging] = useState(false); // New state for drag visual feedback
   
   const [editState, setEditState] = useState<EditState>(DEFAULT_EDIT_STATE);
   const [exportConfig, setExportConfig] = useState<ExportConfig>({
@@ -178,19 +179,42 @@ export default function ImageEditorPage() {
     }
   };
 
+  // --- FILE HANDLING (Unified for Drop & Click) ---
+  const loadFile = (selected: File) => {
+    setFile(selected);
+    const url = URL.createObjectURL(selected);
+    setImageSrc(url);
+    const extension = selected.type.split('/')[1] || 'png';
+    setExportConfig({ mime: selected.type, quality: 0.92, extension: extension });
+    setActiveTool(null);
+    setEditState(DEFAULT_EDIT_STATE);
+    setHistory([DEFAULT_EDIT_STATE]);
+    setHistoryIndex(0);
+    setImageHistory([]); 
+  };
+
   const handleUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selected = e.target.files?.[0];
-    if (selected) {
-      setFile(selected);
-      const url = URL.createObjectURL(selected);
-      setImageSrc(url);
-      const extension = selected.type.split('/')[1] || 'png';
-      setExportConfig({ mime: selected.type, quality: 0.92, extension: extension });
-      setActiveTool(null);
-      setEditState(DEFAULT_EDIT_STATE);
-      setHistory([DEFAULT_EDIT_STATE]);
-      setHistoryIndex(0);
-      setImageHistory([]); 
+    if (selected) loadFile(selected);
+  };
+
+  // --- DRAG AND DROP HANDLERS ---
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const selected = e.dataTransfer.files?.[0];
+    if (selected && selected.type.startsWith('image/')) {
+        loadFile(selected);
     }
   };
 
@@ -225,7 +249,6 @@ export default function ImageEditorPage() {
     const newUrl = URL.createObjectURL(blob);
     const newFile = new File([blob], 'document-preview.jpg', { type: 'image/jpeg' });
     addToImageHistory(newUrl, newFile);
-    // Force export config to PDF when applying PDF layout
     setExportConfig({ mime: 'application/pdf', quality: 1.0, extension: 'pdf' });
   };
 
@@ -429,7 +452,12 @@ export default function ImageEditorPage() {
   };
 
   return (
-    <div className="flex h-screen w-full bg-white dark:bg-black text-zinc-900 dark:text-white overflow-hidden font-sans transition-colors duration-300">
+    <div 
+      className="flex h-screen w-full bg-white dark:bg-black text-zinc-900 dark:text-white overflow-hidden font-sans transition-colors duration-300"
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+    >
       
       {/* LEFT SIDEBAR */}
       <div className="w-80 flex flex-col z-20 border-r border-zinc-200 dark:border-zinc-800 bg-white dark:bg-black shrink-0">
@@ -521,8 +549,18 @@ export default function ImageEditorPage() {
         {/* --- SCROLLABLE CANVAS AREA --- */}
         <div 
           ref={containerRef}
-          className="flex-1 overflow-auto bg-zinc-50 dark:bg-zinc-950"
+          className={`flex-1 overflow-auto bg-zinc-50 dark:bg-zinc-950 transition-colors relative ${isDragging ? 'ring-4 ring-black-500/20 bg-black-50 dark:bg-black-950/20' : ''}`}
         >
+           {/* DROP ZONE OVERLAY */}
+           {isDragging && (
+             <div className="absolute inset-0 z-50 bg-black-500/10 backdrop-blur-sm flex flex-col items-center justify-center border-4 border-black-500 border-dashed m-4 rounded-3xl pointer-events-none">
+               <div className="p-6 bg-white dark:bg-zinc-900 rounded-full shadow-xl mb-4">
+                 <UploadCloud size={48} className="text-black-500" />
+               </div>
+               <h3 className="text-2xl font-bold text-black-600 dark:text-black-400">Drop Image Here</h3>
+             </div>
+           )}
+
            {!imageSrc ? (
               <div className="flex h-full w-full flex-col items-center justify-center animate-in zoom-in-95 duration-300">
                  <button onClick={() => fileInputRef.current?.click()} className="group text-center p-12 border-2 border-dashed border-zinc-300 dark:border-zinc-800 rounded-3xl hover:border-zinc-400 dark:hover:border-zinc-700 hover:bg-zinc-100/50 dark:hover:bg-zinc-900/50 transition-all">
