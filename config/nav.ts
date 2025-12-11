@@ -25,6 +25,7 @@ import {
     Music,
     FileText,
     HardDrive,
+    Library,
 } from "lucide-react"
 
 // -----------------------------
@@ -54,6 +55,7 @@ export const navMain: NavSection[] = [
         icon: SquareTerminal,
         isActive: true,
         items: [
+            
             { title: "Overview", url: "/dashboard/overview" },
             { title: "Activity", url: "/dashboard/activity" },
             { title: "Shortcuts", url: "/dashboard/shortcuts" },
@@ -65,7 +67,19 @@ export const navMain: NavSection[] = [
         icon: HardDrive,
         isActive: true,
     },
-    
+    {
+        title: "Library",
+        url: "/library",
+        icon: Library,
+        isActive: true,
+        items: [
+            { title: "All", url: "/library" },
+            { title: "Prompts", url: "/library/prompt" },
+            { title: "Models", url: "/library/model" },
+            { title: "Images", url: "/dashboard/image" },
+            { title: "Videos", url: "/dashboard/video" },
+        ],
+    },
     {
         title: "Creative Tools",
         url: "/dashboard/tools",
@@ -157,7 +171,7 @@ export const navMain: NavSection[] = [
 // SECONDARY NAV
 // -----------------------------
 export const navSecondary: NavItem[] = [
-    { title: "Support", url: "/dashboard/support", icon: LifeBuoy },
+    { title: "Support", url: "/support", icon: LifeBuoy },
     { title: "Feedback", url: "/dashboard/feedback", icon: Send },
     { title: "Community", url: "https://discord.gg/sR9bN3wW", icon: Map },
 ]

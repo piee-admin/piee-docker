@@ -29,9 +29,10 @@ import Link from "next/link";
 import { useAuth } from "./context/AuthContext";
 import Login from "../components/Login";
 // Updated icons
-import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download, ArrowLeft, ArrowRight } from "lucide-react"; // Added Github
+import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download, ArrowLeft, ArrowRight, Coffee, Heart } from "lucide-react"; // Added Github
 import { GradientBars } from "@/components/ui/gradient-bars";
 import { TextReveal } from "@/components/ui/text-reveal";
+import { navMain, navSecondary, projects, NavSection } from "@/config/nav"; // ← adjust your path
 
 // --- GitHub Repo Link ---
 // !! REPLACE THIS with your actual GitHub repository URL
@@ -87,6 +88,8 @@ export function StarOnGitHub() {
 }
 
 export function Header() {
+  const buyMeUrl = "https://buymeacoffee.com/pieeapp";
+
   const { user, logOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [openLogin, setOpenLogin] = useState(false);
@@ -95,8 +98,16 @@ export function Header() {
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "FAQ", link: "#faq" },
-    { name: "GitHub", link: REPO_URL },
+    { name: "Library", link: '/library' },
+    { name: "Support", link: buyMeUrl }
   ];
+
+  /**const navItems = [
+    { name: "Features", link: "#features" },
+    { name: "FAQ", link: "#faq" },
+    { name: "GitHub", link: REPO_URL },
+    { name: "Support", link: buyMeUrl }
+  ]; */
 
   const handleLoginSuccess = () => {
     setOpenLogin(false);
@@ -129,7 +140,7 @@ export function Header() {
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-
+          
         </NavBody>
 
         <MobileNav>
@@ -226,7 +237,7 @@ export const Hero = () => (
       </p>
 
       {/* ⚡ Action Buttons */}
-      
+
     </div>
   </section>
 );
@@ -403,8 +414,8 @@ const FAQ = () => (
       </h2>
       <div className="flex justify-center">
         <Button asChild>
-        <Link href='/faq'><ArrowRight/> Get Full FAQ</Link>
-      </Button>
+          <Link href='/faq'><ArrowRight /> Get Full FAQ</Link>
+        </Button>
       </div>
       <Accordion type="single" collapsible className="w-full">
         {faqItems.map((item, i) => (
@@ -462,6 +473,131 @@ const GradientBarsPreview = () => {
   );
 };
 
+const SupportSection = () => {
+  const buyMeUrl = "https://buymeacoffee.com/pieeapp";
+  return (
+    <section className="flex flex-col items-center container mx-auto px-6 py-24 max-w-3xl">
+        <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
+          Support PIEE ❤️
+        </h1>
+
+        <p className="text-muted-foreground text-lg md:text-xl mb-10 leading-relaxed">
+          PIEE is built with love, late nights, and countless cups of coffee.
+          <br />
+          If PIEE helps you build faster or inspires you — supporting the project keeps
+          it alive, improves development, and accelerates new features. 
+          <br />
+          - Jayash Bhandary
+        </p>
+
+        {/* CTA BUTTON */}
+        <div className="flex justify-center">
+          <a
+            href={buyMeUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-1 px-2 py-4 rounded-xl bg-amber-400 text-black font-medium text-lg shadow hover:opacity-95 transition"
+          >
+            <Coffee className="w-6 h-6" />
+            Buy Me a Coffee
+          </a>
+        </div>
+
+        
+      </section>
+  )
+}
+
+export const Footer = () => {
+  return (
+    <footer className="border-t bg-muted/30 mt-10">
+      <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
+        
+        {/* BRAND */}
+        <div>
+          <NavbarLogo />
+          <p className="text-sm mt-2 text-muted-foreground">
+            AI-powered creative + developer suite.  
+            Build faster, create smarter.
+          </p>
+        </div>
+
+        {/* MAIN NAV SECTIONS */}
+        <div className="col-span-2 grid grid-cols-2 gap-6">
+          {navMain.map((section: NavSection) => (
+            <div key={section.title}>
+              <h3 className="font-semibold mb-3">{section.title}</h3>
+
+              {/* Section Items */}
+              <ul className="space-y-2">
+                {section.items ? (
+                  section.items.map((item) => (
+                    <li key={item.title}>
+                      <Link
+                        href={item.url}
+                        className="text-sm text-muted-foreground hover:text-foreground"
+                      >
+                        {item.title}
+                      </Link>
+                    </li>
+                  ))
+                ) : (
+                  <li>
+                    <Link 
+                      href={section.url}
+                      className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      {section.title}
+                    </Link>
+                  </li>
+                )}
+              </ul>
+            </div>
+          ))}
+        </div>
+
+        {/* OTHER LINKS */}
+        <div>
+          <h3 className="font-semibold mb-3">More</h3>
+          <ul className="space-y-2">
+            {navSecondary.map((item) => (
+              <li key={item.title}>
+                <Link
+                  href={item.url}
+                  className="text-sm text-muted-foreground hover:text-foreground"
+                >
+                  {item.title}
+                </Link>
+              </li>
+            ))}
+
+            {projects.length > 0 && (
+              <>
+                <h3 className="font-semibold mt-4 mb-1">Projects</h3>
+                {projects.map((p) => (
+                  <li key={p.name}>
+                    <Link
+                      href={p.url}
+                      className="text-sm text-muted-foreground hover:text-foreground"
+                    >
+                      {p.name}
+                    </Link>
+                  </li>
+                ))}
+              </>
+            )}
+          </ul>
+        </div>
+      </div>
+
+      {/* COPYRIGHT */}
+      <div className="border-t mt-10 py-6 text-center text-sm text-muted-foreground">
+        © {new Date().getFullYear()} PIEE — Built by PIEE Team.
+      </div>
+    </footer>
+  );
+}
+
 export default function Page() {
   return (
     <>
@@ -473,6 +609,8 @@ export default function Page() {
         {/* Added FAQ Section here */}
         <EntropyDemo />
         <FAQ />
+        <SupportSection />
+        <Footer />
         <GradientBarsPreview />
       </main>
     </>
