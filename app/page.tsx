@@ -14,6 +14,7 @@ import {
 import { motion } from "motion/react";
 import { BorderTrail } from "@/components/motion-primitives/border-trail";
 
+import { Entropy } from "@/components/ui/entropy"
 import React, { useState, useEffect } from "react";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -28,7 +29,9 @@ import Link from "next/link";
 import { useAuth } from "./context/AuthContext";
 import Login from "../components/Login";
 // Updated icons
-import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download } from "lucide-react"; // Added Github
+import { Brush, Code, Film, Music2, Cpu, FileText, Package, Github, Plus, Settings, LayoutDashboardIcon, Download, ArrowLeft, ArrowRight } from "lucide-react"; // Added Github
+import { GradientBars } from "@/components/ui/gradient-bars";
+import { TextReveal } from "@/components/ui/text-reveal";
 
 // --- GitHub Repo Link ---
 // !! REPLACE THIS with your actual GitHub repository URL
@@ -223,32 +226,7 @@ export const Hero = () => (
       </p>
 
       {/* ⚡ Action Buttons */}
-      <div className="mt-10 flex justify-center gap-4 flex-wrap">
-
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="px-8 py-6 font-bold"
-        >
-          <Link href={REPO_URL} target="_blank">
-            <Github className="mr-2 h-5 w-5" />
-            Star on GitHub
-          </Link>
-        </Button>
-
-        <Button
-          asChild
-          variant="outline"
-          size="lg"
-          className="px-8 py-6 font-bold"
-        >
-          <Link href="/dashboard">
-            <LayoutDashboardIcon className="mr-2 h-5 w-5" />
-            Dashboard
-          </Link>
-        </Button>
-      </div>
+      
     </div>
   </section>
 );
@@ -302,7 +280,7 @@ const DashboardImageHero = () => (
           "
         >
           <img
-            src="/images/piee-dashboard.png"
+            src="/images/piee-dashboard-s.png"
             alt="Dashboard Preview"
             className="w-full h-auto object-cover"
           />
@@ -371,7 +349,7 @@ const features = [
 ];
 
 const Features = () => (
-  <section id="features" className="py-20 bg-muted/30">
+  <section id="features" className="py-70 bg-muted/30">
     <div className="container mx-auto px-4 text-center">
       <h2 className="text-3xl md:text-4xl font-bold mb-6">
         Your Toolkit. One Shortcut Away.
@@ -423,6 +401,11 @@ const FAQ = () => (
       <h2 className="text-3xl md:text-4xl font-bold mb-10 text-center">
         Frequently Asked Questions
       </h2>
+      <div className="flex justify-center">
+        <Button asChild>
+        <Link href='/faq'><ArrowRight/> Get Full FAQ</Link>
+      </Button>
+      </div>
       <Accordion type="single" collapsible className="w-full">
         {faqItems.map((item, i) => (
           <AccordionItem key={i} value={`item-${i + 1}`}>
@@ -452,6 +435,33 @@ const CTA = () => (
   </section>
 );
 
+
+export function EntropyDemo() {
+  return (
+    <div className="flex flex-col items-center justify-center bg-black text-white min-h-screen w-full p-8">
+      <div className="flex flex-col items-center">
+        <Entropy className="rounded-lg" />
+        <div className="mt-6 text-center">
+          <div className="space-y-4 font-mono text-[14px] leading-relaxed">
+            <p className="italic text-gray-400/80 tracking-wide">
+              &ldquo;Order and chaos dance &mdash;
+              <span className="opacity-70">digital poetry in motion.&rdquo;</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+const GradientBarsPreview = () => {
+  return (
+    <div className=" flex flex-col items-center">
+      <GradientBars />
+    </div>
+  );
+};
+
 export default function Page() {
   return (
     <>
@@ -461,9 +471,9 @@ export default function Page() {
         <DashboardImageHero />
         <Features />
         {/* Added FAQ Section here */}
-
+        <EntropyDemo />
         <FAQ />
-        <CTA />
+        <GradientBarsPreview />
       </main>
     </>
   );
