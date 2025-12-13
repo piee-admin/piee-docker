@@ -98,7 +98,7 @@ function normalize(input: any): Item[] {
   return input.results || input.data || input.items || [];
 }
 
-function LibrarySection({
+export function LibrarySection({
   title,
   subtitle,
   items,
@@ -132,10 +132,14 @@ function LibrarySection({
       {items.length === 0 ? (
         <EmptyState title={title} />
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {items.map((item, i) => (
-            <LibraryCard key={item.id ?? i} item={item} type={type} />
-          ))}
+        <div className="relative">
+          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+            {items.map((item, i) => (
+              <div key={item.id ?? i} className="min-w-[280px] max-w-[280px]">
+                <LibraryCard item={item} type={type} />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </section>
@@ -151,25 +155,32 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
     Array.isArray(item.tags) ? item.tags : item.tags ? [String(item.tags)] : [];
 
   return (
-    <Card className="hover:shadow-medium transition-shadow duration-200">
-      <CardHeader>
-        <CardTitle className="text-lg truncate">{title}</CardTitle>
-        <CardDescription className="truncate">{excerpt}</CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        {/* Thumbnail for images/videos */}
-        {(item.thumbnail || item.cover_url) && (
-          <div className="relative w-full h-40 rounded-md overflow-hidden border">
+    <Card className="hover:shadow-medium transition-shadow duration-200 overflow-hidden">
+      {/* ---------------- Thumbnail (TOP) ---------------- */}
+      {(item.thumbnail_url || item.cover_url) && (
+        <div className="p-2">
+          <div className="relative w-full aspect-video bg-muted rounded-md overflow-hidden">
             <Image
-              src={item.thumbnail || item.cover_url || "/placeholder.png"}
+              src={item.thumbnail_url || item.cover_url || "/placeholder.png"}
               alt={title}
               fill
               className="object-cover"
             />
           </div>
-        )}
+        </div>
+      )}
 
+      {/* ---------------- Content ---------------- */}
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base line-clamp-1">
+          {title}
+        </CardTitle>
+        <CardDescription className="line-clamp-2 text-sm">
+          {excerpt}
+        </CardDescription>
+      </CardHeader>
+
+      <CardContent className="space-y-3 pt-0">
         {/* Tags */}
         {tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
@@ -181,9 +192,10 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
           </div>
         )}
 
+        {/* Action */}
         <Link
           href={`/library/${type}/${item.id ?? ""}`}
-          className="text-sm font-medium text-primary hover:underline underline-offset-4"
+          className="inline-block text-sm font-medium text-primary hover:underline underline-offset-4"
         >
           Open →
         </Link>
@@ -191,6 +203,7 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
     </Card>
   );
 }
+
 
 function EmptyState({ title }: { title: string }) {
   return (

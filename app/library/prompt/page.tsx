@@ -1,7 +1,7 @@
 // app/library/page.tsx
 import { formatDistanceToNowStrict } from "date-fns";
 import { library } from "@/app/library";
-
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -18,6 +18,7 @@ import {
   AvatarImage,
 } from "@/components/ui/avatar";
 import { Separator } from "@/components/ui/separator";
+import { CopyPromptButton } from "@/components/copypromptbutton";
 
 import Link from "next/link";
 
@@ -108,13 +109,26 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
     ? [String(prompt.tags)]
     : [];
 
-  const createdAt =
-    prompt.created_at ?? prompt.createdAt ?? null;
-
+  const createdAt = prompt.created_at ?? prompt.createdAt ?? null;
   const author = prompt.author ?? null;
 
   return (
-    <Card className="hover:shadow-xl transition-shadow border border-border/40">
+    <Card className="hover:shadow-xl transition-shadow border border-border/40 overflow-hidden">
+      {/* ---------------- Thumbnail (TOP) ---------------- */}
+      {prompt.thumbnail_url && (
+        <div className="p-2">
+          <div className="relative w-full aspect-video rounded-md overflow-hidden bg-muted">
+            <Image
+              src={prompt.thumbnail_url}
+              alt={title}
+              fill
+              className="object-cover"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* ---------------- Header ---------------- */}
       <CardHeader className="flex flex-row items-start justify-between gap-4 pb-2">
         {/* AUTHOR */}
         <div className="flex items-center gap-3">
@@ -132,11 +146,11 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
           </Avatar>
 
           <div>
-            <CardTitle className="text-base font-semibold leading-5">
+            <CardTitle className="text-base font-semibold leading-5 line-clamp-1">
               {title}
             </CardTitle>
             <CardDescription className="text-xs text-muted-foreground">
-              {author?.name ?? "Community"}{" "}
+              {author?.name ?? "Community"}
               {createdAt && (
                 <span className="ml-1">
                   • {formatDistanceToNowStrict(new Date(createdAt))} ago
@@ -152,6 +166,7 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
         </Button>
       </CardHeader>
 
+      {/* ---------------- Content ---------------- */}
       <CardContent className="pt-2 space-y-4">
         {/* EXCERPT */}
         <p className="text-sm text-foreground leading-6 line-clamp-3">
@@ -178,10 +193,7 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
               Open
             </Link>
           </Button>
-
-          <Button size="sm" variant="outline">
-            Copy
-          </Button>
+          <CopyPromptButton content={String(prompt.content ?? "")} />
         </div>
       </CardContent>
     </Card>
