@@ -18,7 +18,7 @@ import {
     Calendar,
     BarChart3,
     QrCode,
-    
+
     LucideIcon,
     ImageIcon,
     Code,
@@ -26,6 +26,14 @@ import {
     FileText,
     HardDrive,
     Library,
+    Globe,
+    ScrollText,
+    Cpu,
+    Image,
+    User,
+    CreditCard,
+    Users,
+    Gauge,
 } from "lucide-react"
 
 // -----------------------------
@@ -49,6 +57,33 @@ export type NavSection = {
 // MAIN NAV
 // -----------------------------
 export const navMain: NavSection[] = [
+    {
+        title: "Library",
+        url: "/library",
+        icon: Library,
+        isActive: true,
+        items: [
+            { title: "All", url: "/library", icon: Globe },
+            { title: "Prompts", url: "/library/prompt", icon: ScrollText },
+            { title: "Models", url: "/library/model", icon: Cpu },
+            { title: "Images", url: "/library/image", icon: Image },
+            { title: "Videos", url: "/library/video", icon: Video },
+        ],
+    },
+    {
+        title: "Settings",
+        url: "/library/settings",
+        icon: Settings2,
+        items: [
+            { title: "Account", url: "/library/settings/account", icon: User },
+            { title: "Billing", url: "/library/settings/billing", icon: CreditCard },
+            { title: "Workspace", url: "/library/settings/workspace", icon: Users },
+            { title: "Limits", url: "/library/settings/limits", icon: Gauge },
+        ],
+    },
+]
+
+/**export const navMain: NavSection[] = [
     {
         title: "Dashboard",
         url: "/dashboard",
@@ -165,7 +200,7 @@ export const navMain: NavSection[] = [
             { title: "Limits", url: "/dashboard/settings/limits" },
         ],
     },
-]
+] */
 
 // -----------------------------
 // SECONDARY NAV

@@ -42,13 +42,12 @@ export class PromptsService {
      * @throws ApiError
      */
     public static createPromptLibraryPromptsPost(
-        requestBody: Record<string, any>,
+        formData: FormData,
     ): CancelablePromise<any> {
         return __request(OpenAPI, {
-            method: 'POST',
-            url: '/library/prompts/',
-            body: requestBody,
-            mediaType: 'application/json',
+            method: "POST",
+            url: "/library/prompts/",
+            body: formData,
             errors: {
                 422: `Validation Error`,
             },

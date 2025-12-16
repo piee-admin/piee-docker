@@ -5,7 +5,7 @@ export default function manifest(): MetadataRoute.Manifest {
     name: "PIEE",
     short_name: "PIEE",
     description: "Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source.",
-    start_url: "/dashboard",
+    start_url: "/library",
     display: "standalone",
     display_override: ["fullscreen", "minimal-ui"],
     orientation: 'portrait',
