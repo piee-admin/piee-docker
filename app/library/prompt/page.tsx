@@ -6,20 +6,9 @@ import Image from "next/image";
 import { formatDistanceToNowStrict } from "date-fns";
 
 import { library } from "@/app/library";
-
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
-
-import { CopyPromptButton } from "@/components/copypromptbutton";
 import { CreatePromptDialog } from "@/components/createpromptdialog";
 import { useAuth } from "@/app/context/AuthContext";
 import { useAppStore } from "@/app/store/useAppStore";
@@ -36,8 +25,7 @@ type PromptItem = {
   tags?: string[] | null;
   created_at?: string | null;
   thumbnail_url?: string | null;
-  author?: { name?: string; avatar_url?: string } | null;
-  [key: string]: any;
+  author?: { name?: string } | null;
 };
 
 //
@@ -46,13 +34,13 @@ type PromptItem = {
 export default function LibraryPage() {
   const [prompts, setPrompts] = useState<PromptItem[]>([]);
   const [loading, setLoading] = useState(true);
-  const {user } = useAuth();
   const [query, setQuery] = useState("");
   const [type, setType] = useState<"all" | "text" | "image" | "video">("all");
-  const { logOut, signIn } = useAuth()
-  const router = useRouter()
-  const { userInfo, fetchUserInfo } = useAppStore()
-  
+
+  const { user, signIn } = useAuth();
+  const { fetchUserInfo } = useAppStore();
+  const router = useRouter();
+
   useEffect(() => {
     async function load() {
       const res = await library.prompts.list({ limit: 30 });
@@ -66,24 +54,16 @@ export default function LibraryPage() {
   }, []);
 
   const handleLogin = async () => {
-    try {
-      await signIn()
-      await fetchUserInfo()
-      router.refresh()
-    } catch (error) {
-      console.error("❌ Error logging in:", error)
-    }
-  }
+    await signIn();
+    await fetchUserInfo();
+    router.refresh();
+  };
 
-  // SEARCH + FILTER
   const filtered = useMemo(() => {
     return prompts.filter((p) => {
-      const text =
-        `${p.title ?? ""} ${p.content ?? ""} ${(p.tags ?? []).join(" ")}`.toLowerCase();
-
+      const text = `${p.title ?? ""} ${p.content ?? ""}`.toLowerCase();
       const matchesQuery = !query || text.includes(query.toLowerCase());
       const matchesType = type === "all" || p.type === type;
-
       return matchesQuery && matchesType;
     });
   }, [query, type, prompts]);
@@ -97,56 +77,36 @@ export default function LibraryPage() {
           {user ? (
             <CreatePromptDialog />
           ) : (
-            <Button
-              onClick={handleLogin}
-              variant="default"
-            >
-              Sign in to create
-            </Button>
+            <Button onClick={handleLogin}>Sign in to create</Button>
           )}
         </div>
 
-        <p className="text-muted-foreground max-w-prose">
-          Explore community-created prompts. Copy, remix, or create your own.
-        </p>
+        <Input
+          placeholder="Search prompts…"
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          className="max-w-sm"
+        />
 
-        <div className="flex flex-wrap items-center gap-3">
-          {/* SEARCH */}
-          <Input
-            placeholder="Search prompts, tags…"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="max-w-sm"
-          />
-
-          {/* TYPE FILTER */}
-          <div className="flex gap-2">
-            {["all", "text", "image", "video"].map((t) => (
-              <Button
-                key={t}
-                size="sm"
-                variant={type === t ? "default" : "outline"}
-                onClick={() => setType(t as any)}
-              >
-                {t}
-              </Button>
-            ))}
-          </div>
-
-          {/* CREATE PROMPT (EXTERNAL COMPONENT) */}
-
+        <div className="flex gap-2">
+          {["all", "text", "image", "video"].map((t) => (
+            <Button
+              key={t}
+              size="sm"
+              variant={type === t ? "default" : "outline"}
+              onClick={() => setType(t as any)}
+            >
+              {t}
+            </Button>
+          ))}
         </div>
       </header>
 
-      {/* GRID */}
+      {/* GRID (Pinterest-style Masonry) */}
       {loading ? (
-        <p className="text-muted-foreground text-center py-20">
-          Loading prompts…
-        </p>
-      ) : filtered.length === 0 ? (
-        <EmptyState />
+        <p className="text-center py-20 text-muted-foreground">Loading…</p>
       ) : (
-        <section className="grid grid-cols-1 gap-2 lg:grid-cols-3">
+        <section className="columns-1 sm:columns-2 lg:columns-4 gap-4">
           {filtered.map((p, i) => (
             <PromptCard key={p.id ?? i} prompt={p} />
           ))}
@@ -160,79 +120,67 @@ export default function LibraryPage() {
 // PROMPT CARD
 //
 function PromptCard({ prompt }: { prompt: PromptItem }) {
-  const title =
-    prompt.title ??
-    (prompt.content ? String(prompt.content).slice(0, 60) : "Untitled");
-
-  const createdAt = prompt.created_at ?? null;
-  const author = prompt.author ?? null;
+  const isMedia = Boolean(prompt.thumbnail_url);
+  const title = prompt.title ?? "Untitled Prompt";
 
   return (
-    <Card className="border border-border/40 hover:shadow-lg transition-shadow">
-      {prompt.thumbnail_url && (
-        <div className="p-2">
-          <div className="relative aspect-video rounded-md overflow-hidden bg-muted">
-            <Image
-              src={prompt.thumbnail_url}
-              alt={title}
-              fill
-              className="object-cover"
-            />
+    <Link
+      href={`/library/prompt/${prompt.id}`}
+      className="group block mb-4 break-inside-avoid"
+    >
+      <Card
+        className="
+          overflow-hidden
+          border border-border/40
+          transition
+          hover:shadow-xl
+          hover:scale-[1.01]
+        "
+      >
+        {isMedia ? (
+          // IMAGE / VIDEO PROMPT
+          <Image
+            src={prompt.thumbnail_url!}
+            alt={title}
+            width={500}
+            height={500}
+            sizes="(max-width: 1024px) 100vw, 33vw"
+            className="
+              w-full
+              h-auto
+              object-cover
+              transition
+              group-hover:brightness-90
+            "
+          />
+        ) : (
+          // TEXT PROMPT FALLBACK
+          <div
+            className="
+              aspect-[4/5]
+              flex
+              items-center
+              justify-center
+              p-6
+              text-center
+              bg-gradient-to-br
+              from-muted/60
+              to-muted
+            "
+          >
+            <h3
+              className="
+                text-lg
+                font-semibold
+                leading-snug
+                line-clamp-4
+              "
+            >
+              {title}
+            </h3>
           </div>
-        </div>
-      )}
-
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base line-clamp-1">
-          {title}
-        </CardTitle>
-        <CardDescription className="text-xs">
-          {author?.name ?? "Community"}
-          {createdAt && (
-            <span className="ml-1">
-              • {formatDistanceToNowStrict(new Date(createdAt))} ago
-            </span>
-          )}
-        </CardDescription>
-      </CardHeader>
-
-      <CardContent className="space-y-3">
-        {/**{prompt.tags?.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {prompt.tags.slice(0, 4).map((t) => (
-              <Badge key={t} variant="secondary" className="text-xs">
-                #{t}
-              </Badge>
-            ))}
-          </div>
-        )} */}
-
-        <Separator />
-
-        <div className="flex items-center justify-between">
-          <Button size="sm" asChild>
-            <Link href={`/library/prompt/${prompt.id}`}>
-              Open
-            </Link>
-          </Button>
-
-          <CopyPromptButton content={String(prompt.content ?? "")} />
-        </div>
-      </CardContent>
-    </Card>
-  );
-}
-
-//
-// EMPTY STATE
-//
-function EmptyState() {
-  return (
-    <div className="col-span-full border border-dashed rounded-xl p-10 text-center">
-      <h3 className="text-xl font-semibold">No prompts found</h3>
-      <p className="text-sm text-muted-foreground mt-2">
-        Try adjusting your search or create a new prompt.
-      </p>
-    </div>
+        )}
+      </Card>
+    </Link>
   );
 }

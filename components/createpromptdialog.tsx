@@ -19,10 +19,11 @@ import {
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Plus } from "lucide-react";
+import { Plus, Upload, Loader2 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
 import { OpenAPI } from "@/app/library/api";
-import { library } from "@/app/library";
+import { toast } from "sonner";
+import { useRouter } from "next/navigation";
 
 type PromptType = "text" | "image" | "video";
 type PromptModel = "gpt-4o" | "gpt-4.1" | "gpt-4o-mini";
@@ -32,36 +33,88 @@ export function CreatePromptDialog() {
   const [type, setType] = useState<PromptType>("text");
   const [model, setModel] = useState<PromptModel>("gpt-4o");
   const [isPublic, setIsPublic] = useState(true);
-  const [fileName, setFileName] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const router = useRouter();
+
   const { user } = useAuth();
 
+  // -----------------------------
+  // Submit
+  // -----------------------------
   async function submit(form: HTMLFormElement) {
-    if (!user) return;
+    if (!user || isSubmitting) return;
 
-    const formData = new FormData(form);
-    formData.set("type", type);
-    formData.set("model", model);
-    formData.set("is_public", String(isPublic));
+    try {
+      setIsSubmitting(true);
 
-    if (type === "text") {
-      formData.delete("file");
+      toast.success("Creating prompt…");
+
+      const formData = new FormData(form);
+      formData.set("type", type);
+      formData.set("model", model);
+      formData.set("is_public", String(isPublic));
+
+      if (type !== "text" && file) {
+        formData.append("file", file);
+      }
+
+      const token = await user.getIdToken();
+
+      const res = await fetch(`${OpenAPI.BASE}/library/prompts/`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => null);
+        throw new Error(err?.detail || "Failed to create prompt");
+      }
+
+      toast.success("Prompt created 🎉.Your prompt has been successfully published");
+
+      setOpen(false);
+      setFile(null);
+      form.reset();
+
+      router.refresh();
+    } catch (error: any) {
+      toast.error(`Creation failed ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
-
-    OpenAPI.TOKEN = await user.getIdToken();
-    await library.prompts.create({ body: formData });
-
-    setOpen(false);
   }
 
   // Reset file when switching to text
   useEffect(() => {
     if (type === "text") {
-      const input = document.getElementById("prompt-file") as HTMLInputElement;
-      if (input) input.value = "";
-      setFileName("");
+      setFile(null);
     }
   }, [type]);
 
+  // -----------------------------
+  // Drag & Drop
+  // -----------------------------
+  function handleDrop(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+    if (type === "text") return;
+
+    const droppedFile = e.dataTransfer.files?.[0];
+    if (droppedFile) {
+      setFile(droppedFile);
+    }
+  }
+
+  function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
+    e.preventDefault();
+  }
+
+  // -----------------------------
+  // UI
+  // -----------------------------
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
@@ -70,7 +123,6 @@ export function CreatePromptDialog() {
         </Button>
       </DialogTrigger>
 
-      {/* 🔥 pointer-events fix */}
       <DialogContent className="pointer-events-auto">
         <DialogHeader>
           <DialogTitle>Create new prompt</DialogTitle>
@@ -84,13 +136,7 @@ export function CreatePromptDialog() {
           }}
         >
           <Input name="title" placeholder="Title" required />
-
-          <Textarea
-            name="content"
-            placeholder="Prompt content"
-            required
-          />
-
+          <Textarea name="content" placeholder="Prompt content" required />
           <Textarea
             name="description"
             placeholder="Short description"
@@ -113,7 +159,10 @@ export function CreatePromptDialog() {
           {/* Model */}
           <div className="space-y-2">
             <Label>Model</Label>
-            <Select value={model} onValueChange={(v) => setModel(v as PromptModel)}>
+            <Select
+              value={model}
+              onValueChange={(v) => setModel(v as PromptModel)}
+            >
               <SelectTrigger />
               <SelectContent>
                 <SelectItem value="gpt-4o">GPT-4o</SelectItem>
@@ -134,21 +183,33 @@ export function CreatePromptDialog() {
             <Switch checked={isPublic} onCheckedChange={setIsPublic} />
           </div>
 
-          {/* File upload (GUARANTEED WORKING) */}
-          <div className="space-y-2">
-            <Label>Upload file</Label>
+          {/* Upload */}
+          {type !== "text" && (
+            <div className="space-y-2">
+              <Label>Reference file</Label>
+              <div
+                onDrop={handleDrop}
+                onDragOver={handleDragOver}
+                className="flex flex-col items-center justify-center rounded-lg border border-dashed p-6 text-center text-sm transition hover:border-primary"
+              >
+                <Upload className="mb-2 h-5 w-5 text-muted-foreground" />
+                {file ? (
+                  <p className="font-medium">{file.name}</p>
+                ) : (
+                  <p className="text-muted-foreground">
+                    Drag & drop a file here
+                  </p>
+                )}
+              </div>
+            </div>
+          )}
 
-            <Input
-              type="file"
-              name="file"
-              disabled={type === "text"}
-              required={type !== "text"}
-              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm file:border-0 file:bg-transparent file:text-sm file:font-medium"
-            />
-          </div>
-
-          <Button type="submit" className="w-full">
-            Create
+          {/* Submit */}
+          <Button type="submit" className="w-full" disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            {isSubmitting ? "Creating…" : "Create"}
           </Button>
         </form>
       </DialogContent>
