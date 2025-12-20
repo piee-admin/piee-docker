@@ -25,10 +25,10 @@ type Item = {
 
 export default async function LibraryPage() {
   // Fetch all library categories
-  const promptsRaw = await library.prompts.list({ limit: 20 });
-  const modelsRaw = await library.models.list({ limit: 20 });
-  const imagesRaw = await library.images.list({ limit: 20 });
-  const videosRaw = await library.videos.list({ limit: 20 });
+  const promptsRaw = await library.prompts.list({ limit: 10 });
+  const modelsRaw = await library.models.list({ limit: 10 });
+  const imagesRaw = await library.images.list({ limit: 10 });
+  const videosRaw = await library.videos.list({ limit: 10 });
 
   // Normalized arrays
   const prompts: Item[] = normalize(promptsRaw);
@@ -37,7 +37,7 @@ export default async function LibraryPage() {
   const videos: Item[] = normalize(videosRaw);
 
   return (
-    <main className="container mx-auto px-6 py-10 space-y-16">
+    <main className="container mx-auto px-6 py-10 space-y-16 overflow-x-hidden">
       {/* PAGE TITLE */}
       <section>
         <h1 className="text-4xl font-bold tracking-tight">Library</h1>
@@ -132,10 +132,10 @@ export function LibrarySection({
       {items.length === 0 ? (
         <EmptyState title={title} />
       ) : (
-        <div className="relative">
-          <div className="flex gap-6 overflow-x-auto pb-4 scrollbar-hide">
+        <div className="relative -mx-6 overflow-hidden">
+          <div className="flex gap-6 overflow-x-auto px-6 pb-4 scrollbar-hide">
             {items.map((item, i) => (
-              <div key={item.id ?? i} className="min-w-[280px] max-w-[280px]">
+              <div key={item.id ?? i} className="flex-shrink-0">
                 <LibraryCard item={item} type={type} />
               </div>
             ))}
@@ -155,7 +155,7 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
     Array.isArray(item.tags) ? item.tags : item.tags ? [String(item.tags)] : [];
 
   return (
-    <Card className="hover:shadow-medium transition-shadow duration-200 overflow-hidden">
+    <Card className="hover:shadow-medium transition-shadow duration-200 break-words overflow-hidden">
       {/* ---------------- Thumbnail (TOP) ---------------- */}
       {(item.thumbnail_url || item.cover_url) && (
         <div className="p-2">
