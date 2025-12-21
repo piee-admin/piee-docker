@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 
 import { library } from "@/app/library";
-import { ExternalLink, GitFork } from "lucide-react";
+import { ExternalLink, Eye, GitFork } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 import {
   Dialog,
@@ -46,13 +46,14 @@ import { OpenAPI } from "../../api";
 import { LikeButton } from "@/components/likebutton";
 
 export default function PromptPage() {
+  const viewFiredRef = useRef(false);
+
   const params = useParams();
   const promptId =
     typeof params.id === "string" ? params.id : null;
   const { user } = useAuth();
 
-
-
+  const [views, setViews] = useState<number | null>(null);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -75,6 +76,35 @@ export default function PromptPage() {
     }
 
     fetchPrompt();
+  }, [promptId]);
+
+  useEffect(() => {
+    if (!promptId || viewFiredRef.current) return;
+
+    fetch(`${OpenAPI.BASE}/library/interactions/views`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        resource_id: promptId,
+        resource_type: "prompt",
+      }),
+    }).catch(() => { });
+
+    viewFiredRef.current = true;
+  }, [promptId]);
+
+
+  useEffect(() => {
+    if (!promptId) return;
+
+    fetch(
+      `${OpenAPI.BASE}/library/interactions/views/count?resource_id=${promptId}&resource_type=prompt`
+    )
+      .then((res) => res.json())
+      .then((data) => setViews(data.views ?? 0))
+      .catch(() => setViews(0));
   }, [promptId]);
 
 
@@ -272,6 +302,12 @@ export default function PromptPage() {
               {/**<p className="font-medium">
                 {author?.name ?? "Community"}
               </p> */}
+              {views !== null && (
+                <p className="text-muted-foreground flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {views.toLocaleString()} views
+                </p>
+              )}
               {createdAt && (
                 <p className="text-muted-foreground">
                   Created {" "}
