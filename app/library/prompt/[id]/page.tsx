@@ -43,10 +43,12 @@ import {
 import { CopyPromptButton } from "@/components/copypromptbutton";
 import { SimpleTooltip } from "@/components/themed-tooltip";
 import { OpenAPI } from "../../api";
+import { LikeButton } from "@/components/likebutton";
 
 export default function PromptPage() {
-  const { id } = useParams();
-  const promptId = id as string;
+  const params = useParams();
+  const promptId =
+    typeof params.id === "string" ? params.id : null;
   const { user } = useAuth();
 
 
@@ -63,7 +65,7 @@ export default function PromptPage() {
 
     async function fetchPrompt() {
       try {
-        const data = await library.prompts.get(promptId);
+        const data = await library.prompts.get(promptId as string);
         setPrompt(data);
       } catch {
         setPrompt(null);
@@ -74,6 +76,7 @@ export default function PromptPage() {
 
     fetchPrompt();
   }, [promptId]);
+
 
   if (loading) {
     return (
@@ -228,6 +231,9 @@ export default function PromptPage() {
                 </Badge>
               </SimpleTooltip>
             )}
+            <SimpleTooltip label="Like">
+              {promptId && <LikeButton resourceId={promptId} />}
+            </SimpleTooltip>
           </div>
 
 
@@ -283,6 +289,7 @@ export default function PromptPage() {
               )}
             </div>
           </div>
+
         </CardHeader>
       </Card>
 
@@ -302,6 +309,7 @@ export default function PromptPage() {
             </Link>
           </Button>
           <div>
+
             {isOwner && (
               <Button
                 variant="outline"
