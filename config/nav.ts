@@ -207,7 +207,7 @@ export const navMain: NavSection[] = [
 // -----------------------------
 export const navSecondary: NavItem[] = [
     { title: "Support", url: "/support", icon: LifeBuoy },
-    { title: "Feedback", url: "/dashboard/feedback", icon: Send },
+    { title: "Feedback", url: "/feedback", icon: Send },
     { title: "Community", url: "https://discord.gg/sR9bN3wW", icon: Map },
 ]
 
