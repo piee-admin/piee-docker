@@ -3,12 +3,14 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import { formatDistanceToNowStrict } from "date-fns";
 
 import { library } from "@/app/library";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import { CreatePromptDialog } from "@/components/createpromptdialog";
 import { useAuth } from "@/app/context/AuthContext";
 import { useAppStore } from "@/app/store/useAppStore";
@@ -69,10 +71,15 @@ export default function LibraryPage() {
   }, [query, type, prompts]);
 
   return (
-    <main className="container mx-auto px-6 py-10">
+    <motion.main
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.25 }}
+      className="container mx-auto px-6 py-10"
+    >
       {/* HEADER */}
       <header className="mb-8 space-y-4">
-        <div className="flex justify-between">
+        <div className="flex justify-between items-center">
           <h1 className="text-4xl font-bold">Public Prompts</h1>
           {user ? (
             <CreatePromptDialog />
@@ -102,9 +109,13 @@ export default function LibraryPage() {
         </div>
       </header>
 
-      {/* GRID (Pinterest-style Masonry) */}
+      {/* GRID */}
       {loading ? (
-        <p className="text-center py-20 text-muted-foreground">Loading…</p>
+        <section className="columns-1 sm:columns-2 lg:columns-4 gap-4">
+          {Array.from({ length: 12 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </section>
       ) : (
         <section className="columns-1 sm:columns-2 lg:columns-4 gap-4">
           {filtered.map((p, i) => (
@@ -112,7 +123,18 @@ export default function LibraryPage() {
           ))}
         </section>
       )}
-    </main>
+    </motion.main>
+  );
+}
+
+//
+// SKELETON CARD (Pinterest-style)
+//
+function SkeletonCard() {
+  return (
+    <div className="mb-4 break-inside-avoid">
+      <Skeleton className="w-full h-[260px] rounded-xl" />
+    </div>
   );
 }
 
@@ -131,14 +153,14 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
       <Card
         className="
           overflow-hidden
+          rounded-xl
           border border-border/40
           transition
           hover:shadow-xl
-          hover:scale-[1.01]
+          hover:-translate-y-1
         "
       >
         {isMedia ? (
-          // IMAGE / VIDEO PROMPT
           <Image
             src={prompt.thumbnail_url!}
             alt={title}
@@ -154,7 +176,6 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
             "
           />
         ) : (
-          // TEXT PROMPT FALLBACK
           <div
             className="
               aspect-[4/5]
@@ -168,14 +189,7 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
               to-muted
             "
           >
-            <h3
-              className="
-                text-lg
-                font-semibold
-                leading-snug
-                line-clamp-4
-              "
-            >
+            <h3 className="text-lg font-semibold leading-snug line-clamp-4">
               {title}
             </h3>
           </div>

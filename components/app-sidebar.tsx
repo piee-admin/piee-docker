@@ -40,7 +40,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
 
   return (
-    <Sidebar variant="inset" {...props}>
+    <Sidebar  variant="floating" {...props}>
       {/* 🌟 Header */}
       <SidebarHeader className="pb-3 border-b border-border/40">
         <SidebarMenu>

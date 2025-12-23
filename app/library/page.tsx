@@ -1,6 +1,12 @@
 // app/library/page.tsx
 import { library } from "@/app/library";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
@@ -17,56 +23,46 @@ type Item = {
   description?: string;
   content?: string;
   tags?: string[] | null;
-  thumbnail?: string | null;
+  thumbnail_url?: string | null;
   cover_url?: string | null;
   created_at?: string;
   [key: string]: any;
 };
 
 export default async function LibraryPage() {
-  // Fetch all library categories
-  const promptsRaw = await library.prompts.list({ limit: 10 });
-  const modelsRaw = await library.models.list({ limit: 10 });
-  const imagesRaw = await library.images.list({ limit: 10 });
-  const videosRaw = await library.videos.list({ limit: 10 });
-
-  // Normalized arrays
-  const prompts: Item[] = normalize(promptsRaw);
-  const models: Item[] = normalize(modelsRaw);
-  const images: Item[] = normalize(imagesRaw);
-  const videos: Item[] = normalize(videosRaw);
+  const prompts = normalize(await library.prompts.list({ limit: 10 }));
+  const models = normalize(await library.models.list({ limit: 10 }));
+  const images = normalize(await library.images.list({ limit: 10 }));
+  const videos = normalize(await library.videos.list({ limit: 10 }));
 
   return (
-    <main className="container mx-auto px-6 py-10 space-y-16 overflow-x-hidden">
-      {/* PAGE TITLE */}
-      <section>
+    <main className="container mx-auto px-6 py-12 space-y-20 overflow-x-hidden">
+      {/* PAGE HEADER */}
+      <section className="max-w-3xl space-y-2">
         <h1 className="text-4xl font-bold tracking-tight">Library</h1>
-        <p className="text-muted-foreground mt-2 text-lg">
+        <p className="text-muted-foreground text-lg">
           Explore prompts, models, images & videos created by the PIEE community.
         </p>
       </section>
 
       <Separator />
 
-      {/* PROMPTS */}
       <LibrarySection
         title="Prompts"
-        subtitle="Community-created prompts to speed up your workflows."
+        subtitle="Community-created prompts to speed up workflows."
         items={prompts}
         type="prompt"
         link="/library/prompt"
       />
 
-      {/* MODELS */}
       <LibrarySection
         title="Models"
-        subtitle="Custom-trained models for text, image, and video workflows."
+        subtitle="Custom-trained AI models."
         items={models}
         type="model"
         link="/library/models"
       />
 
-      {/* IMAGES */}
       <LibrarySection
         title="Images"
         subtitle="Generated images shared by the community."
@@ -75,7 +71,6 @@ export default async function LibraryPage() {
         link="/library/images"
       />
 
-      {/* VIDEOS */}
       <LibrarySection
         title="Videos"
         subtitle="AI-generated videos and animations."
@@ -87,18 +82,21 @@ export default async function LibraryPage() {
   );
 }
 
-//
-// COMPONENTS
-//
+/* -------------------------------------------------- */
+/* Helpers */
+/* -------------------------------------------------- */
 
-/** Normalize API responses into a standard array */
 function normalize(input: any): Item[] {
   if (!input) return [];
   if (Array.isArray(input)) return input;
   return input.results || input.data || input.items || [];
 }
 
-export function LibrarySection({
+/* -------------------------------------------------- */
+/* Sections */
+/* -------------------------------------------------- */
+
+function LibrarySection({
   title,
   subtitle,
   items,
@@ -114,7 +112,7 @@ export function LibrarySection({
   return (
     <section className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex items-end justify-between">
         <div>
           <h2 className="text-2xl font-semibold">{title}</h2>
           <p className="text-muted-foreground">{subtitle}</p>
@@ -128,16 +126,14 @@ export function LibrarySection({
         </Link>
       </div>
 
-      {/* Grid */}
+      {/* Horizontal scroll */}
       {items.length === 0 ? (
         <EmptyState title={title} />
       ) : (
-        <div className="relative -mx-6 overflow-hidden">
-          <div className="flex gap-6 overflow-x-auto px-6 pb-4 scrollbar-hide">
+        <div className="relative -mx-6">
+          <div className="flex gap-6 px-6 pb-4 overflow-x-auto scrollbar-hide">
             {items.map((item, i) => (
-              <div key={item.id ?? i} className="flex-shrink-0">
-                <LibraryCard item={item} type={type} />
-              </div>
+              <LibraryCard key={item.id ?? i} item={item} type={type} />
             ))}
           </div>
         </div>
@@ -146,47 +142,73 @@ export function LibrarySection({
   );
 }
 
+/* -------------------------------------------------- */
+/* Card */
+/* -------------------------------------------------- */
+
 function LibraryCard({ item, type }: { item: Item; type: string }) {
   const title = item.title || item.name || "Untitled";
-  const excerpt =
-    item.description || item.content?.slice(0, 120) || "No description";
+  const description =
+    item.description ||
+    item.content?.slice(0, 120) ||
+    "No description available.";
 
-  const tags =
-    Array.isArray(item.tags) ? item.tags : item.tags ? [String(item.tags)] : [];
+  const tags = Array.isArray(item.tags)
+    ? item.tags
+    : item.tags
+    ? [String(item.tags)]
+    : [];
+
+  const image =
+    item.thumbnail_url ||
+    item.cover_url ||
+    "/prompt-placeholder.png";
 
   return (
-    <Card className="hover:shadow-medium transition-shadow duration-200 break-words overflow-hidden">
-      {/* ---------------- Thumbnail (TOP) ---------------- */}
-      {(item.thumbnail_url || item.cover_url) && (
-        <div className="p-2">
-          <div className="relative w-full aspect-video bg-muted rounded-md overflow-hidden">
-            <Image
-              src={item.thumbnail_url || item.cover_url || "/placeholder.png"}
-              alt={title}
-              fill
-              className="object-cover"
-            />
-          </div>
-        </div>
-      )}
+    <Card
+      className="
+        w-[260px]
+        flex-shrink-0
+        rounded-xl
+        overflow-hidden
+        border border-border/60
+        bg-background
+        transition-all
+        hover:-translate-y-1
+        hover:shadow-lg
+      "
+    >
+      {/* Image */}
+      <div className="relative w-full aspect-[4/5] bg-muted">
+        <Image
+          src={image}
+          alt={title}
+          fill
+          className="object-cover"
+        />
+      </div>
 
-      {/* ---------------- Content ---------------- */}
+      {/* Content */}
       <CardHeader className="pb-2">
-        <CardTitle className="text-base line-clamp-1">
+        <CardTitle className="text-sm line-clamp-1">
           {title}
         </CardTitle>
-        <CardDescription className="line-clamp-2 text-sm">
-          {excerpt}
+        <CardDescription className="text-xs line-clamp-2">
+          {description}
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="space-y-3 pt-0">
+      <CardContent className="pt-0 space-y-3">
         {/* Tags */}
         {tags.length > 0 && (
-          <div className="flex flex-wrap gap-2">
-            {tags.slice(0, 4).map((t) => (
-              <Badge key={t} variant="secondary" className="text-xs">
-                #{t}
+          <div className="flex flex-wrap gap-1">
+            {tags.slice(0, 3).map((tag) => (
+              <Badge
+                key={tag}
+                variant="secondary"
+                className="text-[10px]"
+              >
+                #{tag}
               </Badge>
             ))}
           </div>
@@ -195,7 +217,7 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
         {/* Action */}
         <Link
           href={`/library/${type}/${item.id ?? ""}`}
-          className="inline-block text-sm font-medium text-primary hover:underline underline-offset-4"
+          className="inline-block text-xs font-medium text-primary hover:underline underline-offset-4"
         >
           Open →
         </Link>
@@ -204,12 +226,17 @@ function LibraryCard({ item, type }: { item: Item; type: string }) {
   );
 }
 
+/* -------------------------------------------------- */
+/* Empty */
+/* -------------------------------------------------- */
 
 function EmptyState({ title }: { title: string }) {
   return (
-    <div className="p-8 text-center border rounded-lg bg-muted/30">
-      <h3 className="font-semibold text-lg">No {title.toLowerCase()} found</h3>
-      <p>
+    <div className="rounded-xl border border-dashed p-10 text-center bg-muted/30">
+      <h3 className="font-semibold text-lg">
+        No {title.toLowerCase()} found
+      </h3>
+      <p className="text-muted-foreground text-sm mt-1">
         Try exploring other categories or refresh later.
       </p>
     </div>

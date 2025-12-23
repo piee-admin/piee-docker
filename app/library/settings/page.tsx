@@ -10,25 +10,25 @@ const settings = [
     title: "Account",
     description: "Manage your profile, email, password, and security.",
     icon: User,
-    href: "/dashboard/settings/account",
+    href: "/library/settings/account",
   },
   {
     title: "Billing",
     description: "View invoices, payment methods, and subscriptions.",
     icon: CreditCard,
-    href: "/dashboard/settings/billing",
+    href: "/library/settings/billing",
   },
   {
     title: "Workspace",
     description: "Configure team members, roles, and workspace preferences.",
     icon: Users,
-    href: "/dashboard/settings/workspace",
+    href: "/library/settings/workspace",
   },
   {
     title: "Limits",
     description: "Monitor usage, quotas, and monthly limits.",
     icon: Gauge,
-    href: "/dashboard/settings/limits",
+    href: "/library/settings/limits",
   },
 ]
 

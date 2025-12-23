@@ -98,7 +98,7 @@ export function Header() {
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "FAQ", link: "#faq" },
-    { name: "Library", link: '/library' },
+    { name: "Library", link: '/library/prompt' },
     { name: "Support", link: buyMeUrl }
   ];
 
