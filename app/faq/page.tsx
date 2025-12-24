@@ -1,4 +1,9 @@
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 import { Header } from "../page";
 
 const faqSections = [
@@ -7,15 +12,55 @@ const faqSections = [
     items: [
       {
         q: "What is PIEE?",
-        a: "PIEE (Prompt Infrastructure for Enterprise & Experts) is an offline-first creative command palette and universal file engine."
+        a: "PIEE is a prompt infrastructure for experts and teams. It helps users search, create, organize, and reuse AI prompts, models, and workflows in a structured, scalable way."
       },
+      {
+        q: "How is PIEE different from other prompt tools?",
+        a: "PIEE combines discovery like Pinterest with structure like GitHub. Instead of isolated prompts, you work with organized, reusable, and model-aware prompt systems."
+      },
+      {
+        q: "Who is PIEE built for?",
+        a: "PIEE is built for solo creators, indie hackers, students, startup teams, and enterprises that rely on AI prompts as part of real workflows."
+      }
+    ]
+  },
+
+  {
+    section: "Library",
+    items: [
+      {
+        q: "Is the PIEE library free?",
+        a: "Yes. The PIEE library is free to explore and use. Anyone can search, view, and learn from prompts, models, and workflows."
+      },
+      {
+        q: "What can I find in the library?",
+        a: "The library contains curated prompts, model-specific examples, and reusable workflows for text, image, video, and audio generation."
+      },
+      {
+        q: "Can I save or reuse prompts from the library?",
+        a: "Yes. You can save prompts, reuse them in your own work, and build on top of existing ideas to create structured workflows."
+      },
+      {
+        q: "Are library prompts production-ready?",
+        a: "Many prompts are designed for real-world use and linked to specific models, helping reduce trial-and-error compared to generic prompts."
+      }
+    ]
+  },
+
+  {
+    section: "Platform & Ownership",
+    items: [
       {
         q: "Is PIEE open-source?",
-        a: "Yes, PIEE is 100% open-source under the MIT License."
+        a: "No. PIEE is not open-source. The platform and infrastructure are proprietary to ensure security, scalability, and enterprise readiness."
       },
       {
-        q: "Does PIEE need internet?",
-        a: "No. Most tools run offline. Cloud features require internet."
+        q: "Why keep the platform proprietary?",
+        a: "Prompt infrastructure requires strong guarantees around security, versioning, and access control. A proprietary core allows PIEE to provide these reliably."
+      },
+      {
+        q: "Who owns the prompts I create?",
+        a: "You own your prompts. Private prompts remain private unless you explicitly choose to publish or share them."
       }
     ]
   },
@@ -24,115 +69,93 @@ const faqSections = [
     section: "Privacy & Security",
     items: [
       {
-        q: "Does PIEE upload my files to a server?",
-        a: "No. All core processing happens locally using WebAssembly."
+        q: "How does PIEE protect private prompts?",
+        a: "PIEE uses strong data isolation. Private prompts and workflows are never visible to others unless explicitly shared."
       },
       {
-        q: "How are my API keys stored?",
-        a: "Encrypted locally or in your encrypted cloud workspace."
+        q: "Can enterprises control access to prompts?",
+        a: "Yes. PIEE is designed to support controlled access, allowing teams to define who can view, edit, or reuse prompts."
       },
       {
-        q: "Is PIEE safe for enterprise?",
-        a: "Yes. Includes RBAC, versioning, audit logs, and self-hosting options."
+        q: "Is PIEE suitable for sensitive or internal workflows?",
+        a: "Yes. PIEE is designed with enterprise use cases in mind, including internal prompt libraries and restricted workflows."
       }
     ]
   },
 
   {
-    section: "Features",
-    subsections: [
-      {
-        title: "File Tools",
-        items: [
-          {
-            q: "What file types are supported?",
-            a: "Video, images, documents, audio, and data formats. More added regularly."
-          },
-          {
-            q: "Does PIEE replace Photoshop or Resolve?",
-            a: "No. PIEE speeds up everyday tasks like convert, compress, optimize, rename, automate."
-          }
-        ]
-      },
-      {
-        title: "Command Palette",
-        items: [
-          {
-            q: "What is the creative command palette?",
-            a: "A single shortcut (⌘+Space / Ctrl+Space) that lets you process files instantly."
-          },
-          {
-            q: "Can I drop any file into the palette?",
-            a: "Yes. PIEE detects the file type automatically and shows available actions."
-          }
-        ]
-      },
-      {
-        title: "AI & Automation",
-        items: [
-          {
-            q: "Which AI models are supported?",
-            a: "OpenAI, Anthropic, Gemini, Groq, and local models like Ollama."
-          },
-          {
-            q: "Can PIEE automate repetitive tasks?",
-            a: "Yes. Workflows let you chain actions (convert → compress → upload) automatically."
-          }
-        ]
-      }
-    ]
-  },
-
-  {
-    section: "Team & Collaboration",
+    section: "AI Models & Reliability",
     items: [
       {
-        q: "Does PIEE support team workspaces?",
-        a: "Yes. Teams can share files, presets, workflows, and permissions."
+        q: "Does PIEE support multiple AI models?",
+        a: "Yes. PIEE supports prompts designed for different AI models, helping ensure reliability and predictable outputs."
       },
       {
-        q: "Can I use PIEE for client projects?",
-        a: "Yes. It’s free for commercial use under MIT."
+        q: "Why are model-aware prompts important?",
+        a: "Different models behave differently. Model-aware prompts reduce failures and make outputs more consistent across teams."
+      },
+      {
+        q: "Can I manage prompts for multiple models at once?",
+        a: "Yes. PIEE allows organizing prompts by model, use case, and workflow to support multi-model strategies."
       }
     ]
   },
 
   {
-    section: "Credits & Billing",
+    section: "Teams & Collaboration",
     items: [
       {
-        q: "What uses credits?",
-        a: "Cloud AI generation (text, image, audio, video). Local tools are free."
+        q: "Does PIEE support team collaboration?",
+        a: "Yes. PIEE is built to support shared libraries, reusable workflows, and collaborative prompt development."
       },
       {
-        q: "Can I use my own API key?",
-        a: "Yes. If you connect your own key, your usage is billed directly to your provider."
+        q: "Can teams standardize prompts across projects?",
+        a: "Yes. Teams can maintain a single source of truth for prompts, reducing duplication and inconsistencies."
       },
       {
-        q: "What happens if credits run out?",
-        a: "Local tasks continue. Cloud generation pauses until you top up."
+        q: "Is PIEE suitable for agencies or client work?",
+        a: "Yes. PIEE can be used to manage prompts across multiple projects while keeping internal and client workflows separate."
       }
     ]
   },
 
   {
-    section: "Developer & Plugins",
+    section: "Enterprise Readiness",
     items: [
       {
-        q: "Can developers build plugins?",
-        a: "Yes. PIEE exposes a Plugin API for creating custom tools and integrations."
+        q: "Is PIEE ready for enterprise adoption?",
+        a: "PIEE is designed with enterprise needs in mind, including structured workflows, access control, and scalability."
       },
       {
-        q: "Is there a public roadmap?",
-        a: "Yes. Available on GitHub, where you can vote on upcoming features."
+        q: "Can PIEE support large prompt libraries?",
+        a: "Yes. PIEE is built to handle large, growing prompt libraries without losing discoverability or structure."
       },
       {
-        q: "Can PIEE be self-hosted?",
-        a: "Yes. Deploy with Docker, Coolify, or Kubernetes."
+        q: "Does PIEE support internal AI standards?",
+        a: "Yes. Organizations can use PIEE to enforce prompt standards, naming conventions, and model usage policies."
+      }
+    ]
+  },
+
+  {
+    section: "Vision & Roadmap",
+    items: [
+      {
+        q: "What is PIEE’s long-term vision?",
+        a: "PIEE aims to become the infrastructure layer for AI prompts — where ideas are discovered, refined, reused, and scaled across organizations."
+      },
+      {
+        q: "Is PIEE focused on trends or long-term systems?",
+        a: "PIEE is focused on long-term systems. It is built for teams that want reliability, structure, and reuse over short-lived prompt trends."
+      },
+      {
+        q: "How will PIEE evolve over time?",
+        a: "PIEE will continue expanding its library, collaboration features, and enterprise capabilities based on real-world AI workflows."
       }
     ]
   }
 ];
+
 
 const FAQ = () => (
   <section id="faq" className="py-20">
@@ -143,43 +166,22 @@ const FAQ = () => (
 
       {faqSections.map((section, i) => (
         <div key={i} className="mb-12">
-          {/* Section Title */}
-          <h3 className="text-2xl font-semibold mb-6">{section.section}</h3>
+          <h3 className="text-2xl font-semibold mb-6">
+            {section.section}
+          </h3>
 
-          {/* If section has subsections */}
-          {section.subsections ? (
-            section.subsections.map((sub, sIdx) => (
-              <div key={sIdx} className="mb-8">
-                <h4 className="text-xl font-medium mb-4">{sub.title}</h4>
-                <Accordion type="single" collapsible className="w-full">
-                  {sub.items.map((item, j) => (
-                    <AccordionItem key={j} value={`sub-${i}-${sIdx}-${j}`}>
-                      <AccordionTrigger className="text-left">
-                        {item.q}
-                      </AccordionTrigger>
-                      <AccordionContent className="text-muted-foreground">
-                        {item.a}
-                      </AccordionContent>
-                    </AccordionItem>
-                  ))}
-                </Accordion>
-              </div>
-            ))
-          ) : (
-            // Regular section (no subsections)
-            <Accordion type="single" collapsible className="w-full">
-              {section.items.map((item, j) => (
-                <AccordionItem key={j} value={`item-${i}-${j}`}>
-                  <AccordionTrigger className="text-left">
-                    {item.q}
-                  </AccordionTrigger>
-                  <AccordionContent className="text-muted-foreground">
-                    {item.a}
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
+          <Accordion type="single" collapsible className="w-full">
+            {section.items.map((item, j) => (
+              <AccordionItem key={j} value={`item-${i}-${j}`}>
+                <AccordionTrigger className="text-left">
+                  {item.q}
+                </AccordionTrigger>
+                <AccordionContent className="text-muted-foreground">
+                  {item.a}
+                </AccordionContent>
+              </AccordionItem>
+            ))}
+          </Accordion>
         </div>
       ))}
     </div>

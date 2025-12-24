@@ -98,8 +98,8 @@ export function Header() {
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "FAQ", link: "#faq" },
-    { name: "Library", link: '/library/prompt' },
-    { name: "Support", link: buyMeUrl }
+    { name: "Explore", link: "/library/prompt" },
+    { name: "Support", link: "https://buymeacoffee.com/pieeapp" },
   ];
 
   /**const navItems = [
@@ -140,7 +140,7 @@ export function Header() {
         <NavBody>
           <NavbarLogo />
           <NavItems items={navItems} />
-          
+
         </NavBody>
 
         <MobileNav>
@@ -212,33 +212,25 @@ export function Header() {
 
 // --- Hero (Updated for "PIEE" + Open Source) ---
 export const Hero = () => (
-  <section className="relative pt-24 pb-32 text-center">
-    {/* 🌟 Centered StarOnGitHub */}
-    <div className="flex justify-center mb-6">
-      <StarOnGitHub />
-    </div>
+  <section className="relative pt-24 pb-32 text-center h-screen flex justify-center items-center">
 
     <div className="container mx-auto px-4 max-w-4xl">
-      {/* 🧠 Heading */}
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
-        Drop anything.{" "}
+        Search. Create. Reuse.
+        <br />
         <span className="bg-clip-text text-transparent bg-gradient-to-r from-primary to-violet-500">
-          Automagically done in a blink.
+          Everything AI starts here.
         </span>
       </h1>
 
-      {/* 💬 Subtitle */}
       <p className="mt-6 text-lg md:text-xl text-muted-foreground">
-        Meet <span className="font-semibold text-primary">PIEE</span>, the
-        universal{" "}
-        <span className="font-semibold">open-source</span> creative command
-        palette. Compress images, trim videos, and format code with a single
-        shortcut.
+        Meet <span className="font-semibold text-primary">PIEE</span> — the home
+        for AI prompts, models, and workflows.
+        <br />
+        Discover what works, save it, and build on top of it.
       </p>
-
-      {/* ⚡ Action Buttons */}
-
     </div>
+    <GradientBarsPreview />
   </section>
 );
 
@@ -248,29 +240,11 @@ const DashboardImageHero = () => (
   <section className="relative pt-16 pb-12">
     <div className="container mx-auto px-4 max-w-6xl">
 
-      {/* Title */}
-      <h1
-        className="
-          scroll-m-20 
-          text-center 
-          text-4xl md:text-9xl font-extrabold 
-          tracking-tight text-balance
-          relative z-10
-          md:-mb-8
-        "
-      >
-        Dashboard
+      <h1 className="scroll-m-20 text-center text-4xl md:text-9xl font-extrabold tracking-tight relative z-10 md:-mb-8">
+        Library
       </h1>
 
-      {/* WRAPPER – clips glow to rounded radius */}
-      <div
-        className="
-          relative w-full 
-          rounded-2xl 
-          overflow-hidden
-        "
-      >
-        {/* BorderTrail with OKLCH color */}
+      <div className="relative w-full rounded-2xl overflow-hidden">
         <BorderTrail
           size={200}
           className="absolute inset-0 pointer-events-none"
@@ -283,92 +257,75 @@ const DashboardImageHero = () => (
           }}
         />
 
-        {/* Image Card */}
-        <div
-          className="
-            relative w-full overflow-hidden rounded-2xl
-            border bg-muted/20 z-10 shadow-xl
-          "
-        >
+        <div className="relative w-full overflow-hidden rounded-2xl border bg-muted/20 z-10 shadow-xl">
           <img
             src="/images/piee-dashboard-s.png"
-            alt="Dashboard Preview"
+            alt="PIEE Library Preview"
             className="w-full h-auto object-cover"
           />
 
-          {/* Bottom gradient */}
-          <div
-            className="
-              pointer-events-none
-              absolute bottom-0 left-0 w-full h-full
-              bg-gradient-to-t
-              from-white/60 via-white/30 to-transparent
-              dark:from-black/60 dark:via-black/30 dark:to-transparent
-            "
-          />
-
-          {/* Top shadow onto h1 */}
-          <div
-            className="
-              pointer-events-none
-              absolute top-0 left-0 w-full h-24
-              bg-gradient-to-b
-              from-black/20 to-transparent
-              dark:from-white/10 dark:to-transparent
-            "
-          />
+          <div className="absolute bottom-4 w-full text-center text-sm md:text-base text-muted-foreground">
+            Think Pinterest for AI ideas — built with GitHub-level structure.
+          </div>
         </div>
       </div>
-
     </div>
   </section>
 );
 
 
+
 // --- Features (Unchanged from last step) ---
 const features = [
   {
-    icon: Film,
-    title: "Rapid Video Compression",
-    description: "Drop a .mov or .mp4. Get a 'Play Anywhere' preset (1080p, 720p) transcoded in seconds, not minutes.",
-  },
-  {
-    icon: Brush,
-    title: "Instant Image Optimization",
-    description: "Convert PNGs to WebP, resize JPEGs, or compress images instantly. No app required.",
-  },
-  {
-    icon: FileText,
-    title: "PDF & Text Tools",
-    description: "Merge or split PDFs, or run OCR on a document to extract text. All offline and instant.",
-  },
-  {
-    icon: Code,
-    title: "Code & Data Formatting",
-    description: "Paste messy JSON or CSV. Get a prettified, minified, or deduped result copied to your clipboard.",
-  },
-  {
-    icon: Music2,
-    title: "Audio Normalization",
-    description: "Drop a .wav or .mp3 to automatically normalize volume and trim silence for clean exports.",
+    icon: LayoutDashboardIcon,
+    title: "Prompt Library",
+    description:
+      "Discover high-quality prompts across domains. Save, reuse, and build on what works.",
   },
   {
     icon: Cpu,
-    title: "On-Demand AI",
-    description: "Select text and get an instant summary, explanation, or lint, powered by fast, local AI.",
+    title: "Model-Aware Prompts",
+    description:
+      "Prompts designed for specific models — no guessing, no broken outputs.",
+  },
+  {
+    icon: Code,
+    title: "Versioned Workflows",
+    description:
+      "Treat prompts like code. Iterate, improve, and evolve over time.",
+  },
+  {
+    icon: Film,
+    title: "Media-Ready Prompts",
+    description:
+      "Image, video, audio, and text prompts built for real production use.",
+  },
+  {
+    icon: FileText,
+    title: "Fast Discovery",
+    description:
+      "Search by intent, category, and tags to find what works in seconds.",
+  },
+  {
+    icon: Package,
+    title: "Built for Scale",
+    description:
+      "From personal libraries to team-wide prompt systems.",
   },
 ];
 
 const Features = () => (
-  <section id="features" className="py-70 bg-muted/30">
+  <section id="features" className="py-26 bg-muted/30">
     <div className="container mx-auto px-4 text-center">
       <h2 className="text-3xl md:text-4xl font-bold mb-6">
-        Your Toolkit. One Shortcut Away.
+        The Internet’s Best AI Work — Organized
       </h2>
       <p className="text-muted-foreground mb-10 max-w-2xl mx-auto">
-        PIEE auto-detects your file or clipboard content and runs the perfect micro-tool.
-        It's offline-first, privacy-focused, and built for pure speed.
+        PIEE is where prompts, models, and workflows live — curated, reusable,
+        and built to scale.
       </p>
+
       <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
         {features.map((f, i) => (
           <Card key={i} className="bg-background/70 hover:shadow-lg transition-all">
@@ -386,23 +343,28 @@ const Features = () => (
   </section>
 );
 
+
 // --- NEW FAQ Section ---
 const faqItems = [
   {
-    q: "Is \"PIEE\" really open-source?",
-    a: "Yes! PIEE is 100% open-source under the MIT License. We believe in transparency and community collaboration. You can check out the entire codebase, contribute features, and report issues on our GitHub."
+    q: "Is the PIEE library free?",
+    a: "Yes. The prompt library is completely free to explore, search, and use. You can discover prompts, models, and workflows without any cost. Advanced features and enterprise use cases will evolve separately."
   },
   {
-    q: "How does PIEE handle my data and privacy?",
-    a: "PIEE is built \"offline-first.\" All core tools (like video compression, image optimization, and PDF merging) run directly on your machine using WebAssembly. No data ever leaves your computer for these tasks, ensuring complete privacy."
+    q: "What is PIEE actually built for?",
+    a: "PIEE is a prompt infrastructure for experts and teams. It helps you search, create, organize, and reuse prompts, models, and workflows in a structured, scalable way — similar to how GitHub organizes code or Pinterest organizes ideas."
   },
   {
-    q: "What exactly is a \"creative command palette\"?",
-    a: "It's one universal shortcut (like ⌘+Space or Ctrl+Space) that opens a single box. You can drop any file, text, or link into it, and PIEE instantly figures out what you want to do and does it—no more switching between 10 different apps for small tasks."
+    q: "How does PIEE handle data security and privacy?",
+    a: "PIEE is designed with strong data isolation and security in mind. Your prompts, private libraries, and workflows are never shared publicly unless you choose to. Enterprise-grade access controls and future self-hosting options are part of the roadmap."
   },
   {
-    q: "What file types are supported in the beta?",
-    a: "The initial beta is focused on: Video (.mp4, .mov), Images (.png, .jpg), Documents (.pdf, .txt), Data (.json, .csv), and Audio (.mp3, .wav). We are expanding this list rapidly based on community feedback."
+    q: "What types of prompts does PIEE support?",
+    a: "PIEE supports prompts for text, image, video, and audio generation. Prompts are model-aware, meaning they are designed to work reliably with specific AI models instead of generic one-size-fits-all inputs."
+  },
+  {
+    q: "Who is PIEE for?",
+    a: "PIEE is built for solo creators, indie hackers, students, and startup teams who work seriously with AI. If you reuse prompts, experiment with models, or build AI-powered workflows, PIEE is designed for you."
   }
 ];
 
@@ -414,8 +376,11 @@ const FAQ = () => (
       </h2>
       <div className="flex justify-center">
         <Button asChild>
-          <Link href='/faq'><ArrowRight /> Get Full FAQ</Link>
+          <Link href="/faq">
+            <ArrowRight /> How PIEE Works
+          </Link>
         </Button>
+
       </div>
       <Accordion type="single" collapsible className="w-full">
         {faqItems.map((item, i) => (
@@ -434,36 +399,37 @@ const FAQ = () => (
 
 // --- CTA (Unchanged) ---
 const CTA = () => (
-  <section id="cta" className="py-24 text-center bg-gradient-to-r from-primary to-violet-600 text-primary-foreground">
+  <section
+    id="cta"
+    className="py-24 text-center bg-gradient-to-r from-primary to-violet-600 text-primary-foreground"
+  >
     <div className="container mx-auto px-4">
-      <h2 className="text-4xl font-bold mb-4">Stop Switching. Start Finishing.</h2>
+      <h2 className="text-4xl font-bold mb-4">
+        Stop Switching. Start Finishing.
+      </h2>
       <p className="text-primary-foreground/80 mb-8 text-lg">
-        Join the waitlist for PIEE and be the first to get access to the
-        universal creative command palette.
+        Join early builders shaping how AI work is created, shared, and scaled.
       </p>
-      <Button size="lg" variant="secondary">Join Waitlist</Button>
+      <Button size="lg" variant="secondary">
+        Join Waitlist
+      </Button>
     </div>
   </section>
 );
 
 
+
 export function EntropyDemo() {
   return (
     <div className="flex flex-col items-center justify-center bg-black text-white min-h-screen w-full p-8">
-      <div className="flex flex-col items-center">
-        <Entropy className="rounded-lg" />
-        <div className="mt-6 text-center">
-          <div className="space-y-4 font-mono text-[14px] leading-relaxed">
-            <p className="italic text-gray-400/80 tracking-wide">
-              &ldquo;Order and chaos dance &mdash;
-              <span className="opacity-70">digital poetry in motion.&rdquo;</span>
-            </p>
-          </div>
-        </div>
-      </div>
+      <Entropy className="rounded-lg" />
+      <p className="mt-6 text-sm text-gray-400 text-center max-w-md">
+        A glimpse into how PIEE thinks — structured chaos, refined into systems.
+      </p>
     </div>
-  )
+  );
 }
+
 
 const GradientBarsPreview = () => {
   return (
@@ -477,34 +443,34 @@ const SupportSection = () => {
   const buyMeUrl = "https://buymeacoffee.com/pieeapp";
   return (
     <section className="flex flex-col items-center container mx-auto px-6 py-24 max-w-3xl">
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
-          Support PIEE ❤️
-        </h1>
+      <h1 className="text-2xl md:text-3xl font-bold tracking-tight mb-6">
+        Support PIEE ❤️
+      </h1>
 
-        <p className="text-muted-foreground text-lg md:text-xl mb-10 leading-relaxed">
-          PIEE is built with love, late nights, and countless cups of coffee.
-          <br />
-          If PIEE helps you build faster or inspires you — supporting the project keeps
-          it alive, improves development, and accelerates new features. 
-          <br />
-          - Jayash Bhandary
-        </p>
+      <p className="text-muted-foreground text-lg md:text-xl mb-10 leading-relaxed">
+        PIEE is built with love, late nights, and countless cups of coffee.
+        <br />
+        If PIEE helps you build faster or inspires you — supporting the project keeps
+        it alive, improves development, and accelerates new features.
+        <br />
+        - Jayash Bhandary
+      </p>
 
-        {/* CTA BUTTON */}
-        <div className="flex justify-center">
-          <a
-            href={buyMeUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="inline-flex items-center gap-1 px-2 py-4 rounded-xl bg-amber-400 text-black font-medium text-lg shadow hover:opacity-95 transition"
-          >
-            <Coffee className="w-6 h-6" />
-            Buy Me a Coffee
-          </a>
-        </div>
+      {/* CTA BUTTON */}
+      <div className="flex justify-center">
+        <a
+          href={buyMeUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="inline-flex items-center gap-1 px-2 py-4 rounded-xl bg-amber-400 text-black font-medium text-lg shadow hover:opacity-95 transition"
+        >
+          <Coffee className="w-6 h-6" />
+          Buy Me a Coffee
+        </a>
+      </div>
 
-        
-      </section>
+
+    </section>
   )
 }
 
@@ -512,14 +478,14 @@ export const Footer = () => {
   return (
     <footer className="border-t bg-muted/30 mt-10">
       <div className="container mx-auto px-6 py-12 grid grid-cols-1 md:grid-cols-4 gap-10">
-        
+
         {/* BRAND */}
         <div>
           <NavbarLogo />
           <p className="text-sm mt-2 text-muted-foreground">
-            AI-powered creative + developer suite.  
-            Build faster, create smarter.
+            AI prompt infrastructure focused on speed, privacy, and real workflows.
           </p>
+
         </div>
 
         {/* MAIN NAV SECTIONS */}
@@ -543,7 +509,7 @@ export const Footer = () => {
                   ))
                 ) : (
                   <li>
-                    <Link 
+                    <Link
                       href={section.url}
                       className="text-sm text-muted-foreground hover:text-foreground"
                     >
@@ -592,8 +558,9 @@ export const Footer = () => {
 
       {/* COPYRIGHT */}
       <div className="border-t mt-10 py-6 text-center text-sm text-muted-foreground">
-        © {new Date().getFullYear()} PIEE — Built by PIEE Team.
+        © {new Date().getFullYear()} PIEE — Built in public by the PIEE team.
       </div>
+
     </footer>
   );
 }
@@ -611,7 +578,7 @@ export default function Page() {
         <FAQ />
         <SupportSection />
         <Footer />
-        <GradientBarsPreview />
+
       </main>
     </>
   );
