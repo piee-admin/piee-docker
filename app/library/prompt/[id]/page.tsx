@@ -7,8 +7,9 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 
 import { library } from "@/app/library";
-import { ExternalLink, Eye, GitFork, Trash2 } from "lucide-react";
+import { ExternalLink, Eye, Trash2 } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
+
 import {
   Dialog,
   DialogContent,
@@ -16,6 +17,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
+
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
 
@@ -25,6 +27,7 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
@@ -35,6 +38,45 @@ import { SimpleTooltip } from "@/components/themed-tooltip";
 import { OpenAPI } from "../../api";
 import { LikeButton } from "@/components/likebutton";
 import { openInModel } from "@/lib/openInModel";
+import { Input } from "@/components/ui/input";
+import { UpdatePromptDialog } from "@/components/updatepromptdialog";
+
+type VariableGroup = Record<
+  string,
+  { key: string; full: string }[]
+>;
+
+
+/* -------------------------------------------
+   Variable Extractor
+------------------------------------------- */
+function extractVariables(content: string): VariableGroup {
+
+  const regex = /\$\{([^}]+)\}/g;
+  const matches = [...content.matchAll(regex)];
+
+  const groups: Record<
+    string,
+    { key: string; full: string }[]
+  > = {};
+
+  matches.forEach((m) => {
+    const full = m[1]; // car.color OR animal
+
+    if (full.includes(".")) {
+      const [parent, child] = full.split(".");
+
+      if (!groups[parent]) groups[parent] = [];
+      groups[parent].push({ key: child, full });
+    } else {
+      if (!groups[full]) groups[full] = [];
+      groups[full].push({ key: full, full });
+    }
+  });
+
+  return groups;
+}
+
 
 export default function PromptPage() {
   const viewFiredRef = useRef(false);
@@ -50,6 +92,15 @@ export default function PromptPage() {
   const [prompt, setPrompt] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
+  // variable system state
+  const [variables, setVariables] = useState<VariableGroup>({});
+
+  const [filledContent, setFilledContent] = useState<string>("");
+
+
+  /* -------------------------------------------
+     Fetch prompt
+  ------------------------------------------- */
   useEffect(() => {
     if (!promptId) return;
 
@@ -67,6 +118,37 @@ export default function PromptPage() {
     fetchPrompt();
   }, [promptId]);
 
+
+  /* -------------------------------------------
+     Extract variables from prompt content
+  ------------------------------------------- */
+  useEffect(() => {
+    if (!prompt?.content) return;
+
+    const grouped = extractVariables(prompt.content);
+    setVariables(grouped);
+    setFilledContent(prompt.content);
+  }, [prompt]);
+
+
+  /* -------------------------------------------
+     Replace content when inputs change
+  ------------------------------------------- */
+  function handleVariableChange(fullKey: string, value: string) {
+    setFilledContent((prev) => {
+      const base = prompt.content as string;
+
+      return base.replace(
+        new RegExp(`\\$\\{${fullKey}\\}`, "g"),
+        value || ""
+      );
+    });
+  }
+
+
+  /* -------------------------------------------
+     View Tracking
+  ------------------------------------------- */
   useEffect(() => {
     if (!promptId || viewFiredRef.current) return;
 
@@ -82,6 +164,7 @@ export default function PromptPage() {
     viewFiredRef.current = true;
   }, [promptId]);
 
+
   useEffect(() => {
     if (!promptId) return;
 
@@ -93,7 +176,10 @@ export default function PromptPage() {
       .catch(() => setViews(0));
   }, [promptId]);
 
-  /* ===================== Skeleton ===================== */
+
+  /* -------------------------------------------
+     Skeleton Loading UI
+  ------------------------------------------- */
   if (loading) {
     return (
       <motion.main
@@ -126,6 +212,10 @@ export default function PromptPage() {
     );
   }
 
+
+  /* -------------------------------------------
+     Prompt not found
+  ------------------------------------------- */
   if (!prompt?.id) {
     const router = useRouter();
 
@@ -138,15 +228,10 @@ export default function PromptPage() {
         </p>
 
         <div className="flex justify-center gap-3 pt-4">
-          {/* Reload */}
-          <Button
-            variant="default"
-            onClick={() => router.refresh()}
-          >
+          <Button variant="default" onClick={() => router.refresh()}>
             Reload
           </Button>
 
-          {/* Go back */}
           <Button variant="outline" asChild>
             <Link href="/library">Go Back</Link>
           </Button>
@@ -161,14 +246,11 @@ export default function PromptPage() {
     String(prompt.content ?? "").slice(0, 60) ??
     "Untitled Prompt";
 
-  const chatGptUrl = `https://chat.openai.com/?prompt=${encodeURIComponent(
-    String(prompt.content ?? "")
-  )}`;
-
   const createdAt = prompt.created_at;
   const isOwner =
     user?.uid && prompt?.author_id && user.uid === prompt.author_id;
   const isMedia = Boolean(prompt.thumbnail_url);
+
 
   async function deletePrompt() {
     if (!user || !prompt?.id) return;
@@ -197,7 +279,10 @@ export default function PromptPage() {
     }
   }
 
-  /* ===================== Page ===================== */
+
+  /* -------------------------------------------
+     Page
+  ------------------------------------------- */
   return (
     <motion.main
       initial={{ opacity: 0, y: 8 }}
@@ -205,6 +290,7 @@ export default function PromptPage() {
       transition={{ duration: 0.25 }}
       className="container mx-auto px-6 py-12 max-w-4xl space-y-10"
     >
+      {/* ---------------- FIRST CARD ---------------- */}
       <Card>
         <CardHeader className="space-y-4">
           {isMedia ? (
@@ -219,6 +305,7 @@ export default function PromptPage() {
                   priority
                 />
               )}
+
               {prompt.type === "video" && (
                 <video
                   src={prompt.media_url}
@@ -245,9 +332,19 @@ export default function PromptPage() {
               </SimpleTooltip>
             )}
             {prompt.type && (
-              <Badge variant="outline">{prompt.type}</Badge>
+              <SimpleTooltip label="Prompt Type">
+                <Badge variant="outline">{prompt.type}</Badge>
+              </SimpleTooltip>
             )}
-            <LikeButton resourceId={promptId!} />
+            {prompt.category && (
+              <SimpleTooltip label="Category">
+                <Badge variant="outline">{prompt.category}</Badge>
+              </SimpleTooltip>
+            )}
+            <SimpleTooltip label="Like">
+              <LikeButton resourceId={promptId!} />
+            </SimpleTooltip>
+
           </div>
 
           <div className="text-sm text-muted-foreground space-y-1">
@@ -257,6 +354,7 @@ export default function PromptPage() {
                 {views.toLocaleString()} views
               </p>
             )}
+
             {createdAt && (
               <p>
                 Created{" "}
@@ -267,53 +365,148 @@ export default function PromptPage() {
         </CardHeader>
       </Card>
 
+
       <Separator />
 
+
+      {/* ---------------- VARIABLE INPUTS CARD ---------------- */}
+      {Object.keys(variables).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Variables</CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Enter values to personalize this prompt before copying or opening it.
+            </p>
+          </CardHeader>
+
+          <CardContent className="space-y-6">
+
+            {Object.entries(variables).map(([group, fields]) => (
+              <div
+                key={group}
+                className="rounded-xl border bg-muted/40 p-4 space-y-4"
+              >
+                {/* Show parent label only when object-like vars exist (car.color) */}
+                {fields.some(f => f.key !== group) ? (
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-semibold capitalize">
+                      {group}
+                    </h3>
+
+                    <Badge variant="secondary" className="uppercase">
+                      Group
+                    </Badge>
+                  </div>
+                ) : (
+                  <h3 className="font-medium capitalize">
+                    {group}
+                  </h3>
+                )}
+
+                <Separator />
+
+                <div className="grid gap-4">
+                  {fields.map((f) => (
+                    <div
+                      key={f.full}
+                      className="grid gap-2"
+                    >
+                      <label className="text-xs font-medium text-muted-foreground capitalize">
+                        {fields.length > 1 && f.key !== group
+                          ? `${group}.${f.key}`
+                          : f.key}
+                      </label>
+
+                      <Input
+                        placeholder={`Enter ${f.key}`}
+                        className="bg-background"
+                        onChange={(e) =>
+                          handleVariableChange(f.full, e.target.value)
+                        }
+                      />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+
+          </CardContent>
+        </Card>
+      )}
+
+
+
+      {/* ---------------- PROMPT PREVIEW CARD ---------------- */}
       <Card>
         <CardHeader className="flex flex-row justify-between">
           <SimpleTooltip label="If not auto-pasted, the prompt is copied—just paste it.">
-            <Button onClick={() => openInModel(prompt.model, String(prompt.content))} variant="outline" size="sm">
-
+            <Button
+              onClick={() =>
+                openInModel(
+                  prompt.model,
+                  String(filledContent || prompt.content)
+                )
+              }
+              variant="outline"
+              size="sm"
+            >
               <ExternalLink className="mr-2 h-4 w-4" />
               Open in {prompt.model}
-
             </Button>
           </SimpleTooltip>
 
-
           <div className="flex gap-2">
             {isOwner && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
+              <SimpleTooltip label="Edit">
+                <UpdatePromptDialog prompt={prompt} />
+              </SimpleTooltip>
             )}
-            <CopyPromptButton content={String(prompt.content ?? "")} />
+
+            {isOwner && (
+              <SimpleTooltip label="Delete">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </SimpleTooltip>
+            )}
+            <SimpleTooltip label="Copy">
+              <CopyPromptButton content={String(filledContent)} />
+            </SimpleTooltip>
+
           </div>
         </CardHeader>
 
         <CardContent className="prose max-w-none">
           <pre className="whitespace-pre-wrap font-sans text-sm">
-            {prompt.content}
+            {filledContent}
           </pre>
         </CardContent>
       </Card>
 
+
+      {/* ---------------- DELETE DIALOG ---------------- */}
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete prompt?</DialogTitle>
           </DialogHeader>
+
           <p className="text-sm text-muted-foreground">
             This action cannot be undone.
           </p>
+
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+            >
               Cancel
             </Button>
+
             <Button
               variant="destructive"
               onClick={deletePrompt}

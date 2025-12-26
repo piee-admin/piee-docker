@@ -45,7 +45,7 @@ export default function LibraryPage() {
 
   useEffect(() => {
     async function load() {
-      const res = await library.prompts.list({ limit: 30 });
+      const res = await library.prompts.list({ limit: 100 });
       const list = Array.isArray(res)
         ? res
         : res?.results ?? res?.data ?? [];
@@ -75,7 +75,9 @@ export default function LibraryPage() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="container mx-auto px-6 py-10"
+      className="w-full px-6 py-10 mx-auto max-w-[1800px]"
+
+
     >
       {/* HEADER */}
       <header className="mb-8 space-y-4">
@@ -111,13 +113,13 @@ export default function LibraryPage() {
 
       {/* GRID */}
       {loading ? (
-        <section className="columns-1 sm:columns-2 lg:columns-4 gap-4">
+        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-6 gap-4">
           {Array.from({ length: 12 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </section>
       ) : (
-        <section className="columns-1 sm:columns-2 lg:columns-4 gap-4">
+        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-6 gap-4">
           {filtered.map((p, i) => (
             <PromptCard key={p.id ?? i} prompt={p} />
           ))}
