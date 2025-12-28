@@ -11,6 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
 import Link from "next/link";
+import { buildMetadataForRoute } from "@/lib/seo";
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -28,6 +29,11 @@ type Item = {
   created_at?: string;
   [key: string]: any;
 };
+
+export async function generateMetadata() {
+  return buildMetadataForRoute("/library");
+}
+
 
 export default async function LibraryPage() {
   const prompts = normalize(await library.prompts.list({ limit: 10 }));

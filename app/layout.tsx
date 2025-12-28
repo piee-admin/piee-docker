@@ -1,5 +1,4 @@
 
-import type { Metadata } from "next";
 import { Montserrat, Poppins, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner"
@@ -9,6 +8,9 @@ import PageViewTracker from "@/components/PageViewTracker";
 import { Suspense } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CommandPalette } from "@/components/command-palette";
+import { Metadata } from "next";
+import { headers } from "next/headers";
+import { buildMetadataForRoute } from "@/lib/seo";
 
 // --- Google Fonts ---
 const poppins = Poppins({
@@ -28,11 +30,10 @@ const inter = Inter({
   variable: "--font-inter",      // optional CSS variable
 });
 
-export const metadata: Metadata = {
-  title: "PIEE — The Universal Open-Source Creative Command Palette",
-  description:
-    "Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source.",
-};
+
+export async function generateMetadata() {
+  return buildMetadataForRoute("/");
+}
 
 
 // --- Root Layout ---
@@ -48,25 +49,7 @@ export default function RootLayout({
       className={`${inter.className}  w-full`}
       suppressHydrationWarning
     >
-      <head>
-        <link rel="apple-touch-icon" href="/icons/icon-192x192.png" />
 
-        <meta property="og:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
-        <meta property="og:description" content="Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source." />
-        <meta property="og:url" content="https://piee.app" />
-        <meta property="og:site_name" content="PIEE" />
-        <meta property="og:image" content="https://piee.app/api/og" />
-        <meta property="og:image:width" content="1200" />
-        <meta property="og:image:height" content="630" />
-        <meta property="og:image:alt" content="PIEE — The Universal Creative Command Palette" />
-        <meta property="og:type" content="website" />
-
-        <meta name="twitter:card" content="summary_large_image" />
-        <meta name="twitter:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
-        <meta name="twitter:description" content="Compress images, trim videos, and format code with a single shortcut — locally and open-source." />
-        <meta name="twitter:image" content="https://piee.app/api/og" />
-
-      </head>
       <body className="min-h-screen w-full bg-background text-foreground antialiased">
 
         <ThemeProvider
@@ -83,13 +66,29 @@ export default function RootLayout({
             <PageViewTracker />
           </Suspense>
           <GoogleAnalytics gaId="G-VPDZFWSGWY" />
-          
+
         </ThemeProvider>
       </body>
     </html>
 
   );
 }
+
+/**        <meta property="og:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
+        <meta property="og:description" content="Compress images, trim videos, and format code with a single shortcut — instantly, locally, and open-source." />
+        <meta property="og:url" content="https://piee.app" />
+        <meta property="og:site_name" content="PIEE" />
+        <meta property="og:image" content="https://piee.app/api/og" />
+        <meta property="og:image:width" content="1200" />
+        <meta property="og:image:height" content="630" />
+        <meta property="og:image:alt" content="PIEE — The Universal Creative Command Palette" />
+        <meta property="og:type" content="website" />
+
+        <meta name="twitter:card" content="summary_large_image" />
+        <meta name="twitter:title" content="PIEE — The Universal Open-Source Creative Command Palette" />
+        <meta name="twitter:description" content="Compress images, trim videos, and format code with a single shortcut — locally and open-source." />
+        <meta name="twitter:image" content="https://piee.app/api/og" />
+ */
 
 
 /**icons: {
