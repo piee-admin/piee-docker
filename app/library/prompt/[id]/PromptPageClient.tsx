@@ -77,13 +77,13 @@ function extractVariables(content: string): VariableGroup {
   return groups;
 }
 
+type Props = {
+  id: string;
+};
 
-export default function PromptPage() {
+export default function PromptPage({ id }: Props) {
   const viewFiredRef = useRef(false);
-
-  const params = useParams();
-  const promptId =
-    typeof params.id === "string" ? params.id : null;
+  const promptId = id;
   const { user } = useAuth();
 
   const [views, setViews] = useState<number | null>(null);

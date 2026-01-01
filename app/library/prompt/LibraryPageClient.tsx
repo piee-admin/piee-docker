@@ -73,12 +73,12 @@ export default function LibraryPageClient() {
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.25 }}
-      className="w-full px-6 py-10 mx-auto max-w-[1800px]"
+      className="w-full mx-auto  px-6 sm:px-8 lg:px-10 py-8 sm:py-10 lg:py-12"
     >
       {/* HEADER */}
       <header className="mb-8 space-y-4">
         <div className="flex justify-between items-center">
-          <h1 className="text-4xl font-bold">Public Prompts</h1>
+         <h1 className="text-3xl sm:text-5xl font-bold tracking-tight">Public Prompts</h1>
 
           {user ? (
             <CreatePromptDialog />
@@ -112,13 +112,13 @@ export default function LibraryPageClient() {
 
       {/* GRID */}
       {loading ? (
-        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-6 gap-4">
-          {Array.from({ length: 12 }).map((_, i) => (
+        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-8 gap-5">
+          {Array.from({ length: 55 }).map((_, i) => (
             <SkeletonCard key={i} />
           ))}
         </section>
       ) : (
-        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-6 gap-4">
+        <section className="columns-2 sm:columns-3 md:columns-4 lg:columns-5 xl:columns-8 gap-5">
           {filtered.map((p, i) => (
             <PromptCard key={p.id ?? i} prompt={p} />
           ))}
@@ -130,8 +130,8 @@ export default function LibraryPageClient() {
 
 function SkeletonCard() {
   return (
-    <div className="mb-4 break-inside-avoid">
-      <Skeleton className="w-full h-[260px] rounded-xl" />
+    <div className="mb-2 break-inside-avoid">
+      <Skeleton className="w-full h-[260px] rounded-2xl" />
     </div>
   );
 }
@@ -143,17 +143,30 @@ function PromptCard({ prompt }: { prompt: PromptItem }) {
   return (
     <Link
       href={`/library/prompt/${prompt.id}`}
-      className="group block mb-4 break-inside-avoid"
+      className="group block mb-2 break-inside-avoid"
     >
-      <Card className="overflow-hidden rounded-xl border border-border/40 transition hover:shadow-xl hover:-translate-y-1">
+      <Card
+        className="
+          overflow-hidden rounded-2xl 
+          border border-border/40 
+          transition hover:shadow-2xl hover:-translate-y-1
+          p-0
+        "
+      >
         {isMedia ? (
           <Image
             src={prompt.thumbnail_url!}
             alt={title}
             width={500}
-            height={500}
+            height={1500}
             sizes="(max-width: 1024px) 100vw, 33vw"
-            className="w-full h-auto object-cover transition group-hover:brightness-90"
+            className="
+              object-cover 
+              w-full 
+              block        /* KEY FIX: removes inline baseline gap */
+              group-hover:brightness-90
+              transition
+            "
           />
         ) : (
           <div className="aspect-[4/5] flex items-center justify-center p-6 text-center bg-gradient-to-br from-muted/60 to-muted">

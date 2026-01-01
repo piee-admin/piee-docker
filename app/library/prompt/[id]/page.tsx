@@ -1,15 +1,22 @@
-import { buildPromptMetadata } from "@/lib/seo";
+import { buildPromptMetadata, fetchPromptMeta } from "@/lib/seo";
 import PromptPageClient from "./PromptPageClient";
 
 type Props = {
-  params: Promise<{ id?: string }>;
+  params: Promise<{ id: string }>;
 };
 
-export async function generateMetadata(props: Props) {
-  const params = await props.params;
-  return buildPromptMetadata(params?.id);
+export async function generateMetadata({ params }: Props) {
+  const { id } = await params;
+  const prompt = id ? await fetchPromptMeta(id) : null;
+
+  return buildPromptMetadata({
+    id,
+    prompt,
+  });
 }
 
-export default function Page() {
-  return <PromptPageClient />;
+export default async function Page({ params }: Props) {
+  const { id } = await params;
+
+  return <PromptPageClient id={id} />;
 }
