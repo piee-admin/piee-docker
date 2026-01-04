@@ -1,112 +1,104 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { useParams, useRouter } from "next/navigation";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-
-import { library } from "@/app/library";
-import { ExternalLink, Eye, Trash2 } from "lucide-react";
 import { formatDistanceToNowStrict } from "date-fns";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
-
+import { library } from "@/app/library";
 import { useAuth } from "@/app/context/AuthContext";
 import { toast } from "sonner";
+import { OpenAPI } from "../../api";
 
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
+  Card, CardHeader, CardTitle, CardContent
 } from "@/components/ui/card";
-
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Input } from "@/components/ui/input";
 
+import { LikeButton } from "@/components/likebutton";
 import { CopyPromptButton } from "@/components/copypromptbutton";
 import { SimpleTooltip } from "@/components/themed-tooltip";
-import { OpenAPI } from "../../api";
-import { LikeButton } from "@/components/likebutton";
-import { openInModel } from "@/lib/openInModel";
-import { Input } from "@/components/ui/input";
 import { UpdatePromptDialog } from "@/components/updatepromptdialog";
+import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
+
+import { Eye, Trash2, ExternalLink } from "lucide-react";
+import { openInModel } from "@/lib/openInModel";
+
+
+/* ---------------- Helpers ---------------- */
 
 type VariableGroup = Record<
   string,
   { key: string; full: string }[]
 >;
 
-
-/* -------------------------------------------
-   Variable Extractor
-------------------------------------------- */
 function extractVariables(content: string): VariableGroup {
-
   const regex = /\$\{([^}]+)\}/g;
   const matches = [...content.matchAll(regex)];
-
-  const groups: Record<
-    string,
-    { key: string; full: string }[]
-  > = {};
+  const groups: VariableGroup = {};
 
   matches.forEach((m) => {
-    const full = m[1]; // car.color OR animal
-
+    const full = m[1];
     if (full.includes(".")) {
       const [parent, child] = full.split(".");
-
-      if (!groups[parent]) groups[parent] = [];
-      groups[parent].push({ key: child, full });
+      (groups[parent] ??= []).push({ key: child, full });
     } else {
-      if (!groups[full]) groups[full] = [];
-      groups[full].push({ key: full, full });
+      (groups[full] ??= []).push({ key: full, full });
     }
   });
 
   return groups;
 }
 
-type Props = {
+
+/* ---------------- Props ---------------- */
+
+type PromptPageProps = {
   id: string;
+  prompt?: any;     // server-loaded prompt
 };
 
-export default function PromptPage({ id }: Props) {
-  const viewFiredRef = useRef(false);
-  const promptId = id;
+
+/* =====================================================
+   PROMPT PAGE — server prompt first, fallback fetch
+===================================================== */
+
+export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps) {
+  const router = useRouter();
   const { user } = useAuth();
 
+  const promptId = id;
+
+  // Use server prompt as initial value
+  const [prompt, setPrompt] = useState<any>(serverPrompt ?? null);
+  const [loading, setLoading] = useState(!serverPrompt);
+
   const [views, setViews] = useState<number | null>(null);
+
+  const [variables, setVariables] = useState<VariableGroup>({});
+  const [filledContent, setFilledContent] = useState("");
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [prompt, setPrompt] = useState<any>(null);
-  const [loading, setLoading] = useState(true);
 
-  // variable system state
-  const [variables, setVariables] = useState<VariableGroup>({});
-
-  const [filledContent, setFilledContent] = useState<string>("");
+  const viewFiredRef = useRef(false);
 
 
-  /* -------------------------------------------
-     Fetch prompt
-  ------------------------------------------- */
+  /* ---------------------------------------------------
+     Fetch ONLY if server did not supply prompt
+  --------------------------------------------------- */
   useEffect(() => {
-    if (!promptId) return;
+    if (serverPrompt || !promptId) return;
 
     async function fetchPrompt() {
       try {
-        const data = await library.prompts.get(promptId as string);
+        const data = await library.prompts.get(promptId);
         setPrompt(data);
       } catch {
         setPrompt(null);
@@ -116,12 +108,12 @@ export default function PromptPage({ id }: Props) {
     }
 
     fetchPrompt();
-  }, [promptId]);
+  }, [promptId, serverPrompt]);
 
 
-  /* -------------------------------------------
-     Extract variables from prompt content
-  ------------------------------------------- */
+  /* ---------------------------------------------------
+     Extract variables
+  --------------------------------------------------- */
   useEffect(() => {
     if (!prompt?.content) return;
 
@@ -131,24 +123,21 @@ export default function PromptPage({ id }: Props) {
   }, [prompt]);
 
 
-  /* -------------------------------------------
-     Replace content when inputs change
-  ------------------------------------------- */
   function handleVariableChange(fullKey: string, value: string) {
-    setFilledContent((prev) => {
-      const base = prompt.content as string;
+    if (!prompt?.content) return;
 
-      return base.replace(
+    setFilledContent(
+      prompt.content.replace(
         new RegExp(`\\$\\{${fullKey}\\}`, "g"),
         value || ""
-      );
-    });
+      )
+    );
   }
 
 
-  /* -------------------------------------------
-     View Tracking
-  ------------------------------------------- */
+  /* ---------------------------------------------------
+     View tracking — fire once
+  --------------------------------------------------- */
   useEffect(() => {
     if (!promptId || viewFiredRef.current) return;
 
@@ -159,88 +148,62 @@ export default function PromptPage({ id }: Props) {
         resource_id: promptId,
         resource_type: "prompt",
       }),
-    }).catch(() => { });
+    }).catch(() => {});
 
     viewFiredRef.current = true;
   }, [promptId]);
 
 
+  /* ---------------------------------------------------
+     Fetch view count
+  --------------------------------------------------- */
   useEffect(() => {
     if (!promptId) return;
 
     fetch(
       `${OpenAPI.BASE}/library/interactions/views/count?resource_id=${promptId}&resource_type=prompt`
     )
-      .then((res) => res.json())
-      .then((data) => setViews(data.views ?? 0))
+      .then((r) => r.json())
+      .then((d) => setViews(d.views ?? 0))
       .catch(() => setViews(0));
   }, [promptId]);
 
 
-  /* -------------------------------------------
-     Skeleton Loading UI
-  ------------------------------------------- */
+  /* ---------------------------------------------------
+     Skeleton
+  --------------------------------------------------- */
   if (loading) {
     return (
-      <motion.main
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.3 }}
-        className="container mx-auto px-6 py-12 max-w-4xl space-y-10"
-      >
-        <div className="space-y-4">
-          <Skeleton className="h-[320px] w-full rounded-lg" />
-          <Skeleton className="h-8 w-3/4" />
-          <div className="flex gap-2">
-            <Skeleton className="h-5 w-20 rounded-full" />
-            <Skeleton className="h-5 w-16 rounded-full" />
-            <Skeleton className="h-5 w-24 rounded-full" />
-          </div>
-          <Skeleton className="h-4 w-48" />
-          <Skeleton className="h-4 w-64" />
-        </div>
-
-        <Separator />
-
-        <div className="space-y-4">
-          <Skeleton className="h-6 w-48" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-full" />
-          <Skeleton className="h-4 w-5/6" />
-        </div>
+      <motion.main className="container mx-auto px-6 py-12 max-w-4xl space-y-10">
+        <Skeleton className="h-[320px] w-full rounded-lg" />
+        <Skeleton className="h-8 w-3/4" />
+        <Skeleton className="h-4 w-64" />
       </motion.main>
     );
   }
 
 
-  /* -------------------------------------------
-     Prompt not found
-  ------------------------------------------- */
+  /* ---------------------------------------------------
+     Not found
+  --------------------------------------------------- */
   if (!prompt?.id) {
-    const router = useRouter();
-
     return (
       <div className="container mx-auto px-6 py-24 text-center space-y-4">
         <h2 className="text-2xl font-semibold">Prompt not found</h2>
 
-        <p className="text-muted-foreground">
-          The prompt exists but failed to load. Try reloading.
-        </p>
+        <Button onClick={() => router.refresh()}>Reload</Button>
 
-        <div className="flex justify-center gap-3 pt-4">
-          <Button variant="default" onClick={() => router.refresh()}>
-            Reload
-          </Button>
-
-          <Button variant="outline" asChild>
-            <Link href="/library">Go Back</Link>
-          </Button>
-        </div>
+        <Button variant="outline" asChild>
+          <Link href="/library">Go Back</Link>
+        </Button>
       </div>
     );
   }
 
 
+  /* ---------------------------------------------------
+     Derived values
+  --------------------------------------------------- */
   const title =
     prompt.title ??
     String(prompt.content ?? "").slice(0, 60) ??
@@ -249,9 +212,13 @@ export default function PromptPage({ id }: Props) {
   const createdAt = prompt.created_at;
   const isOwner =
     user?.uid && prompt?.author_id && user.uid === prompt.author_id;
+
   const isMedia = Boolean(prompt.thumbnail_url);
 
 
+  /* ---------------------------------------------------
+     Delete prompt
+  --------------------------------------------------- */
   async function deletePrompt() {
     if (!user || !prompt?.id) return;
 
@@ -280,19 +247,16 @@ export default function PromptPage({ id }: Props) {
   }
 
 
-  /* -------------------------------------------
-     Page
-  ------------------------------------------- */
+  /* ====================================================
+     PAGE
+  ==================================================== */
   return (
-    <motion.main
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.25 }}
-      className="container mx-auto px-6 py-12 max-w-4xl space-y-10"
-    >
-      {/* ---------------- FIRST CARD ---------------- */}
+    <motion.main className="container mx-auto px-6 py-12 max-w-4xl space-y-10">
+
+      {/* ---------------- FIRST CARD (RESTORED) ---------------- */}
       <Card>
         <CardHeader className="space-y-4">
+
           {isMedia ? (
             <div className="overflow-hidden rounded-md">
               {prompt.type === "image" && (
@@ -331,20 +295,22 @@ export default function PromptPage({ id }: Props) {
                 <Badge variant="secondary">{prompt.model}</Badge>
               </SimpleTooltip>
             )}
+
             {prompt.type && (
               <SimpleTooltip label="Prompt Type">
                 <Badge variant="outline">{prompt.type}</Badge>
               </SimpleTooltip>
             )}
+
             {prompt.category && (
               <SimpleTooltip label="Category">
                 <Badge variant="outline">{prompt.category}</Badge>
               </SimpleTooltip>
             )}
+
             <SimpleTooltip label="Like">
               <LikeButton resourceId={promptId!} />
             </SimpleTooltip>
-
           </div>
 
           <div className="text-sm text-muted-foreground space-y-1">
@@ -365,118 +331,68 @@ export default function PromptPage({ id }: Props) {
         </CardHeader>
       </Card>
 
-
       <Separator />
 
 
-      {/* ---------------- VARIABLE INPUTS CARD ---------------- */}
+      {/* ---------------- VARIABLES CARD (unchanged) ---------------- */}
       {Object.keys(variables).length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Variables</CardTitle>
-            <p className="text-sm text-muted-foreground">
-              Enter values to personalize this prompt before copying or opening it.
-            </p>
           </CardHeader>
 
           <CardContent className="space-y-6">
-
             {Object.entries(variables).map(([group, fields]) => (
-              <div
-                key={group}
-                className="rounded-xl border bg-muted/40 p-4 space-y-4"
-              >
-                {/* Show parent label only when object-like vars exist (car.color) */}
-                {fields.some(f => f.key !== group) ? (
-                  <div className="flex items-center justify-between">
-                    <h3 className="font-semibold capitalize">
-                      {group}
-                    </h3>
-
-                    <Badge variant="secondary" className="uppercase">
-                      Group
-                    </Badge>
-                  </div>
-                ) : (
-                  <h3 className="font-medium capitalize">
-                    {group}
-                  </h3>
-                )}
-
-                <Separator />
-
-                <div className="grid gap-4">
-                  {fields.map((f) => (
-                    <div
-                      key={f.full}
-                      className="grid gap-2"
-                    >
-                      <label className="text-xs font-medium text-muted-foreground capitalize">
-                        {fields.length > 1 && f.key !== group
-                          ? `${group}.${f.key}`
-                          : f.key}
-                      </label>
-
-                      <Input
-                        placeholder={`Enter ${f.key}`}
-                        className="bg-background"
-                        onChange={(e) =>
-                          handleVariableChange(f.full, e.target.value)
-                        }
-                      />
-                    </div>
-                  ))}
-                </div>
+              <div key={group} className="grid gap-4">
+                {fields.map((f) => (
+                  <Input
+                    key={f.full}
+                    placeholder={`Enter ${f.key}`}
+                    onChange={(e) =>
+                      handleVariableChange(f.full, e.target.value)
+                    }
+                  />
+                ))}
               </div>
             ))}
-
           </CardContent>
         </Card>
       )}
 
 
-
-      {/* ---------------- PROMPT PREVIEW CARD ---------------- */}
+      {/* ---------------- PREVIEW CARD ---------------- */}
       <Card>
-        <CardHeader className="flex flex-row justify-between">
-          <SimpleTooltip label="If not auto-pasted, the prompt is copied—just paste it.">
-            <Button
-              onClick={() =>
-                openInModel(
-                  prompt.model,
-                  String(filledContent || prompt.content)
-                )
-              }
-              variant="outline"
-              size="sm"
-            >
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Open in {prompt.model}
-            </Button>
-          </SimpleTooltip>
+        <CardHeader className="flex justify-between">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() =>
+              openInModel(
+                prompt.model,
+                String(filledContent || prompt.content)
+              )
+            }
+          >
+            <ExternalLink className="mr-2 h-4 w-4" />
+            Open in {prompt.model}
+          </Button>
 
           <div className="flex gap-2">
             {isOwner && (
-              <SimpleTooltip label="Edit">
-                <UpdatePromptDialog prompt={prompt} />
-              </SimpleTooltip>
+              <UpdatePromptDialog prompt={prompt} />
             )}
 
             {isOwner && (
-              <SimpleTooltip label="Delete">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setDeleteOpen(true)}
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </SimpleTooltip>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setDeleteOpen(true)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
             )}
-            <SimpleTooltip label="Copy">
-              <CopyPromptButton content={String(filledContent)} />
-            </SimpleTooltip>
 
+            <CopyPromptButton content={String(filledContent)} />
           </div>
         </CardHeader>
 
@@ -500,10 +416,7 @@ export default function PromptPage({ id }: Props) {
           </p>
 
           <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => setDeleteOpen(false)}
-            >
+            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
               Cancel
             </Button>
 
@@ -517,6 +430,7 @@ export default function PromptPage({ id }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
     </motion.main>
   );
 }

@@ -17,6 +17,9 @@ export async function generateMetadata({ params }: Props) {
 
 export default async function Page({ params }: Props) {
   const { id } = await params;
+  const prompt = await fetchPromptMeta(id);
 
-  return <PromptPageClient id={id} />;
+  return (
+    <PromptPageClient id={id} prompt={prompt} />
+  );
 }

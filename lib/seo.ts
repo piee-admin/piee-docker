@@ -9,7 +9,7 @@ export const SITE_URL =
 export const DEFAULT = {
   title: "PIEE — The Universal Creative Command Palette",
   description:
-    "Compress images, trim videos, and format code with a single shortcut.",
+    "Search. Create. Reuse. Everything AI starts here.",
 };
 
 export const DEFAULT_OG_IMAGE = `${SITE_URL}/images/og/default.png`;
