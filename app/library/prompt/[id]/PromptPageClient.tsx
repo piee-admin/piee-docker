@@ -45,6 +45,7 @@ function extractVariables(content: string): VariableGroup {
 
   matches.forEach((m) => {
     const full = m[1];
+
     if (full.includes(".")) {
       const [parent, child] = full.split(".");
       (groups[parent] ??= []).push({ key: child, full });
@@ -61,12 +62,12 @@ function extractVariables(content: string): VariableGroup {
 
 type PromptPageProps = {
   id: string;
-  prompt?: any;     // server-loaded prompt
+  prompt?: any;
 };
 
 
 /* =====================================================
-   PROMPT PAGE — server prompt first, fallback fetch
+   PROMPT PAGE
 ===================================================== */
 
 export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps) {
@@ -75,7 +76,6 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
 
   const promptId = id;
 
-  // Use server prompt as initial value
   const [prompt, setPrompt] = useState<any>(serverPrompt ?? null);
   const [loading, setLoading] = useState(!serverPrompt);
 
@@ -84,6 +84,9 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
   const [variables, setVariables] = useState<VariableGroup>({});
   const [filledContent, setFilledContent] = useState("");
 
+  // ⭐ stores values for ALL variables
+  const [variableValues, setVariableValues] = useState<Record<string, string>>({});
+
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -91,7 +94,7 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
 
 
   /* ---------------------------------------------------
-     Fetch ONLY if server did not supply prompt
+     Fetch prompt (fallback)
   --------------------------------------------------- */
   useEffect(() => {
     if (serverPrompt || !promptId) return;
@@ -112,31 +115,64 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
 
 
   /* ---------------------------------------------------
-     Extract variables
+     Extract variables + initialize state
   --------------------------------------------------- */
   useEffect(() => {
     if (!prompt?.content) return;
 
     const grouped = extractVariables(prompt.content);
     setVariables(grouped);
+
+    // initialize filled with raw prompt
     setFilledContent(prompt.content);
+
+    // initialize blank values for all variables
+    const initial: Record<string, string> = {};
+
+    Object.values(grouped).forEach(group =>
+      group.forEach(v => (initial[v.full] = ""))
+    );
+
+    setVariableValues(initial);
+
   }, [prompt]);
 
 
+  /* ---------------------------------------------------
+     ⭐ Correct multi-variable replacement
+  --------------------------------------------------- */
   function handleVariableChange(fullKey: string, value: string) {
     if (!prompt?.content) return;
 
-    setFilledContent(
-      prompt.content.replace(
-        new RegExp(`\\$\\{${fullKey}\\}`, "g"),
-        value || ""
-      )
-    );
+    const updated = {
+      ...variableValues,
+      [fullKey]: value,
+    };
+
+    setVariableValues(updated);
+
+    let output = prompt.content;
+
+    // apply ONLY variables that currently have values
+    for (const key in updated) {
+      const val = updated[key];
+      if (!val) continue;
+
+      // escape regex chars in key (important for car.color, a.b.c, etc.)
+      const escapedKey = key.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+      const regex = new RegExp(`\\$\\{${escapedKey}\\}`, "g");
+
+      output = output.replace(regex, val);
+    }
+
+    setFilledContent(output);
   }
 
 
+
   /* ---------------------------------------------------
-     View tracking — fire once
+     View tracking once
   --------------------------------------------------- */
   useEffect(() => {
     if (!promptId || viewFiredRef.current) return;
@@ -148,7 +184,7 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
         resource_id: promptId,
         resource_type: "prompt",
       }),
-    }).catch(() => {});
+    }).catch(() => { });
 
     viewFiredRef.current = true;
   }, [promptId]);
@@ -248,188 +284,187 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
 
 
   /* ====================================================
-     PAGE
+     PAGE LAYOUT (3-column)
   ==================================================== */
   return (
-    <motion.main className="container mx-auto px-6 py-12 max-w-4xl space-y-10">
+    <motion.main
+      className="
+        container mx-auto px-6 py-12
+        max-w-7xl
+        grid gap-8
+        grid-cols-1
+        md:grid-cols-3
+        items-start
+      "
+    >
 
-      {/* ---------------- FIRST CARD (RESTORED) ---------------- */}
-      <Card>
-        <CardHeader className="space-y-4">
+      {/* ===== LEFT — CARD ===== */}
+      <div className="space-y-8 md:sticky md:top-10 h-fit md:pr-2">
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardHeader className="space-y-4">
 
-          {isMedia ? (
-            <div className="overflow-hidden rounded-md">
-              {prompt.type === "image" && (
-                <Image
-                  src={prompt.media_url ?? prompt.thumbnail_url}
-                  alt={title}
-                  width={1200}
-                  height={675}
-                  className="w-full object-cover"
-                  priority
-                />
-              )}
-
-              {prompt.type === "video" && (
-                <video
-                  src={prompt.media_url}
-                  poster={prompt.thumbnail_url}
-                  controls
-                  className="w-full rounded-md"
-                />
-              )}
-            </div>
-          ) : (
-            <div className="aspect-[4/5] flex items-center justify-center p-10 text-center rounded-md bg-muted">
-              <h2 className="text-2xl font-semibold">{title}</h2>
-            </div>
-          )}
-
-          <CardTitle className="text-2xl font-semibold">
-            {title}
-          </CardTitle>
-
-          <div className="flex flex-wrap gap-2">
-            {prompt.model && (
-              <SimpleTooltip label="AI Model">
-                <Badge variant="secondary">{prompt.model}</Badge>
-              </SimpleTooltip>
-            )}
-
-            {prompt.type && (
-              <SimpleTooltip label="Prompt Type">
-                <Badge variant="outline">{prompt.type}</Badge>
-              </SimpleTooltip>
-            )}
-
-            {prompt.category && (
-              <SimpleTooltip label="Category">
-                <Badge variant="outline">{prompt.category}</Badge>
-              </SimpleTooltip>
-            )}
-
-            <SimpleTooltip label="Like">
-              <LikeButton resourceId={promptId!} />
-            </SimpleTooltip>
-          </div>
-
-          <div className="text-sm text-muted-foreground space-y-1">
-            {views !== null && (
-              <p className="flex items-center gap-1">
-                <Eye className="h-4 w-4" />
-                {views.toLocaleString()} views
-              </p>
-            )}
-
-            {createdAt && (
-              <p>
-                Created{" "}
-                {formatDistanceToNowStrict(new Date(createdAt))} ago
-              </p>
-            )}
-          </div>
-        </CardHeader>
-      </Card>
-
-      <Separator />
-
-
-      {/* ---------------- VARIABLES CARD (unchanged) ---------------- */}
-      {Object.keys(variables).length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Variables</CardTitle>
-          </CardHeader>
-
-          <CardContent className="space-y-6">
-            {Object.entries(variables).map(([group, fields]) => (
-              <div key={group} className="grid gap-4">
-                {fields.map((f) => (
-                  <Input
-                    key={f.full}
-                    placeholder={`Enter ${f.key}`}
-                    onChange={(e) =>
-                      handleVariableChange(f.full, e.target.value)
-                    }
+            {isMedia ? (
+              <div className="overflow-hidden rounded-lg">
+                {prompt.type === "image" && (
+                  <Image
+                    src={prompt.media_url ?? prompt.thumbnail_url}
+                    alt={title}
+                    width={1200}
+                    height={675}
+                    className="w-full object-cover"
+                    priority
                   />
-                ))}
+                )}
+
+                {prompt.type === "video" && (
+                  <video
+                    src={prompt.media_url}
+                    poster={prompt.thumbnail_url}
+                    controls
+                    className="w-full rounded-md"
+                  />
+                )}
               </div>
-            ))}
-          </CardContent>
+            ) : (
+              <div className="aspect-[4/5] flex items-center justify-center p-10 text-center rounded-md bg-zinc-800">
+                <h2 className="text-2xl font-semibold">{title}</h2>
+              </div>
+            )}
+
+            <CardTitle className="text-2xl font-semibold">
+              {title}
+            </CardTitle>
+
+            <div className="flex flex-wrap gap-2">
+              {prompt.model && <Badge variant="secondary">{prompt.model}</Badge>}
+              {prompt.type && <Badge variant="outline">{prompt.type}</Badge>}
+              {prompt.category && <Badge variant="outline">{prompt.category}</Badge>}
+              <LikeButton resourceId={promptId!} />
+            </div>
+
+            <div className="text-sm text-muted-foreground space-y-1">
+              {views !== null && (
+                <p className="flex items-center gap-1">
+                  <Eye className="h-4 w-4" />
+                  {views.toLocaleString()} views
+                </p>
+              )}
+
+              {createdAt && (
+                <p>
+                  Created {formatDistanceToNowStrict(new Date(createdAt))} ago
+                </p>
+              )}
+            </div>
+
+          </CardHeader>
         </Card>
-      )}
+      </div>
 
 
-      {/* ---------------- PREVIEW CARD ---------------- */}
-      <Card>
-        <CardHeader className="flex justify-between">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() =>
-              openInModel(
-                prompt.model,
-                String(filledContent || prompt.content)
-              )
-            }
-          >
-            <ExternalLink className="mr-2 h-4 w-4" />
-            Open in {prompt.model}
-          </Button>
+      {/* ===== MIDDLE — VARIABLES ===== */}
+      <div className="space-y-8 md:px-2">
+        {Object.keys(variables).length > 0 && (
+          <Card className="bg-zinc-900 border-zinc-800">
+            <CardHeader>
+              <CardTitle>Variables</CardTitle>
+            </CardHeader>
 
-          <div className="flex gap-2">
-            {isOwner && (
-              <UpdatePromptDialog prompt={prompt} />
-            )}
-
-            {isOwner && (
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <Trash2 className="h-4 w-4" />
-              </Button>
-            )}
-
-            <CopyPromptButton content={String(filledContent)} />
-          </div>
-        </CardHeader>
-
-        <CardContent className="prose max-w-none">
-          <pre className="whitespace-pre-wrap font-sans text-sm">
-            {filledContent}
-          </pre>
-        </CardContent>
-      </Card>
+            <CardContent className="space-y-6">
+              {Object.entries(variables).map(([group, fields]) => (
+                <div key={group} className="grid gap-4">
+                  {fields.map((f) => (
+                    <Input
+                      key={f.full}
+                      className="bg-zinc-800 border-zinc-700"
+                      placeholder={`Enter ${f.key}`}
+                      value={variableValues[f.full] ?? ""}
+                      onChange={(e) =>
+                        handleVariableChange(f.full, e.target.value)
+                      }
+                    />
+                  ))}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        )}
+      </div>
 
 
-      {/* ---------------- DELETE DIALOG ---------------- */}
-      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Delete prompt?</DialogTitle>
-          </DialogHeader>
+      {/* ===== RIGHT — PREVIEW ===== */}
+      <div className="space-y-8 md:pl-2">
 
-          <p className="text-sm text-muted-foreground">
-            This action cannot be undone.
-          </p>
-
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteOpen(false)}>
-              Cancel
-            </Button>
+        <Card className="bg-zinc-900 border-zinc-800">
+          <CardHeader className="flex flex-wrap justify-between items-center gap-2 min-w-0">
 
             <Button
-              variant="destructive"
-              onClick={deletePrompt}
-              disabled={isDeleting}
+              variant="outline"
+              size="sm"
+              className="bg-zinc-800 border-zinc-700 shrink-0"
+              onClick={() =>
+                openInModel(prompt.model, String(filledContent || prompt.content))
+              }
             >
-              {isDeleting ? "Deleting…" : "Delete"}
+              <ExternalLink className="h-4 w-4 mr-1" />
+              {prompt.model}
             </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+
+            <div className="flex gap-2 shrink-0">
+              {isOwner && <UpdatePromptDialog prompt={prompt} />}
+
+              {isOwner && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="bg-zinc-800 border-zinc-700"
+                  onClick={() => setDeleteOpen(true)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              )}
+
+              <CopyPromptButton content={String(filledContent)} />
+            </div>
+
+          </CardHeader>
+
+          <CardContent className="prose max-w-none">
+            <pre className="whitespace-pre-wrap font-sans text-sm leading-6">
+              {filledContent}
+            </pre>
+          </CardContent>
+        </Card>
+      </div>
+
+      <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+  <DialogContent>
+    <DialogHeader>
+      <DialogTitle>Delete prompt?</DialogTitle>
+    </DialogHeader>
+
+    <p className="text-sm text-muted-foreground">
+      This action cannot be undone.
+    </p>
+
+    <DialogFooter>
+      <Button
+        variant="outline"
+        onClick={() => setDeleteOpen(false)}
+      >
+        Cancel
+      </Button>
+
+      <Button
+        variant="destructive"
+        disabled={isDeleting}
+        onClick={deletePrompt}
+      >
+        {isDeleting ? "Deleting…" : "Delete"}
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
 
     </motion.main>
   );
