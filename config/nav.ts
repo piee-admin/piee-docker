@@ -56,7 +56,7 @@ export type NavSection = {
 // -----------------------------
 // MAIN NAV
 // -----------------------------
-export const navMain: NavSection[] = [
+/**export const navMain: NavSection[] = [
     {
         title: "Library",
         url: "/library",
@@ -82,8 +82,9 @@ export const navMain: NavSection[] = [
         ],
     },
 ]
+**/
 
-/**export const navMain: NavSection[] = [
+export const navMain: NavSection[] = [
     {
         title: "Dashboard",
         url: "/dashboard",
@@ -200,7 +201,7 @@ export const navMain: NavSection[] = [
             { title: "Limits", url: "/dashboard/settings/limits" },
         ],
     },
-] */
+]
 
 // -----------------------------
 // SECONDARY NAV

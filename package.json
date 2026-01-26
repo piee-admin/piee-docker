@@ -52,7 +52,7 @@
     "embla-carousel-react": "^8.6.0",
     "firebase": "^12.5.0",
     "firebase-tools": "^14.23.0",
-    "framer-motion": "^12.23.24",
+    "framer-motion": "9",
     "gsap": "^3.13.0",
     "html-to-image": "^1.11.13",
     "input-otp": "^1.4.2",

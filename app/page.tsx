@@ -40,7 +40,6 @@ const REPO_URL = "https://github.com/piee-dev/piee-core";
 const API_URL = "https://api.github.com/repos/piee-dev/piee-core";
 
 
-
 export function StarOnGitHub() {
   const [stars, setStars] = useState<number | null>(null);
   const [error, setError] = useState(false);
@@ -215,6 +214,11 @@ export const Hero = () => (
   <section className="relative pt-24 pb-32 text-center h-screen flex justify-center items-center">
 
     <div className="container mx-auto px-4 max-w-4xl">
+      <img
+            src="/images/piee-dashboard-new-s.png"
+            alt="PIEE Library Preview"
+            className="w-full h-auto object-cover z-100"
+          />
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
         Search. Create. Reuse.
         <br />
