@@ -97,6 +97,7 @@ export function Header() {
   const navItems = [
     { name: "Features", link: "#features" },
     { name: "FAQ", link: "#faq" },
+    { name: "All Tools", link: "/dashboard/tools" },
     { name: "Explore", link: "/library/prompt" },
     { name: "Support", link: "https://buymeacoffee.com/pieeapp" },
   ];
