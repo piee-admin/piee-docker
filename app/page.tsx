@@ -216,10 +216,10 @@ export const Hero = () => (
 
     <div className="container mx-auto px-4 max-w-4xl">
       <img
-            src="/images/piee-dashboard-new-s.png"
-            alt="PIEE Library Preview"
-            className="w-full h-auto object-cover z-100"
-          />
+        src="/images/piee-dashboard-new-s.png"
+        alt="PIEE Library Preview"
+        className="w-full h-auto object-cover z-100"
+      />
       <h1 className="text-5xl md:text-6xl font-extrabold leading-tight">
         Search. Create. Reuse.
         <br />
