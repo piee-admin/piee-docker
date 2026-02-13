@@ -27,7 +27,7 @@ import { SimpleTooltip } from "@/components/themed-tooltip";
 import { UpdatePromptDialog } from "@/components/updatepromptdialog";
 import { Dialog, DialogContent, DialogHeader, DialogFooter, DialogTitle } from "@/components/ui/dialog";
 
-import { Eye, Trash2, ExternalLink } from "lucide-react";
+import { Eye, Trash2, ExternalLink, Sparkles } from "lucide-react";
 import { openInModel } from "@/lib/openInModel";
 
 
@@ -410,6 +410,30 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
               {prompt.model}
             </Button>
 
+            {/* Generate button - redirects to AI page */}
+            <Button
+              variant="default"
+              size="sm"
+              className=" shrink-0"
+              onClick={() => {
+                const content = encodeURIComponent(String(filledContent || prompt.content));
+                const typeMap: Record<string, string> = {
+                  'image': 'image',
+                  'video': 'video',
+                  'text': 'text',
+                  'audio': 'audio',
+                  'music': 'audio',
+                  'voice': 'audio'
+                };
+                const aiType = typeMap[prompt.type?.toLowerCase()] || 'text';
+                router.push(`/dashboard/ai/${aiType}?prompt=${content}`);
+              }}
+            >
+              <Sparkles className="h-4 w-4 mr-1" />
+              Generate
+            </Button>
+
+
             <div className="flex gap-2 shrink-0">
               {isOwner && <UpdatePromptDialog prompt={prompt} />}
 
@@ -438,33 +462,33 @@ export default function PromptPage({ id, prompt: serverPrompt }: PromptPageProps
       </div>
 
       <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-  <DialogContent>
-    <DialogHeader>
-      <DialogTitle>Delete prompt?</DialogTitle>
-    </DialogHeader>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete prompt?</DialogTitle>
+          </DialogHeader>
 
-    <p className="text-sm text-muted-foreground">
-      This action cannot be undone.
-    </p>
+          <p className="text-sm text-muted-foreground">
+            This action cannot be undone.
+          </p>
 
-    <DialogFooter>
-      <Button
-        variant="outline"
-        onClick={() => setDeleteOpen(false)}
-      >
-        Cancel
-      </Button>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteOpen(false)}
+            >
+              Cancel
+            </Button>
 
-      <Button
-        variant="destructive"
-        disabled={isDeleting}
-        onClick={deletePrompt}
-      >
-        {isDeleting ? "Deleting…" : "Delete"}
-      </Button>
-    </DialogFooter>
-  </DialogContent>
-</Dialog>
+            <Button
+              variant="destructive"
+              disabled={isDeleting}
+              onClick={deletePrompt}
+            >
+              {isDeleting ? "Deleting…" : "Delete"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </motion.main>
   );
