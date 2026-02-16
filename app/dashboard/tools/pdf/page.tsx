@@ -30,8 +30,6 @@ export default function PDFEditorPage() {
   const [exportOpen, setExportOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  const [token, setToken] = useState<string | null>(null);
-
   const [file, setFile] = useState<File | null>(null);
   const [activeTool, setActiveTool] = useState<ToolId>(null);
   const [numPages, setNumPages] = useState<number | null>(null);
@@ -39,17 +37,10 @@ export default function PDFEditorPage() {
 
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user } = useAuth();
-  // 1. Get token
-  useEffect(() => {
-    async function fetchToken() {
-      if (!user) return;
-      const t = await user.getIdToken();
-      setToken(t);
-    }
-    fetchToken();
-  }, [user]);
+
 
   // --- HISTORY STATE ---
+
   const [history, setHistory] = useState<Uint8Array[]>([]);
   const [currentIndex, setCurrentIndex] = useState(-1);
 
@@ -299,7 +290,8 @@ export default function PDFEditorPage() {
                   );
 
                   // Upload using your existing library
-                  const result = await uploadFileToFastAPI(pdfFile, token!);
+                  const result = await uploadFileToFastAPI(pdfFile);
+
 
                   console.log("Cloud Upload Success:", result);
                   toast.success("PDF saved to cloud successfully!");

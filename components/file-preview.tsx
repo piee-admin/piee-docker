@@ -1,23 +1,17 @@
 "use client";
+import React, { useEffect, useState } from "react";
 
 import { Dialog, DialogContent } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Download, FileText } from "lucide-react";
-import { useEffect, useState } from "react";
+import { getFileMimeHelpers } from "@/lib/file-icons";
+import { AppFile } from "@/lib/types";
+import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 
-export default function FilePreview({ file, open, onClose }: any) {
+export default function FilePreview({ file, open, onClose }: { file: AppFile | null, open: boolean, onClose: () => void }) {
   const [textContent, setTextContent] = useState("");
 
-  const mime = file?.mime_type || "";
-  const isImage = mime.startsWith("image/");
-  const isVideo = mime.startsWith("video/");
-  const isAudio = mime.startsWith("audio/");
-  const isPDF = mime === "application/pdf";
-  const isText =
-    mime.startsWith("text/") ||
-    mime.includes("json") ||
-    mime.includes("xml") ||
-    mime.includes("csv");
+  const { isImage, isVideo, isAudio, isPDF, isText } = getFileMimeHelpers(file?.mime_type);
 
   useEffect(() => {
     if (!file || !isText) {
@@ -29,6 +23,8 @@ export default function FilePreview({ file, open, onClose }: any) {
       .then(setTextContent)
       .catch(() => setTextContent("Unable to load preview."));
   }, [file, isText]);
+
+  if (!file) return null;
 
   const handleDownload = () => {
     window.open(file.public_url, "_blank");
@@ -74,7 +70,7 @@ export default function FilePreview({ file, open, onClose }: any) {
           "
         >
           {isImage && (
-            <img
+            <AuthenticatedImage
               src={file.public_url}
               alt={file.file_name}
               className="max-h-full w-auto rounded-lg shadow-lg"

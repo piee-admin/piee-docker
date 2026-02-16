@@ -91,7 +91,7 @@ export const navMain: NavSection[] = [
         icon: SquareTerminal,
         isActive: true,
         items: [
-            
+
             { title: "Overview", url: "/dashboard/overview" },
             { title: "Activity", url: "/dashboard/activity" },
             { title: "Shortcuts", url: "/dashboard/shortcuts" },
@@ -103,19 +103,7 @@ export const navMain: NavSection[] = [
         icon: HardDrive,
         isActive: true,
     },
-    {
-        title: "Library",
-        url: "/library",
-        icon: Library,
-        isActive: true,
-        items: [
-            { title: "All", url: "/library" },
-            { title: "Prompts", url: "/library/prompt" },
-            { title: "Models", url: "/library/model" },
-            { title: "Images", url: "/dashboard/image" },
-            { title: "Videos", url: "/dashboard/video" },
-        ],
-    },
+
     {
         title: "Creative Tools",
         url: "/dashboard/tools",
@@ -164,8 +152,8 @@ export const navMain: NavSection[] = [
             { title: "Image Generation", url: "/dashboard/ai/image" },
             { title: "Video Generation", url: "/dashboard/ai/video" },
             { title: "Speech & Audio", url: "/dashboard/ai/audio" },
-            { title: "Prompt Library", url: "/dashboard/ai/prompts" },
         ],
+
     },
     {
         title: "Automation",

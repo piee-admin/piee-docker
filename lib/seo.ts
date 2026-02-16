@@ -1,10 +1,6 @@
 import type { Metadata } from "next";
 
-export const SITE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.NODE_ENV === "production"
-    ? "https://piee.app"
-    : "http://localhost:3000");
+export const SITE_URL = "http://localhost:3000";
 
 export const DEFAULT = {
   title: "PIEE — The Universal Creative Command Palette",
@@ -30,18 +26,6 @@ export const ROUTE_META: Record<
     ogImage: "/images/og/dashboard.png",
   },
 
-  "/library/prompt": {
-    title: "Prompt Library — PIEE",
-    description: "Your creative workflow hub and activity overview.",
-    ogImage: "/images/og/prompt-list.png",
-  },
-
-  "/library": {
-    title: "Library — PIEE",
-    description: "Browse prompts, media tools, and workflows.",
-    ogImage: "/images/og/library.png",
-  },
-
   "/tools/image/compress": {
     title: "Image Compressor — PIEE",
     description: "Compress images locally with no uploads or tracking.",
@@ -65,82 +49,6 @@ export function toPlainTitle(input: Metadata["title"]): string {
   }
 
   return String(input);
-}
-
-/**
- * Optional — fetch prompt details server-side
- * (do this inside generateMetadata, not in the helper)
- */
-export async function fetchPromptMeta(idOrSlug: string) {
-  try {
-    const res = await fetch(
-      `${process.env.NEXT_PUBLIC_BASEURL}/library/prompts/${idOrSlug}`,
-      { cache: "no-store" }
-    );
-
-    if (!res.ok) throw new Error("Prompt not found");
-    return await res.json();
-  } catch {
-    return null;
-  }
-}
-
-/**
- * 🔒 Always returns a deterministic, serializable Metadata object
- * 👉 This guarantees OG + Twitter meta render in <head>
- */
-export function buildPromptMetadata(opts: {
-  id?: string;
-  prompt?: { title?: string; description?: string; coverImage?: string };
-} = {}): Metadata {
-  const safeId = typeof opts.id === "string" ? opts.id : "";
-
-  const title =
-    opts.prompt?.title ??
-    (safeId ? `Prompt — ${safeId.slice(0, 6)}…` : DEFAULT.title);
-
-  const description =
-    opts.prompt?.description ??
-    "View prompt details, metadata, and usage insights.";
-
-  const ogImage =
-    absolute(
-      opts.prompt?.coverImage ??
-        `/api/og/prompt?id=${encodeURIComponent(safeId)}`
-    ) || DEFAULT_OG_IMAGE;
-
-  const url = safeId
-    ? `${SITE_URL}/library/prompt/${safeId}`
-    : `${SITE_URL}/library/prompt`;
-
-  return {
-    title,
-    description,
-    metadataBase: new URL(SITE_URL),
-
-    openGraph: {
-      title,
-      description,
-      url,
-      siteName: "PIEE",
-      type: "article",
-      images: [
-        {
-          url: ogImage,
-          width: 1200,
-          height: 630,
-          alt: title,
-        },
-      ],
-    },
-
-    twitter: {
-      card: "summary_large_image",
-      title,
-      description,
-      images: [ogImage],
-    },
-  };
 }
 
 /**

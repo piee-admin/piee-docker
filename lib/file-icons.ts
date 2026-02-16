@@ -55,3 +55,20 @@ export function getFileIconComponent(mime: string | undefined) {
 
   return File; // fallback generic icon
 }
+
+export function getFileMimeHelpers(mime: string | undefined) {
+  const m = mime || "";
+  return {
+    isImage: m.startsWith("image/"),
+    isVideo: m.startsWith("video/"),
+    isAudio: m.startsWith("audio/"),
+    isPDF: m === "application/pdf",
+    isText:
+      m.startsWith("text/") ||
+      m.includes("json") ||
+      m.includes("xml") ||
+      m.includes("csv") ||
+      m.includes("javascript") ||
+      m.includes("python"),
+  };
+}

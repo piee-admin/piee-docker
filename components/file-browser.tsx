@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import FileGrid from "./file-grid";
 import FileList from "./file-list";
 import QuickLookPanel from "./quicklook-panel";
+import { AppFile } from "@/lib/types";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -20,10 +21,14 @@ export default function FileBrowser({
   files,
   onDelete,
   widgetMode = false, // Dashboard widget support
-}: any) {
+}: {
+  files: AppFile[];
+  onDelete: (id: string) => Promise<void> | void;
+  widgetMode?: boolean;
+}) {
   const [search, setSearch] = useState("");
   const [view, setView] = useState("grid");
-  const [quickLook, setQuickLook] = useState(null);
+  const [quickLook, setQuickLook] = useState<AppFile | null>(null);
 
   // Dropdown sort
   const [dropdownSort, setDropdownSort] = useState("none");
@@ -33,7 +38,7 @@ export default function FileBrowser({
   const [columnSortOrder, setColumnSortOrder] = useState<"asc" | "desc">("asc");
 
   // --- APPLY DROPDOWN SORT (global sort menu) ---
-  const applyDropdownSort = (arr: any[]) => {
+  const applyDropdownSort = (arr: AppFile[]) => {
     switch (dropdownSort) {
       case "name":
         return arr.sort((a, b) => a.file_name.localeCompare(b.file_name));
@@ -56,10 +61,10 @@ export default function FileBrowser({
   };
 
   // --- APPLY COLUMN SORT (list view only) ---
-  const applyColumnSort = (arr: any[]) => {
+  const applyColumnSort = (arr: AppFile[]) => {
     return arr.sort((a, b) => {
-      const A = a[columnSortField];
-      const B = b[columnSortField];
+      const A = a[columnSortField as keyof AppFile] as any;
+      const B = b[columnSortField as keyof AppFile] as any;
 
       if (A < B) return columnSortOrder === "asc" ? -1 : 1;
       if (A > B) return columnSortOrder === "asc" ? 1 : -1;

@@ -1,14 +1,8 @@
 "use client";
 
-import {
-  ArrowUpDown,
-  ArrowUp,
-  ArrowDown,
-  MoreVertical,
-  Trash2,
-  DownloadCloud,
-} from "lucide-react";
+import { DownloadCloud, MoreVertical, Trash2, ArrowUpDown, ArrowUp, ArrowDown } from "lucide-react";
 import FileTypeBadge from "./file-type-badge";
+import { AppFile } from "@/lib/types";
 
 export default function FileList({
   files,
@@ -17,7 +11,14 @@ export default function FileList({
   onSortChange,
   onDelete,
   onQuickLook,
-}: any) {
+}: {
+  files: AppFile[];
+  sortField: string;
+  sortOrder: "asc" | "desc";
+  onSortChange: (field: string) => void;
+  onDelete: (id: string) => void;
+  onQuickLook: (file: AppFile) => void;
+}) {
   const SortIcon = ({ field }: { field: string }) => {
     if (sortField !== field) return <ArrowUpDown className="w-3 h-3" />;
     return sortOrder === "asc" ? (
@@ -28,9 +29,9 @@ export default function FileList({
   };
 
   // 🔥 DOWNLOAD HELPER FUNCTION
-  const handleDownload = (file: any) => {
+  const handleDownload = (file: AppFile) => {
     const link = document.createElement("a");
-    link.href = file.public_url;
+    link.href = file.public_url || `/api/v1/files/${file.id}/download`;
     link.download = file.file_name; // force download filename
     document.body.appendChild(link);
     link.click();
@@ -96,7 +97,7 @@ export default function FileList({
 
           {/* MENU */}
           <div className="flex justify-end items-center gap-4">
-            
+
             {/* 🔥 DOWNLOAD BUTTON */}
             <DownloadCloud
               className="w-4 h-4 opacity-60 hover:opacity-100"

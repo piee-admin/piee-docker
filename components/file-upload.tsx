@@ -5,14 +5,14 @@ import { uploadFileToFastAPI } from "@/lib/upload";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 
-export default function FileUpload({ token, onUploaded }: any) {
+export default function FileUpload({ onUploaded }: any) {
   const [uploading, setUploading] = useState(false);
   const [dragging, setDragging] = useState(false);
 
   const handleUpload = async (file: File) => {
     try {
       setUploading(true);
-      const res = await uploadFileToFastAPI(file, token || undefined);
+      const res = await uploadFileToFastAPI(file);
       onUploaded(res);
       toast.success("File uploaded successfully!");
     } catch (e) {
@@ -45,11 +45,7 @@ export default function FileUpload({ token, onUploaded }: any) {
         Drag & drop to upload OR choose a file
       </p>
 
-      {!token && (
-        <p className="text-xs text-amber-600 mb-3">
-          Not signed in — uploads will be unauthenticated.
-        </p>
-      )}
+
 
       <input
         id="fileInput"

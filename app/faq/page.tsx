@@ -4,7 +4,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { Header } from "../page";
+import { NavbarLogo } from "@/components/ui/resizable-navbar";
 
 const faqSections = [
   {
@@ -12,12 +12,13 @@ const faqSections = [
     items: [
       {
         q: "What is PIEE?",
-        a: "PIEE is a prompt infrastructure for experts and teams. It helps users search, create, organize, and reuse AI prompts, models, and workflows in a structured, scalable way."
+        a: "PIEE is a universal creative command palette for professionals. It helps users streamline their AI workflows, manage creative tools, and generate content in a structured, local, and private way."
       },
       {
-        q: "How is PIEE different from other prompt tools?",
-        a: "PIEE combines discovery like Pinterest with structure like GitHub. Instead of isolated prompts, you work with organized, reusable, and model-aware prompt systems."
+        q: "How is PIEE different from other creative tools?",
+        a: "PIEE combines local tool execution with model-aware workflows. Instead of isolated generation, you work with a unified interface that respects privacy and provides structure like a developer environment."
       },
+
       {
         q: "Who is PIEE built for?",
         a: "PIEE is built for solo creators, indie hackers, students, startup teams, and enterprises that rely on AI prompts as part of real workflows."
@@ -25,27 +26,7 @@ const faqSections = [
     ]
   },
 
-  {
-    section: "Library",
-    items: [
-      {
-        q: "Is the PIEE library free?",
-        a: "Yes. The PIEE library is free to explore and use. Anyone can search, view, and learn from prompts, models, and workflows."
-      },
-      {
-        q: "What can I find in the library?",
-        a: "The library contains curated prompts, model-specific examples, and reusable workflows for text, image, video, and audio generation."
-      },
-      {
-        q: "Can I save or reuse prompts from the library?",
-        a: "Yes. You can save prompts, reuse them in your own work, and build on top of existing ideas to create structured workflows."
-      },
-      {
-        q: "Are library prompts production-ready?",
-        a: "Many prompts are designed for real-world use and linked to specific models, helping reduce trial-and-error compared to generic prompts."
-      }
-    ]
-  },
+
 
   {
     section: "Platform & Ownership",
@@ -191,7 +172,11 @@ const FAQ = () => (
 export default function Page() {
   return (
     <>
-      <Header />
+      <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <div className="container mx-auto flex h-16 items-center px-4">
+          <NavbarLogo />
+        </div>
+      </header>
       <main>
         <FAQ />
       </main>

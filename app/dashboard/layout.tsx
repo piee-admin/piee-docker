@@ -20,6 +20,7 @@ import { SpinnerPiee } from "@/components/ui/spinner"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { NavUser } from "@/components/nav-user"
 import { useAppStore } from "../store/useAppStore"
 
@@ -29,6 +30,7 @@ export default function DashboardLayout({
   children: React.ReactNode
 }) {
   const { user, loading } = useAuth()
+  const router = useRouter()
   const pathname = usePathname()
   const pathSegments = pathname.split("/").filter(Boolean)
   const { userInfo, fetchUserInfo, clearUserInfo } = useAppStore()
@@ -55,24 +57,15 @@ export default function DashboardLayout({
     syncUserInfo()
   }, [user, fetchUserInfo, clearUserInfo])
 
-  const currentUser = userInfo
-    ? {
-        name: userInfo.name,
-        email: userInfo.email,
-        avatar: userInfo.photo_url || "/images/logo.png",
-        plan_type: userInfo.plan_type,
-        credits: userInfo.credits,
-      }
-    : {
-        name: "Guest",
-        email: "guest@piee.app",
-        avatar: "/images/logo.png",
-        plan_type: "free",
-        credits: 0,
-      }
+  // 🛡️ AUTH GUARD: Redirect to login if unauthenticated
+  useEffect(() => {
+    if (!loading && !user && !fetching) {
+      router.push("/login")
+    }
+  }, [user, loading, fetching, router])
 
   // 🌀 Full-screen spinner during initial auth + store sync
-  if ((loading && !user) || fetching) {
+  if (loading || fetching || (!user && !loading)) {
     return (
       <div className="flex h-screen w-screen items-center justify-center">
         <SpinnerPiee className="size-8" />
@@ -123,7 +116,7 @@ export default function DashboardLayout({
 
           {/* Right: Avatar / User Menu */}
           <div className="flex items-center gap-2 sm:gap-4">
-            <NavUser  />
+            <NavUser />
           </div>
         </header>
 

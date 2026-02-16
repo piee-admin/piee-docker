@@ -40,14 +40,17 @@ PIEE auto-detects your file or clipboard content and runs the perfect micro-tool
 ## 📦 Installation
 
 1. **Clone the repo:**
-   ```python
-   git clone https://github.com/piee-admin/piee-web.git
-   cd pie-landing
+   ```bash
+   git clone https://github.com/piee-admin/piee-docker.git
+   cd piee-docker
    ```
-2. **Install dependencies:**
-   ```csharp
-   bun install
+
+2. **Install all dependencies:**
+   We provide a structured `Makefile` for easy setup.
+   ```bash
+   make install
    ```
+   This will install frontend dependencies via `bun` and backend dependencies within a dedicated virtual environment (`backend/venv`).
    
 3. **Run the development server:**
    ```csharp
@@ -126,6 +129,10 @@ PIEE auto-detects your file or clipboard content and runs the perfect micro-tool
 
 **📣 Want to Contribute?**
 
-Feel free to open issues, submit PRs, or suggest ideas. Let’s build something great together.
+See our [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines on how to get started. Let’s build something great together.
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).
 
 **💜 Special Thanks**

@@ -30,7 +30,7 @@ export default function ImageGenerationPage() {
         setIsGenerating(true)
         // Simulate generation (replace with actual API call)
         setTimeout(() => {
-            setGeneratedImage(`https://picsum.photos/seed/${Date.now()}/1024/1024`)
+            setGeneratedImage("/images/logo.png")
             setIsGenerating(false)
         }, 3000)
     }

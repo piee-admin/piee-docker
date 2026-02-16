@@ -1,6 +1,6 @@
 {
   "apphosting": {
-    "backendId": "piee-web",
+    "backendId": "piee-docker",
     "rootDir": "/",
     "ignore": [
       "node_modules",

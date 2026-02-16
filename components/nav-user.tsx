@@ -53,35 +53,11 @@ export function NavUser() {
     }
   }
 
-  const handleLogin = async () => {
-    try {
-      await signIn()
-      await fetchUserInfo()
-      router.refresh()
-    } catch (error) {
-      console.error("❌ Error logging in:", error)
-    }
-  }
 
-  // 🧠 If not logged in → show simple Login button
-  if (!userInfo) {
-    return (
-      <SidebarMenu>
-        <SidebarMenuItem>
-          <SidebarMenuButton
-            size="lg"
-            className="flex items-center justify-center text-sm font-medium hover:bg-sidebar-accent"
-            onClick={handleLogin}
-          >
-            <Sparkles className="mr-2 size-4" />
-            Login
-          </SidebarMenuButton>
-        </SidebarMenuItem>
-      </SidebarMenu>
-    )
-  }
 
   // ✅ Authenticated user dropdown
+  if (!userInfo) return null;
+
   const isFreePlan = userInfo.plan_type === "free"
   const planLabel =
     userInfo.plan_type.charAt(0).toUpperCase() + userInfo.plan_type.slice(1)
@@ -149,11 +125,10 @@ export function NavUser() {
               <DropdownMenuItem
                 onClick={() => alert("Upgrade flow coming soon 🚀")}
                 disabled={!isFreePlan}
-                className={`${
-                  isFreePlan
-                    ? ""
-                    : "opacity-50 cursor-not-allowed"
-                }`}
+                className={`${isFreePlan
+                  ? ""
+                  : "opacity-50 cursor-not-allowed"
+                  }`}
               >
                 <Sparkles className="mr-2" />
                 {isFreePlan ? "Upgrade to Pro" : "Pro Plan Active"}
@@ -164,7 +139,7 @@ export function NavUser() {
 
             {/* 🧾 Account / Billing / Notifications */}
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={()=>router.push('/library/settings/account')}>
+              <DropdownMenuItem onClick={() => router.push('/library/settings/account')}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>

@@ -2,22 +2,20 @@
 'use client'
 
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react'
-import {
-  onIdTokenChanged,
-  signInWithPopup,
-  GoogleAuthProvider,
-  signOut,
-  setPersistence,
-  browserLocalPersistence,
-  User,
-  UserCredential,
-} from 'firebase/auth'
-import { auth } from '@/app/firebase'
+import { authClient } from '@/lib/auth/client'
+import { clearToken, getToken, setToken } from '@/lib/auth/session'
+
+type User = {
+  id: string
+  email: string
+  displayName?: string
+  photoURL?: string
+}
 
 type AuthContextType = {
   user: User | null
   loading: boolean
-  signIn: () => Promise<UserCredential>
+  signIn: (email: string, password: string) => Promise<any>
   logOut: () => Promise<void>
 }
 
@@ -26,93 +24,72 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined)
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const [initialized, setInitialized] = useState(false)
 
-  // hydrate immediately from localStorage
+  // Sync session on mount
   useEffect(() => {
-    try {
-      const cached = localStorage.getItem('pieeUser')
-      if (cached) {
-        const parsed = JSON.parse(cached)
-        setUser(parsed)
-        setLoading(false) // stop blocking
-      } else {
-        setLoading(true)
-      }
-    } catch (err) {
-      console.error('Auth hydrate error', err)
-      localStorage.removeItem('pieeUser')
-      setLoading(true)
-    }
-  }, [])
-
-  // background Firebase sync using onIdTokenChanged
-  useEffect(() => {
-    let unsub: (() => void) | null = null
-
-    const init = async () => {
-      try {
-        await setPersistence(auth, browserLocalPersistence)
-      } catch (err) {
-        console.warn('setPersistence failed', err)
-      }
-
-      unsub = onIdTokenChanged(auth, (fbUser) => {
-        // debug
-        console.debug('onIdTokenChanged → fbUser', !!fbUser, fbUser?.uid)
-
-        if (fbUser) {
-          // only write to storage if different
-          try {
-            localStorage.setItem('pieeUser', JSON.stringify({
-              uid: fbUser.uid,
-              displayName: fbUser.displayName,
-              email: fbUser.email,
-              photoURL: fbUser.photoURL,
-              // avoid token objects — keep minimal profile fields
-            }))
-          } catch (e) {
-            console.error('localStorage set error', e)
+    const initAuth = async () => {
+      const token = getToken()
+      if (token) {
+        try {
+          const userData = await authClient.getSession()
+          if (userData) {
+            setUser({
+              id: userData.id,
+              email: userData.email,
+              displayName: userData.display_name,
+              photoURL: userData.photo_url
+            })
+          } else {
+            clearToken()
+            setUser(null)
           }
-          setUser(fbUser)
-        } else {
-          localStorage.removeItem('pieeUser')
+        } catch (err) {
+          console.error('Session sync error', err)
+          clearToken()
           setUser(null)
         }
-
-        setLoading(false)
-        setInitialized(true)
-      })
+      } else {
+        setUser(null)
+      }
+      setLoading(false)
     }
 
-    init()
-
-    return () => {
-      if (unsub) unsub()
-    }
+    initAuth()
   }, [])
 
-  const signIn = async () => {
-    const provider = new GoogleAuthProvider()
-    const result = await signInWithPopup(auth, provider)
-    // store minimal user object (avoid internal token blobs)
-    const minimal = {
-      uid: result.user.uid,
-      displayName: result.user.displayName,
-      email: result.user.email,
-      photoURL: result.user.photoURL,
+  const signIn = async (email: string, password: string) => {
+    setLoading(true)
+    try {
+      const data = await authClient.login(email, password)
+      if (data.access_token) {
+        setToken(data.access_token)
+        const userData = await authClient.getSession()
+        const profile = {
+          id: userData.id,
+          email: userData.email,
+          displayName: userData.display_name,
+          photoURL: userData.photo_url
+        }
+        setUser(profile)
+        return data
+      }
+      throw new Error('Login failed')
+    } catch (err) {
+      setLoading(false)
+      throw err
+    } finally {
+      setLoading(false)
     }
-    localStorage.setItem('pieeUser', JSON.stringify(minimal))
-    setUser(result.user)
-    setLoading(false)
-    return result
   }
 
   const logOut = async () => {
-    await signOut(auth)
-    localStorage.removeItem('pieeUser')
-    setUser(null)
-    setLoading(false)
+    try {
+      await authClient.logout()
+    } finally {
+      clearToken()
+      setUser(null)
+      setLoading(false)
+    }
   }
 
   const value = useMemo(() => ({ user, loading, signIn, logOut }), [user, loading])
@@ -125,7 +102,3 @@ export function useAuth() {
   if (!ctx) throw new Error('useAuth must be used within AuthProvider')
   return ctx
 }
-
-
-
-

@@ -30,8 +30,8 @@ export default function AudioGenerationPage() {
         setIsGenerating(true)
         // Simulate generation (replace with actual API call)
         setTimeout(() => {
-            // Using a sample audio URL for demonstration
-            setGeneratedAudio('https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3')
+            // In local-only mode, we don't fetch external audio
+            setGeneratedAudio(null)
             setIsGenerating(false)
         }, 3000)
     }

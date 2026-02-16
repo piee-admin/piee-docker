@@ -3,8 +3,6 @@ import { Montserrat, Poppins, Inter } from "next/font/google";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
-import { GoogleAnalytics } from "@next/third-parties/google";
-import PageViewTracker from "@/components/PageViewTracker";
 import { Suspense } from "react";
 import { AuthProvider, useAuth } from "./context/AuthContext";
 import { CommandPalette } from "@/components/command-palette";
@@ -62,11 +60,6 @@ export default function RootLayout({
             <Toaster />
             <CommandPalette />
           </AuthProvider>
-          <Suspense fallback={null}>
-            <PageViewTracker />
-          </Suspense>
-          <GoogleAnalytics gaId="G-VPDZFWSGWY" />
-
         </ThemeProvider>
       </body>
     </html>

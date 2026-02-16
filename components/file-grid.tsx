@@ -1,8 +1,10 @@
 "use client";
-
+import React, { useState } from "react";
 import FilePreview from "./file-preview";
-import { useState } from "react";
-import { getFileIconComponent } from "@/lib/file-icons";
+
+import { getFileIconComponent, getFileMimeHelpers } from "@/lib/file-icons";
+import { AppFile } from "@/lib/types";
+import { AuthenticatedImage } from "@/components/ui/authenticated-image";
 
 import {
   DropdownMenu,
@@ -24,20 +26,18 @@ import {
 
 import { MoreVertical } from "lucide-react";
 
-export default function FileGrid({ files, onDelete }: any) {
+export default function FileGrid({ files, onDelete }: { files: AppFile[], onDelete: (id: string) => Promise<void> | void }) {
   const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<any>(null);
+  const [selected, setSelected] = useState<AppFile | null>(null);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   return (
     <>
       <div className="grid grid-cols-[repeat(auto-fill,minmax(160px,1fr))] gap-6 mt-6">
-        {files.map((file: any) => {
+        {files.map((file) => {
           const Icon = getFileIconComponent(file.mime_type);
-          const isImage = file.mime_type?.startsWith("image/");
-          const isVideo = file.mime_type?.startsWith("video/");
-          const isPDF = file.mime_type === "application/pdf";
+          const { isImage, isVideo, isPDF } = getFileMimeHelpers(file.mime_type);
 
           return (
             <div
@@ -67,7 +67,7 @@ export default function FileGrid({ files, onDelete }: any) {
                   "
                 >
                   {(isImage || isVideo || isPDF) ? (
-                    <img
+                    <AuthenticatedImage
                       src={file.thumbnail_url}
                       alt={file.file_name}
                       className="w-full h-full object-contain rounded-lg"

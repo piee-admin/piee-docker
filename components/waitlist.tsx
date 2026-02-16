@@ -4,7 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert"
 import { toast } from "sonner"
 import { CheckCircle2Icon } from "lucide-react";
 import { useState } from "react";
-import { supabase } from "@/lib/supabase";
+import { waitlistApi } from "@/lib/api/waitlist";
 import { useWaitlistCount } from "@/hooks/useWaitlistCount";
 import { ArrowRightIcon } from "@radix-ui/react-icons";
 
@@ -29,15 +29,11 @@ const Waitlist = () => {
         if (!email) return;
         setLoading(true);
 
-        // Check for duplicate
-        const { data: existing } = await supabase
-            .from("waitlist")
-            .select("*")
-            .eq("email", email)
-            .single();
-
-        if (existing) {
-            toast.error("☠️ This email is already on the waitlist!", {
+        try {
+            const res = await waitlistApi.join(email);
+            setSubmitted(true);
+            toast.success("🎉 You’re now on the waitlist!", {
+                description: "We’ve added you successfully.",
                 style: {
                     fontSize: "1.125rem",
                     padding: "1rem 1.5rem",
@@ -45,16 +41,8 @@ const Waitlist = () => {
                     borderRadius: "0.75rem",
                 }
             });
-            setLoading(false);
-            return;
-        }
-
-        // Insert email
-        const { error } = await supabase
-            .from("waitlist")
-            .insert([{ email, created_at: new Date().toISOString() }]);
-
-        if (error) {
+            setEmail("");
+        } catch (error) {
             console.error(error);
             toast.error("🤔 Something went wrong. Please try again.", {
                 style: {
@@ -64,20 +52,7 @@ const Waitlist = () => {
                     borderRadius: "0.75rem",
                 }
             });
-        } else {
-            setSubmitted(true);
-            toast.success("🎉 You’re now on the waitlist!", {
-                description: "We’ve added you successfully.",
-                style: {
-                    fontSize: "1.125rem",   // larger text
-                    padding: "1rem 1.5rem", // bigger padding
-                    minWidth: "20rem",      // wider toast
-                    borderRadius: "0.75rem",// rounded corners
-                }
-            });
-            setEmail("");
         }
-
         setLoading(false);
     };
 

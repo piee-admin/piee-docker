@@ -3,36 +3,22 @@
 import { useEffect, useState } from "react";
 import FileBrowser from "@/components/file-browser";
 import { useAuth } from "@/app/context/AuthContext";
+import { filesApi } from "@/lib/api/files";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export default function FileBrowserWidget() {
   const { user } = useAuth();
-  const [token, setToken] = useState<string | null>(null);
   const [files, setFiles] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Get token
-  useEffect(() => {
-    async function fetchToken() {
-      if (!user) return;
-      const t = await user.getIdToken();
-      setToken(t);
-    }
-    fetchToken();
-  }, [user]);
-
   // Fetch only latest 6 files for widget preview
   useEffect(() => {
-    if (!token) return;
+    if (!user) return;
 
     async function fetchFiles() {
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_BASEURL}/upload/files`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-
-        const data = await res.json();
+        const data = await filesApi.list();
         setFiles((data.files || []).slice(0, 6)); // LIMIT 6 FILES
       } catch (err) {
         console.error("Failed to fetch widget files:", err);
@@ -42,7 +28,7 @@ export default function FileBrowserWidget() {
     }
 
     fetchFiles();
-  }, [token]);
+  }, [user]);
 
   return (
     <div className="border rounded-lg bg-card p-4 shadow-sm">
@@ -63,8 +49,9 @@ export default function FileBrowserWidget() {
       ) : files.length === 0 ? (
         <p className="text-xs text-muted-foreground">No files uploaded yet.</p>
       ) : (
-        <FileBrowser files={files} onDelete={() => {}} widgetMode />
+        <FileBrowser files={files} onDelete={() => { }} widgetMode />
       )}
     </div>
   );
 }
+

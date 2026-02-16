@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database (optional, use with --profile postgres)
+  postgres:
+    image: postgres:16-alpine
+    profiles: ["postgres"]
+    container_name: piee-postgres
+    environment:
+      POSTGRES_USER: piee
+      POSTGRES_PASSWORD: piee
+      POSTGRES_DB: piee
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U piee"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # FastAPI Backend
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: piee-api
+    environment:
+      # Use SQLite by default, PostgreSQL if --profile postgres is used
+      DATABASE_URL: ${DATABASE_URL:-sqlite:///./data/piee.db}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-this-to-a-random-secret-key-in-production}
+      JWT_ALGORITHM: HS256
+      ACCESS_TOKEN_EXPIRE_MINUTES: 30
+      UPLOAD_DIR: ./data/uploads
+      MAX_UPLOAD_SIZE: 10485760
+      FRONTEND_URL: http://localhost:3000
+    volumes:
+      - ./backend:/app
+      - piee_data:/app/data
+    ports:
+      - "8000:8000"
+    depends_on:
+      postgres:
+        condition: service_healthy
+        required: false
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # Next.js Frontend
+  web:
+    image: node:20-alpine
+    container_name: piee-docker
+    working_dir: /app
+    environment:
+      NEXT_PUBLIC_API_URL: http://localhost:8000
+    volumes:
+      - ./:/app
+      - /app/node_modules
+      - /app/.next
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - api
+
+volumes:
+  postgres_data:
+  piee_data:

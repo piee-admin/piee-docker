@@ -92,11 +92,10 @@ export default function FeedbackPage() {
             <button
               key={t.value}
               onClick={() => setType(t.value)}
-              className={`rounded-lg border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-ring ${
-                type === t.value
+              className={`rounded-lg border p-4 text-left transition focus:outline-none focus:ring-2 focus:ring-ring ${type === t.value
                   ? "border-primary bg-primary/5"
                   : "hover:bg-muted"
-              }`}
+                }`}
             >
               <div className="font-medium">{t.label}</div>
               <div className="text-sm text-muted-foreground">{t.hint}</div>
@@ -127,11 +126,10 @@ export default function FeedbackPage() {
                 type="button"
                 aria-label={`Rate ${n} star`}
                 onClick={() => setRating(n)}
-                className={`text-xl ${
-                  rating && rating >= n
+                className={`text-xl ${rating && rating >= n
                     ? "text-yellow-500"
                     : "text-muted-foreground"
-                }`}
+                  }`}
               >
                 ★
               </button>
@@ -166,12 +164,10 @@ export default function FeedbackPage() {
             <Button asChild>
               <Link href="/">Go to Home</Link>
             </Button>
-            <Button asChild variant="secondary">
-              <Link href="/library">Explore Library</Link>
-            </Button>
             <Button variant="ghost" onClick={() => setSuccessOpen(false)}>
               Share more feedback
             </Button>
+
           </DialogFooter>
         </DialogContent>
       </Dialog>

@@ -44,17 +44,9 @@ const aiModelTypes = [
     color: 'text-red-500',
     bgColor: 'bg-red-500/10 hover:bg-red-500/20',
     borderColor: 'border-red-500/20'
-  },
-  {
-    name: 'Prompts Library',
-    description: 'Manage and organize your AI prompts and templates.',
-    icon: MessageSquare,
-    href: '/dashboard/ai/prompts',
-    color: 'text-orange-500',
-    bgColor: 'bg-orange-500/10 hover:bg-orange-500/20',
-    borderColor: 'border-orange-500/20'
   }
 ]
+
 
 export default function AiModels() {
   return (

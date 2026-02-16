@@ -1,0 +1,27 @@
+# FastAPI and Server
+fastapi>=0.115.0
+uvicorn[standard]>=0.32.0
+python-multipart>=0.0.9
+
+# Database
+sqlalchemy>=2.0.0
+alembic>=1.13.0
+
+# PostgreSQL Support
+psycopg[binary]>=3.2.0
+
+# MySQL Support (Optional)
+pymysql>=1.1.0
+
+# Authentication & Security
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+bcrypt==3.1.7
+
+# Configuration
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# CORS Support
+# (python-multipart already specified above)

@@ -1,10 +1,11 @@
+// app/store/useAppStore.ts
 'use client'
 
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { auth } from '@/app/firebase'
+import { getToken } from '@/lib/auth/session'
 
-const BASEURL = process.env.NEXT_PUBLIC_BASEURL || 'http://localhost:8000'
+const BASEURL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000'
 
 type UserInfo = {
   uid: string
@@ -12,7 +13,7 @@ type UserInfo = {
   name: string
   photo_url: string
   credits: number
-  plan_type: string     // ✅ new
+  plan_type: string
 }
 
 type AppState = {
@@ -27,13 +28,11 @@ export const useAppStore = create<AppState>()(
       userInfo: null,
 
       fetchUserInfo: async () => {
-        const user = auth.currentUser
-        if (!user) return
+        const token = getToken()
+        if (!token) return
 
-        const token = await user.getIdToken()
-        console.log(token)
-        // ✅ use dynamic base URL from env
-        const res = await fetch(`${BASEURL}/user/info`, {
+        // Fetch user context info from internal API
+        const res = await fetch(`${BASEURL}/api/v1/auth/me`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
@@ -41,7 +40,18 @@ export const useAppStore = create<AppState>()(
 
         if (!res.ok) throw new Error('Failed to fetch user info')
         const data = await res.json()
-        set({ userInfo: data })
+
+        // Map backend schema to store schema if needed
+        set({
+          userInfo: {
+            uid: data.id,
+            email: data.email,
+            name: data.display_name || data.email,
+            photo_url: data.photo_url || '',
+            credits: data.credits || 0,
+            plan_type: data.plan_type || 'free'
+          }
+        })
       },
 
       clearUserInfo: () => set({ userInfo: null }),

@@ -3,7 +3,7 @@
 import * as React from "react"
 import Image from "next/image"
 import { useAuth } from "@/app/context/AuthContext"
-import { navMain, navSecondary, projects } from "@/config/nav"; 
+import { navMain, navSecondary, projects } from "@/config/nav";
 
 
 import { NavMain } from "@/components/nav-main"
@@ -28,25 +28,26 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 
   const currentUser = user
     ? {
-        name: user.displayName || "User",
-        email: user.email || "No email",
-        avatar: user.photoURL || "/images/logo.png",
-      }
+      name: user.displayName || "User",
+      email: user.email || "No email",
+      avatar: user.photoURL || "/images/logo.png",
+    }
     : {
-        name: "Guest",
-        email: "guest@piee.app",
-        avatar: "/images/logo.png",
-      }
+      name: "Guest",
+      email: "guest@piee.app",
+      avatar: "/images/logo.png",
+    }
 
 
   return (
-    <Sidebar  variant="floating" {...props}>
+    <Sidebar variant="floating" {...props}>
       {/* 🌟 Header */}
       <SidebarHeader className="pb-3 border-b border-border/40">
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
-              <Link href="/library" className="flex items-center gap-3">
+              <Link href="/dashboard" className="flex items-center gap-3">
+
                 <div className="flex aspect-square size-9 items-center justify-center rounded-lg bg-muted">
                   <Image
                     src="/images/logo.png"

@@ -29,8 +29,8 @@ export default function VideoGenerationPage() {
         setIsGenerating(true)
         // Simulate generation (replace with actual API call)
         setTimeout(() => {
-            // Using a sample video URL for demonstration
-            setGeneratedVideo('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4')
+            // In local-only mode, we don't fetch external video
+            setGeneratedVideo(null)
             setIsGenerating(false)
         }, 4000)
     }
