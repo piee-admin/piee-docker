@@ -69,9 +69,10 @@ async def health_check():
     }
 
 
+
+
 # Register API routers
 from app.routers import auth, files, workspaces, waitlist, organizations, prompts, executions, api_keys, provider_keys, onboarding
-
 
 app.include_router(auth.router, prefix=f"{settings.API_V1_PREFIX}/auth", tags=["Authentication"])
 app.include_router(onboarding.router, prefix=f"{settings.API_V1_PREFIX}/onboarding", tags=["Onboarding"])
@@ -83,11 +84,9 @@ app.include_router(prompts.router, prefix=f"{settings.API_V1_PREFIX}/prompts", t
 app.include_router(executions.router, prefix=f"{settings.API_V1_PREFIX}/executions", tags=["Execution"])
 app.include_router(api_keys.router, prefix=f"{settings.API_V1_PREFIX}/api-keys", tags=["API Keys"])
 app.include_router(provider_keys.router, prefix=f"{settings.API_V1_PREFIX}/provider-keys", tags=["Provider Keys (BYOK)"])
+
 from app.routers import generations
 app.include_router(generations.router, prefix=f"{settings.API_V1_PREFIX}/generations", tags=["Generations"])
-
-
-
 
 
 if __name__ == "__main__":

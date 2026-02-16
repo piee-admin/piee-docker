@@ -28,3 +28,4 @@ pydantic-settings>=2.0.0
 # CORS Support
 # (python-multipart already specified above)
 httpx>=0.25.0
+

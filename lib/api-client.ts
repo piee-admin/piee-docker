@@ -200,6 +200,32 @@ export const apiClient = {
     // Provider Keys
     providerKeys: {
         list: (orgId: string) => APIClient.get<ProviderKey[]>(`/api/v1/provider-keys/${orgId}`),
+    },
+
+    // Audit Logs
+    audit: {
+        list: (params?: {
+            skip?: number,
+            limit?: number,
+            action?: string,
+            user_id?: string,
+            start_date?: string,
+            end_date?: string
+        }) => {
+            const queryParams = new URLSearchParams();
+            if (params) {
+                Object.entries(params).forEach(([key, value]) => {
+                    if (value !== undefined) queryParams.append(key, String(value));
+                });
+            }
+            return APIClient.get<any[]>(`/api/v1/audit?${queryParams.toString()}`);
+        },
+        export: (start_date?: string, end_date?: string) => {
+            const queryParams = new URLSearchParams();
+            if (start_date) queryParams.append('start_date', start_date);
+            if (end_date) queryParams.append('end_date', end_date);
+            return APIClient.get<any[]>(`/api/v1/audit/export?${queryParams.toString()}`);
+        }
     }
 };
 

@@ -18,22 +18,6 @@ router = APIRouter()
 async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """
     Register a new user account.
-    
-    Automatically creates:
-    - User account
-    - Personal organization
-    - Organization membership (owner role)
-    - Onboarding progress tracker
-    
-    Args:
-        user_data: User registration data (email, password, full_name)
-        db: Database session
-    
-    Returns:
-        Created user object
-    
-    Raises:
-        HTTPException: If email already exists
     """
     from app.db.models import Organization, OrganizationMember, OnboardingProgress
     
@@ -100,16 +84,6 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
 async def login(user_data: UserLogin, db: Session = Depends(get_db)):
     """
     Login and receive JWT access token.
-    
-    Args:
-        user_data: Login credentials (email, password)
-        db: Database session
-    
-    Returns:
-        JWT access token
-    
-    Raises:
-        HTTPException: If credentials are invalid
     """
     # Find user by email
     user = db.query(User).filter(User.email == user_data.email).first()
@@ -141,12 +115,6 @@ async def login(user_data: UserLogin, db: Session = Depends(get_db)):
 async def get_current_user_info(current_user: User = Depends(get_current_active_user)):
     """
     Get current authenticated user information.
-    
-    Args:
-        current_user: Current authenticated user from dependency
-    
-    Returns:
-        Current user object
     """
     return current_user
 
@@ -154,14 +122,6 @@ async def get_current_user_info(current_user: User = Depends(get_current_active_
 @router.post("/logout")
 async def logout(current_user: User = Depends(get_current_active_user)):
     """
-    Logout current user (client should discard token).
-    
-    Args:
-        current_user: Current authenticated user
-    
-    Returns:
-        Success message
+    Logout current user.
     """
-    # In a JWT system, logout is handled client-side by discarding the token
-    # In the future, we could implement token blacklisting here
     return {"message": "Successfully logged out"}

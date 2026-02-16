@@ -140,7 +140,7 @@ export const navMain: NavSection[] = [
             },
             {
                 title: "Creative AI",
-                url: "/dashboard/ai/text",
+                url: "/dashboard/ai",
                 icon: Sparkles,
             },
         ],
