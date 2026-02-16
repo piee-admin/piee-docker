@@ -37,27 +37,91 @@ PIEE unifies AI routing, prompt infrastructure, usage logging, and governance in
 
 ---
 
-## 📦 Installation
+## 📦 Installation & Setup
 
-1. **Clone the repo:**
-   ```bash
-   git clone https://github.com/piee-admin/piee-docker.git
-   cd piee-docker
-   ```
+### Prerequisites
+- **Node.js** (v18+ recommended)
+- **Python** (v3.9+)
+- **Bun** (for frontend package management)
+- **Make** (optional, for easy commands)
+- **Docker** (optional, for containerized run)
 
-2. **Install all dependencies:**
-   We provide a structured `Makefile` for easy setup.
-   ```bash
-   make install
-   ```
-   This will install frontend dependencies via `bun` and backend dependencies within a dedicated virtual environment (`backend/venv`).
-   
-3. **Run the development server:**
-   ```csharp
-   bun run dev
-   ```
-   
-4. **Open http://localhost:3000 in your browser.**
+### Method 1: Quick Start (Makefile)
+
+We provide a `Makefile` to automate the setup process.
+
+1.  **Clone the repo:**
+    ```bash
+    git clone https://github.com/piee-admin/piee-docker.git
+    cd piee-docker
+    ```
+
+2.  **Install Dependencies:**
+    ```bash
+    make install
+    ```
+    This command will:
+    - Install frontend dependencies using `bun`.
+    - Create a Python virtual environment in `backend/venv`.
+    - Install backend dependencies from `requirements.txt`.
+
+3.  **Run Development Servers:**
+    You need to run the backend and frontend in separate terminals.
+
+    **Terminal 1 (Backend):**
+    ```bash
+    make dev-backend
+    ```
+    *Starts the FastAPI server at http://localhost:8000*
+
+    **Terminal 2 (Frontend):**
+    ```bash
+    make dev-frontend
+    ```
+    *Starts the Next.js dev server at http://localhost:3000*
+
+4.  **Open the App:**
+    Visit [http://localhost:3000](http://localhost:3000) to access the dashboard.
+
+### Method 2: Docker (Recommended for Production)
+
+Run the entire stack (Frontend + Backend + Database) using Docker Compose.
+
+1.  **Start Services:**
+    ```bash
+    make docker-up
+    ```
+    *Or manually: `docker-compose up -d`*
+
+2.  **Access Services:**
+    - Frontend: http://localhost:3000
+    - Backend API: http://localhost:8000
+    - API Docs: http://localhost:8000/docs
+
+3.  **Stop Services:**
+    ```bash
+    make docker-down
+    ```
+
+### Manual Setup (No Make)
+
+If you prefer manual setup:
+
+**Backend:**
+```bash
+cd backend
+python3 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+**Frontend:**
+```bash
+# In project root
+bun install
+bun dev
+```
 
 **📁 Project Structure**
 ```csharp
