@@ -13,4 +13,5 @@ export interface AppFile {
     size: number;
     public_url: string;
     thumbnail_url: string;
+    meta_data?: string; // JSON string
 }

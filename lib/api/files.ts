@@ -11,6 +11,12 @@ export const filesApi = {
             method: 'POST',
             body: formData,
         });
+
+        if (!res.ok) {
+            const error = await res.json().catch(() => ({ detail: 'Upload failed' }));
+            throw new Error(error.detail || 'Upload failed');
+        }
+
         return res.json();
     },
 

@@ -58,10 +58,8 @@ async def upload_file(
     await file.seek(0)
     
     # Save file to disk
-    storage_path, filename, _ = await save_upload_file(current_user.id, file)
-    
-    # Get MIME type
-    mime_type = get_mime_type(file.filename or "")
+    # storage_path, filename, file_size, metadata_json, mime_type
+    storage_path, filename, file_size, metadata_json, mime_type = await save_upload_file(current_user.id, file)
     
     # Create database record
     db_file = File(
@@ -71,7 +69,8 @@ async def upload_file(
         original_filename=file.filename or "unnamed",
         storage_path=storage_path,
         mime_type=mime_type,
-        size_bytes=file_size
+        size_bytes=file_size,
+        meta_data=metadata_json
     )
     
     db.add(db_file)

@@ -3,11 +3,22 @@ PIEE Platform Backend API
 FastAPI application with internal database system.
 """
 
+# Increase multipart upload limit - MUST be before importing FastAPI/Starlette
+import multipart
+try:
+    multipart.MAX_MEMORY_FILE_SIZE = 1024 * 1024 * 1024  # 1GB
+    multipart.MAX_FILE_SIZE = 1024 * 1024 * 1024 * 10    # 10GB
+    print(f"DEBUG: Set MAX_MEMORY_FILE_SIZE to {multipart.MAX_MEMORY_FILE_SIZE}")
+    print(f"DEBUG: Set MAX_FILE_SIZE to {multipart.MAX_FILE_SIZE}")
+except Exception as e:
+    print(f"DEBUG: Failed to configure multipart: {e}")
+
 import logging
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.core.config import settings
 from app.db.base import init_db
+
 
 # Configure logging
 logging.basicConfig(

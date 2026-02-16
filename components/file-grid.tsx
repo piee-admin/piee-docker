@@ -1,7 +1,4 @@
-"use client";
 import React, { useState } from "react";
-import FilePreview from "./file-preview";
-
 import { getFileIconComponent, getFileMimeHelpers } from "@/lib/file-icons";
 import { AppFile } from "@/lib/types";
 import { AuthenticatedImage } from "@/components/ui/authenticated-image";
@@ -26,10 +23,15 @@ import {
 
 import { MoreVertical } from "lucide-react";
 
-export default function FileGrid({ files, onDelete }: { files: AppFile[], onDelete: (id: string) => Promise<void> | void }) {
-  const [open, setOpen] = useState(false);
-  const [selected, setSelected] = useState<AppFile | null>(null);
-
+export default function FileGrid({
+  files,
+  onDelete,
+  onPreview
+}: {
+  files: AppFile[],
+  onDelete: (id: string) => Promise<void> | void,
+  onPreview: (file: AppFile) => void
+}) {
   const [deleteId, setDeleteId] = useState<string | null>(null);
 
   return (
@@ -46,10 +48,7 @@ export default function FileGrid({ files, onDelete }: { files: AppFile[], onDele
             >
               {/* CLICK TO OPEN */}
               <div
-                onClick={() => {
-                  setSelected(file);
-                  setOpen(true);
-                }}
+                onClick={() => onPreview(file)}
                 className="cursor-pointer"
               >
                 {/* SMALLER SQUARE */}
@@ -83,10 +82,7 @@ export default function FileGrid({ files, onDelete }: { files: AppFile[], onDele
               <div className="flex items-center justify-between mt-1 pt-3">
                 <p
                   className="truncate font-medium text-xs cursor-pointer"
-                  onClick={() => {
-                    setSelected(file);
-                    setOpen(true);
-                  }}
+                  onClick={() => onPreview(file)}
                 >
                   {file.file_name}
                 </p>
@@ -114,13 +110,6 @@ export default function FileGrid({ files, onDelete }: { files: AppFile[], onDele
           );
         })}
       </div>
-
-      {/* PREVIEW */}
-      <FilePreview
-        file={selected}
-        open={open}
-        onClose={() => setOpen(false)}
-      />
 
       {/* DELETE CONFIRMATION */}
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>

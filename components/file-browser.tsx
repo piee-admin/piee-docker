@@ -3,7 +3,8 @@
 import { useState, useMemo } from "react";
 import FileGrid from "./file-grid";
 import FileList from "./file-list";
-import QuickLookPanel from "./quicklook-panel";
+import FilePreview from "./file-preview";
+// import QuickLookPanel from "./quicklook-panel"; // Replaced by FilePreview
 import { AppFile } from "@/lib/types";
 
 import { Input } from "@/components/ui/input";
@@ -176,9 +177,9 @@ export default function FileBrowser({
 
       {/* MAIN VIEW */}
       {widgetMode ? (
-        <FileGrid files={processedFiles} onDelete={onDelete} />
+        <FileGrid files={processedFiles} onDelete={onDelete} onPreview={setQuickLook} />
       ) : view === "grid" ? (
-        <FileGrid files={processedFiles} onDelete={onDelete} />
+        <FileGrid files={processedFiles} onDelete={onDelete} onPreview={setQuickLook} />
       ) : (
         <FileList
           files={processedFiles}
@@ -190,9 +191,13 @@ export default function FileBrowser({
         />
       )}
 
-      {/* QUICKLOOK PANEL (HIDDEN IN WIDGET MODE) */}
+      {/* PREVIEW MODAL */}
       {!widgetMode && (
-        <QuickLookPanel file={quickLook} onClose={() => setQuickLook(null)} />
+        <FilePreview
+          file={quickLook}
+          open={!!quickLook}
+          onClose={() => setQuickLook(null)}
+        />
       )}
     </div>
   );

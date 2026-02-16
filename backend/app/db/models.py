@@ -225,6 +225,7 @@ class File(Base):
     storage_path = Column(String(500), nullable=False)  # Full path to file
     mime_type = Column(String(100), nullable=False)
     size_bytes = Column(Integer, nullable=False)
+    meta_data = Column(Text, nullable=True)  # JSON string of metadata (duration, resolution, etc.)
     created_at = Column(DateTime, default=datetime.utcnow, nullable=False)
     
     # Relationships

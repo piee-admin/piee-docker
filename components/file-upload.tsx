@@ -14,7 +14,7 @@ export default function FileUpload({ onUploaded }: any) {
       setUploading(true);
       const res = await uploadFileToFastAPI(file);
       onUploaded(res);
-      toast.success("File uploaded successfully!");
+      // toast.success handled by parent
     } catch (e) {
       console.error(e);
       alert("Upload failed. Check console.");

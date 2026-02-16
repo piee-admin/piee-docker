@@ -29,3 +29,7 @@ pydantic-settings>=2.0.0
 # (python-multipart already specified above)
 httpx>=0.25.0
 
+
+# File Processing
+python-magic>=0.4.27
+hachoir>=3.3.0
