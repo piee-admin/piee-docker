@@ -103,3 +103,105 @@ async def get_optional_user(
         return user
     except HTTPException:
         return None
+
+
+async def get_current_user_with_org(
+    current_user: User = Depends(get_current_active_user),
+    db: Session = Depends(get_db)
+):
+    """
+    Get current user with their primary organization.
+    
+    Returns tuple of (User, Organization).
+    Raises 400 if user has no organization (shouldn't happen with new registration flow).
+    
+    Args:
+        current_user: Current authenticated user
+        db: Database session
+    
+    Returns:
+        Tuple of (User, Organization)
+    
+    Raises:
+        HTTPException: If user has no organization
+    """
+    from app.db.models import Organization, OrganizationMember
+    
+    membership = db.query(OrganizationMember).filter(
+        OrganizationMember.user_id == current_user.id
+    ).first()
+    
+    if not membership:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="User has no organization. Please contact support."
+        )
+    
+    org = db.query(Organization).filter(
+        Organization.id == membership.org_id
+    ).first()
+    
+    return current_user, org
+
+
+class RoleChecker:
+    """
+    Dependency to check if a user has the required role (or higher) in an organization.
+    Usage: Depends(RoleChecker(["admin", "owner"])) or Depends(RoleChecker("admin"))
+    """
+    def __init__(self, allowed_roles: list[str] | str):
+        if isinstance(allowed_roles, str):
+            self.allowed_roles = [allowed_roles]
+        else:
+            self.allowed_roles = allowed_roles
+
+    # Role hierarchy: owner > admin > member > viewer
+    ROLE_HIERARCHY = {
+        "owner": 4,
+        "admin": 3,
+        "member": 2,
+        "viewer": 1
+    }
+
+    def __call__(self, user: User = Depends(get_current_active_user), db: Session = Depends(get_db)):
+        from app.db.models import OrganizationMember
+        
+        # Get membership (assuming single org context for now, or primary org)
+        # In a real multi-org setup, org_id should be passed as a path param, 
+        # but for simplicity we'll check the user's primary/active membership.
+        # Ideally, we should check against the org_id in the URL path if present.
+        
+        member = db.query(OrganizationMember).filter(
+            OrganizationMember.user_id == user.id
+        ).first()
+
+        if not member:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail="Not a member of any organization"
+            )
+
+        user_role_level = self.ROLE_HIERARCHY.get(member.role, 0)
+        
+        # Check if user has ANY of the allowed roles (or higher)
+        # We can implement this as: if "admin" is allowed, then "owner" is also allowed.
+        # Let's find the minimum required level from allowed_roles.
+        
+        min_required_level = 0
+        for role in self.allowed_roles:
+            level = self.ROLE_HIERARCHY.get(role, 99)
+            if level < 99:
+                # We assume allowed_roles usually contains just one minimum role, like "admin"
+                # If multiple are passed, we might want to check against specific ones.
+                # But typically RBAC is hierarchical.
+                # If we say Depends(RoleChecker("admin")), we mean admin OR owner.
+                min_required_level = level
+                break
+        
+        if user_role_level < min_required_level:
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN,
+                detail=f"Insufficient permissions. Required: {self.allowed_roles}"
+            )
+            
+        return member

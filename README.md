@@ -1,8 +1,8 @@
-# PIEE – Drop anything. Done in a blink. 🚀
+# PIEE – AI Control Plane for Teams & Enterprises 🚀
 
-A modern, responsive, and beautiful landing page built with **Next.js**, **Tailwind CSS**, and **Radix UI**, designed for PIEE – Drop anything. Done in a blink.
+PIEE is a centralized AI Control Plane that enables organizations to centrally route, govern, monitor, and optimize their AI usage across multiple providers through a single platform.
 
-PIEE auto-detects your file or clipboard content and runs the perfect micro-tool. It's **offline-first**, **privacy-focused**, and built for pure speed.
+PIEE unifies AI routing, prompt infrastructure, usage logging, and governance into trackable, production-grade logic—reducing cost, risk, and operational complexity.
 
 ---
 

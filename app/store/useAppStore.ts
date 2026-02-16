@@ -14,6 +14,12 @@ type UserInfo = {
   photo_url: string
   credits: number
   plan_type: string
+  // New onboarding fields
+  full_name?: string
+  company_name?: string
+  role?: string
+  onboarding_completed: boolean
+  onboarding_step: number
 }
 
 type AppState = {
@@ -46,10 +52,15 @@ export const useAppStore = create<AppState>()(
           userInfo: {
             uid: data.id,
             email: data.email,
-            name: data.display_name || data.email,
-            photo_url: data.photo_url || '',
+            name: data.display_name || data.full_name || data.email,
+            photo_url: data.photo_url || data.avatar_url || '',
             credits: data.credits || 0,
-            plan_type: data.plan_type || 'free'
+            plan_type: data.plan_type || 'free',
+            full_name: data.full_name,
+            company_name: data.company_name,
+            role: data.role,
+            onboarding_completed: data.onboarding_completed ?? false,
+            onboarding_step: data.onboarding_step ?? 0
           }
         })
       },

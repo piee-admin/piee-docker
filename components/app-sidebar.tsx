@@ -62,7 +62,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     PIEE
                   </span>
                   <span className="truncate text-[11px] text-muted-foreground font-medium">
-                    {user ? "Pro Workspace" : "Guest Mode"}
+                    {user ? "AI Control Plane" : "Guest Mode"}
                   </span>
                 </div>
               </Link>

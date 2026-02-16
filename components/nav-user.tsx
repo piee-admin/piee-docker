@@ -139,7 +139,7 @@ export function NavUser() {
 
             {/* 🧾 Account / Billing / Notifications */}
             <DropdownMenuGroup>
-              <DropdownMenuItem onClick={() => router.push('/library/settings/account')}>
+              <DropdownMenuItem onClick={() => router.push('/dashboard/settings/account')}>
                 <BadgeCheck />
                 Account
               </DropdownMenuItem>

@@ -34,6 +34,10 @@ import {
     CreditCard,
     Users,
     Gauge,
+    ShieldCheck,
+    ListTodo,
+    Sparkles,
+    Key,
 } from "lucide-react"
 
 // -----------------------------
@@ -86,26 +90,40 @@ export type NavSection = {
 
 export const navMain: NavSection[] = [
     {
-        title: "Dashboard",
+        title: "Control Plane",
         url: "/dashboard",
         icon: SquareTerminal,
         isActive: true,
         items: [
-
-            { title: "Overview", url: "/dashboard/overview" },
-            { title: "Activity", url: "/dashboard/activity" },
-            { title: "Shortcuts", url: "/dashboard/shortcuts" },
+            { title: "Overview", url: "/dashboard/overview", icon: Gauge },
+            { title: "Prompts", url: "/dashboard/prompts", icon: ScrollText },
+            { title: "Generations", url: "/dashboard/generations", icon: FileText },
+            { title: "API Keys", url: "/dashboard/api-keys", icon: Code },
         ],
     },
     {
-        title: "Files",
+        title: "Governance",
+        url: "/dashboard/governance",
+        icon: ShieldCheck,
+        isActive: false,
+        items: [
+            { title: "Organizations", url: "/dashboard/governance/orgs", icon: Users },
+            { title: "Credits & Usage", url: "/dashboard/governance/credits", icon: CreditCard },
+            { title: "Audit Trail", url: "/dashboard/governance/audit", icon: ListTodo },
+        ],
+    },
+    {
+        title: "Infrastructure",
         url: "/dashboard/files",
         icon: HardDrive,
-        isActive: true,
+        isActive: false,
+        items: [
+            { title: "File Storage", url: "/dashboard/files", icon: HardDrive },
+            { title: "Model Adapters", url: "/dashboard/ai/adapters", icon: Cpu },
+        ],
     },
-
     {
-        title: "Creative Tools",
+        title: "Utilities",
         url: "/dashboard/tools",
         icon: Bot,
         isActive: false,
@@ -121,49 +139,10 @@ export const navMain: NavSection[] = [
                 icon: Video,
             },
             {
-                title: "Code Formatter",
-                url: "/dashboard/tools/code",
-                icon: Code,
+                title: "Creative AI",
+                url: "/dashboard/ai/text",
+                icon: Sparkles,
             },
-            {
-                title: "Audio Tools",
-                url: "/dashboard/tools/audio",
-                icon: Music,
-            },
-            {
-                title: "PDF Tools",
-                url: "/dashboard/tools/pdf",
-                icon: FileText,
-            },
-            {
-                title: "QR Tool",
-                url: "/dashboard/tools/qr",
-                icon: QrCode,
-            },
-        ],
-    },
-    {
-        title: "AI Models",
-        url: "/dashboard/ai",
-        icon: Bot,
-        isActive: false,
-        items: [
-            { title: "Text Generation", url: "/dashboard/ai/text" },
-            { title: "Image Generation", url: "/dashboard/ai/image" },
-            { title: "Video Generation", url: "/dashboard/ai/video" },
-            { title: "Speech & Audio", url: "/dashboard/ai/audio" },
-        ],
-
-    },
-    {
-        title: "Automation",
-        url: "/dashboard/automation",
-        icon: Frame,
-        isActive: false,
-        items: [
-            { title: "Workflows", url: "/dashboard/automation/workflows" },
-            { title: "Integrations", url: "/dashboard/automation/integrations" },
-            { title: "Triggers", url: "/dashboard/automation/triggers" },
         ],
     },
     {
@@ -171,10 +150,9 @@ export const navMain: NavSection[] = [
         url: "/dashboard/docs",
         icon: BookOpen,
         items: [
-            { title: "Introduction", url: "/dashboard/docs/intro" },
+            { title: "Platform Intro", url: "/dashboard/docs/intro" },
             { title: "Quick Start", url: "/dashboard/docs/get-started" },
             { title: "API Reference", url: "/dashboard/docs/api" },
-            { title: "CLI Guide", url: "/dashboard/docs/cli" },
             { title: "Changelog", url: "/dashboard/docs/changelog" },
         ],
     },
@@ -183,10 +161,7 @@ export const navMain: NavSection[] = [
         url: "/dashboard/settings",
         icon: Settings2,
         items: [
-            { title: "Account", url: "/dashboard/settings/account" },
-            { title: "Billing", url: "/dashboard/settings/billing" },
-            { title: "Workspace", url: "/dashboard/settings/workspace" },
-            { title: "Limits", url: "/dashboard/settings/limits" },
+            { title: "Provider Keys (BYOK)", url: "/dashboard/settings/providers", icon: Key },
         ],
     },
 ]

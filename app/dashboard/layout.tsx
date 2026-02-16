@@ -61,6 +61,11 @@ export default function DashboardLayout({
   useEffect(() => {
     if (!loading && !user && !fetching) {
       router.push("/login")
+    } else if (userInfo && !userInfo.onboarding_completed && !pathname.includes("/onboarding")) {
+      // Allow access to settings in case they need to fix something, but generally redirect
+      // Actually, we want to force onboarding.
+      // Check if "skip" was clicked? The backend handles skip by setting onboarding_completed=true.
+      router.push("/onboarding")
     }
   }, [user, loading, fetching, router])
 

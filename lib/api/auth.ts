@@ -2,10 +2,10 @@
 import { authFetch } from './core';
 
 export const authApi = {
-    register: async (email, password) => {
+    register: async (data: { email: string; password: string; full_name?: string }) => {
         const res = await authFetch('/api/v1/auth/register', {
             method: 'POST',
-            body: JSON.stringify({ email, password }),
+            body: JSON.stringify(data),
         });
         return res.json();
     },

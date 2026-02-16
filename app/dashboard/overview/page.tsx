@@ -1,187 +1,417 @@
-"use client";
+'use client'
 
-import React from "react";
+import { useState, useEffect } from 'react'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import {
-  Search,
-  Bell,
-  Zap,
-  Cloud,
-  Folder,
+  Activity,
   TrendingUp,
-  MoreHorizontal,
+  Zap,
+  FileText,
+  Key,
+  Building2,
+  DollarSign,
   ArrowUpRight,
-  FileImage,
-  Video,
-  Code,
-  Package,
-  ArrowDownRight
-} from "lucide-react";
+  Clock,
+  CheckCircle2,
+  AlertCircle
+} from "lucide-react"
+import Link from "next/link"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Progress } from "@/components/ui/progress"
 
-// --- Components ---
+interface DashboardStats {
+  totalPrompts: number
+  totalGenerations: number
+  totalProviderKeys: number
+  totalOrganizations: number
+  recentGenerations: Array<{
+    id: string
+    prompt_name: string
+    provider: string
+    status: string
+    created_at: string
+    tokens_used: number
+  }>
+  systemHealth: {
+    api: 'healthy' | 'degraded' | 'down'
+    database: 'healthy' | 'degraded' | 'down'
+    encryption: 'active' | 'inactive'
+  }
+}
 
-const StatCard = ({ title, value, trend, trendLabel, icon: Icon }: any) => (
-  <div className="group relative p-6 rounded-2xl bg-white dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 hover:border-zinc-300 dark:hover:border-zinc-600 transition-all duration-300 hover:shadow-sm">
-    <div className="flex justify-between items-start mb-4">
-      <div className="w-10 h-10 rounded-xl bg-zinc-100 dark:bg-zinc-800 flex items-center justify-center text-zinc-900 dark:text-zinc-100 transition-transform group-hover:scale-105">
-        <Icon className="w-5 h-5" />
-      </div>
-      {/* Decorative subtle patch */}
-      <div className="w-16 h-16 absolute top-0 right-0 bg-zinc-50 dark:bg-zinc-800/30 rounded-bl-full -mr-4 -mt-4 transition-opacity opacity-0 group-hover:opacity-100" />
-    </div>
-    
-    <div className="relative z-10">
-      <p className="text-sm font-medium text-zinc-500 dark:text-zinc-400 mb-1">{title}</p>
-      <h3 className="text-3xl font-bold text-zinc-900 dark:text-white tracking-tight mb-3">{value}</h3>
-      
-      <div className="flex items-center gap-2 text-xs">
-        <span className={`flex items-center gap-0.5 px-1.5 py-0.5 rounded font-medium
-          ${parseFloat(trend) > 0 
-            ? "bg-zinc-100 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100" 
-            : "bg-zinc-50 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-500"}`}
-        >
-          {parseFloat(trend) > 0 ? <ArrowUpRight className="w-3 h-3" /> : <ArrowDownRight className="w-3 h-3" />}
-          {trend}
-        </span>
-        <span className="text-zinc-400 dark:text-zinc-600">{trendLabel}</span>
-      </div>
-    </div>
-  </div>
-);
+export default function OverviewPage() {
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPrompts: 0,
+    totalGenerations: 0,
+    totalProviderKeys: 0,
+    totalOrganizations: 1,
+    recentGenerations: [],
+    systemHealth: {
+      api: 'healthy',
+      database: 'healthy',
+      encryption: 'active'
+    }
+  })
+  const [loading, setLoading] = useState(true)
 
-const ProjectCard = ({ title, category, time, icon: Icon }: any) => (
-  <div className="group cursor-pointer flex flex-col h-full">
-    {/* Thumbnail Area - Replaces colored blocks with neutral aesthetic */}
-    <div className="relative w-full aspect-[16/10] rounded-2xl bg-zinc-100 dark:bg-zinc-800 border border-zinc-200 dark:border-zinc-700 overflow-hidden mb-4 flex items-center justify-center transition-colors group-hover:border-zinc-300 dark:group-hover:border-zinc-600">
-      <div className="absolute inset-0 opacity-[0.03] dark:opacity-[0.05]" 
-           style={{ backgroundImage: 'radial-gradient(#000 1px, transparent 1px)', backgroundSize: '16px 16px' }}>
-      </div>
-      
-      <div className="relative z-10 w-14 h-14 rounded-2xl bg-white dark:bg-zinc-900 shadow-sm flex items-center justify-center border border-zinc-100 dark:border-zinc-700 group-hover:scale-110 transition-transform duration-500">
-        <Icon className="w-7 h-7 text-zinc-700 dark:text-zinc-300" />
-      </div>
-    </div>
+  useEffect(() => {
+    loadDashboardStats()
+  }, [])
 
-    {/* Content */}
-    <div className="flex justify-between items-start flex-1">
-      <div className="space-y-1">
-        <h4 className="font-semibold text-zinc-900 dark:text-white text-sm leading-snug group-hover:text-zinc-600 dark:group-hover:text-zinc-300 transition-colors">
-          {title}
-        </h4>
-        <div className="flex items-center text-xs text-zinc-500 dark:text-zinc-400 gap-2">
-          <span>{category}</span>
-          <span className="w-1 h-1 rounded-full bg-zinc-300 dark:bg-zinc-600" />
-          <span>{time}</span>
+  const loadDashboardStats = async () => {
+    try {
+      setLoading(true)
+      // In production, fetch from /api/v1/dashboard/stats
+      // For now, using mock data
+      setStats({
+        totalPrompts: 0,
+        totalGenerations: 0,
+        totalProviderKeys: 0,
+        totalOrganizations: 1,
+        recentGenerations: [],
+        systemHealth: {
+          api: 'healthy',
+          database: 'healthy',
+          encryption: 'active'
+        }
+      })
+    } catch (error) {
+      console.error('Failed to load dashboard stats:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const getHealthBadge = (status: string) => {
+    switch (status) {
+      case 'healthy':
+      case 'active':
+        return <Badge className="bg-green-500">Healthy</Badge>
+      case 'degraded':
+        return <Badge className="bg-yellow-500">Degraded</Badge>
+      case 'down':
+      case 'inactive':
+        return <Badge variant="destructive">Down</Badge>
+      default:
+        return <Badge variant="outline">Unknown</Badge>
+    }
+  }
+
+  return (
+    <div className="flex-1 space-y-4">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-3xl font-bold tracking-tight">Dashboard Overview</h2>
+          <p className="text-muted-foreground">
+            Welcome to your AI Control Plane
+          </p>
+        </div>
+        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <Clock className="h-4 w-4" />
+          <span>Last updated: {new Date().toLocaleTimeString()}</span>
         </div>
       </div>
-      <button className="text-zinc-400 hover:text-zinc-900 dark:hover:text-white transition-colors p-1 rounded-md hover:bg-zinc-100 dark:hover:bg-zinc-800">
-        <MoreHorizontal className="w-4 h-4" />
-      </button>
-    </div>
-  </div>
-);
 
-export default function Overview() {
-  return (
-    <div className="min-h-screen bg-white dark:bg-[#09090b] text-zinc-900 dark:text-zinc-100 font-sans transition-colors duration-300">
-      
-      {/* Page Container */}
-      <div className="max-w-7xl mx-auto px-6 py-8">
-        
-        {/* --- Header Section --- */}
-        <header className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-10">
-          <div>
-            <h1 className="text-2xl font-bold text-zinc-900 dark:text-white tracking-tight">Overview</h1>
-          </div>
+      {/* Key Metrics */}
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <Card className="hover:border-primary transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Total Prompts</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalPrompts}</div>
+            <p className="text-xs text-muted-foreground">
+              Versioned prompt templates
+            </p>
+            <Link href="/dashboard/prompts">
+              <Button variant="link" className="px-0 mt-2" size="sm">
+                Manage Prompts <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-          <div className="flex items-center gap-4">
-            {/* Search Bar */}
-            <div className="relative group">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-zinc-400 group-focus-within:text-zinc-600 dark:group-focus-within:text-zinc-200 transition-colors" />
-              <input 
-                type="text" 
-                placeholder="Search anything..." 
-                className="w-full md:w-80 pl-10 pr-4 py-2.5 rounded-xl bg-zinc-50 dark:bg-zinc-900 border border-zinc-200 dark:border-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-200 dark:focus:ring-zinc-700 transition-all text-sm placeholder:text-zinc-400"
-              />
+        <Card className="hover:border-primary transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Generations</CardTitle>
+            <Zap className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalGenerations}</div>
+            <p className="text-xs text-muted-foreground">
+              Total AI executions
+            </p>
+            <Link href="/dashboard/generations">
+              <Button variant="link" className="px-0 mt-2" size="sm">
+                View Logs <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:border-primary transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Provider Keys</CardTitle>
+            <Key className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalProviderKeys}</div>
+            <p className="text-xs text-muted-foreground">
+              BYOK - Encrypted at rest
+            </p>
+            <Link href="/dashboard/settings/providers">
+              <Button variant="link" className="px-0 mt-2" size="sm">
+                Manage Keys <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:border-primary transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Organizations</CardTitle>
+            <Building2 className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{stats.totalOrganizations}</div>
+            <p className="text-xs text-muted-foreground">
+              Active organizations
+            </p>
+            <Link href="/dashboard/governance/orgs">
+              <Button variant="link" className="px-0 mt-2" size="sm">
+                View Orgs <ArrowUpRight className="ml-1 h-3 w-3" />
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+        {/* Recent Activity */}
+        <Card className="col-span-4">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle>Recent Generations</CardTitle>
+                <CardDescription>
+                  Latest AI prompt executions
+                </CardDescription>
+              </div>
+              <Link href="/dashboard/generations">
+                <Button variant="outline" size="sm">
+                  View All
+                </Button>
+              </Link>
+            </div>
+          </CardHeader>
+          <CardContent>
+            {stats.recentGenerations.length === 0 ? (
+              <div className="flex h-[300px] shrink-0 items-center justify-center rounded-md border border-dashed">
+                <div className="mx-auto flex max-w-[420px] flex-col items-center justify-center text-center">
+                  <Activity className="h-10 w-10 text-muted-foreground" />
+                  <h3 className="mt-4 text-lg font-semibold">No generations yet</h3>
+                  <p className="mb-4 mt-2 text-sm text-muted-foreground">
+                    Start by adding a provider key and creating your first prompt.
+                  </p>
+                  <div className="flex gap-2">
+                    <Link href="/dashboard/settings/providers">
+                      <Button size="sm">Add Provider Key</Button>
+                    </Link>
+                    <Link href="/dashboard/prompts">
+                      <Button variant="outline" size="sm">Create Prompt</Button>
+                    </Link>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {stats.recentGenerations.map((gen) => (
+                  <div key={gen.id} className="flex items-center justify-between border-b pb-3">
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium">{gen.prompt_name}</p>
+                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <Badge variant="outline" className="text-xs">{gen.provider}</Badge>
+                        <span>{new Date(gen.created_at).toLocaleString()}</span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-xs text-muted-foreground">{gen.tokens_used} tokens</span>
+                      {gen.status === 'success' ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <AlertCircle className="h-4 w-4 text-red-500" />
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Quick Actions & System Health */}
+        <Card className="col-span-3">
+          <CardHeader>
+            <CardTitle>Quick Actions</CardTitle>
+            <CardDescription>
+              Common tasks and shortcuts
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            <Link href="/dashboard/prompts">
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <FileText className="mr-2 h-4 w-4" />
+                Create New Prompt
+              </Button>
+            </Link>
+            <Link href="/dashboard/settings/providers">
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Key className="mr-2 h-4 w-4" />
+                Add Provider Key
+              </Button>
+            </Link>
+            <Link href="/dashboard/api-keys">
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Key className="mr-2 h-4 w-4" />
+                Generate API Key
+              </Button>
+            </Link>
+            <Link href="/dashboard/governance">
+              <Button variant="outline" className="w-full justify-start" size="sm">
+                <Building2 className="mr-2 h-4 w-4" />
+                Governance Dashboard
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* System Health */}
+      <Card>
+        <CardHeader>
+          <CardTitle>System Health</CardTitle>
+          <CardDescription>
+            Real-time status of all system components
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 md:grid-cols-3">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">API Service</span>
+                {getHealthBadge(stats.systemHealth.api)}
+              </div>
+              <Progress value={stats.systemHealth.api === 'healthy' ? 100 : 50} className="h-2" />
+              <p className="text-xs text-muted-foreground">All endpoints operational</p>
             </div>
 
-            {/* Notification Bell */}
-            <button className="relative p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 hover:bg-zinc-50 dark:hover:bg-zinc-800 text-zinc-500 transition-colors">
-              <Bell className="w-5 h-5" />
-              <span className="absolute top-2.5 right-2.5 w-2 h-2 bg-zinc-900 dark:bg-zinc-100 rounded-full border-2 border-white dark:border-zinc-900"></span>
-            </button>
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Database</span>
+                {getHealthBadge(stats.systemHealth.database)}
+              </div>
+              <Progress value={stats.systemHealth.database === 'healthy' ? 100 : 50} className="h-2" />
+              <p className="text-xs text-muted-foreground">Connection stable</p>
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center justify-between">
+                <span className="text-sm font-medium">Encryption</span>
+                {getHealthBadge(stats.systemHealth.encryption)}
+              </div>
+              <Progress value={stats.systemHealth.encryption === 'active' ? 100 : 0} className="h-2" />
+              <p className="text-xs text-muted-foreground">AES-256 encryption active</p>
+            </div>
           </div>
-        </header>
+        </CardContent>
+      </Card>
 
-        {/* --- Stats Grid --- */}
-        <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          <StatCard 
-            title="Total Credits" 
-            value="2,450" 
-            trend="+12.5%" 
-            trendLabel="vs last month"
-            icon={Zap} 
-          />
-          <StatCard 
-            title="Storage Used" 
-            value="45.2 GB" 
-            trend="+5.2%" 
-            trendLabel="vs last month"
-            icon={Cloud} 
-          />
-          <StatCard 
-            title="Active Projects" 
-            value="12" 
-            trend="-2.1%" 
-            trendLabel="vs last month"
-            icon={Folder} 
-          />
-          <StatCard 
-            title="Total Exports" 
-            value="892" 
-            trend="+18.2%" 
-            trendLabel="vs last month"
-            icon={TrendingUp} 
-          />
-        </section>
+      {/* Getting Started Guide */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Getting Started</CardTitle>
+          <CardDescription>
+            Follow these steps to set up your AI Control Plane
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-start gap-4">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${stats.totalProviderKeys > 0 ? 'bg-green-500' : 'bg-muted'}`}>
+                <span className="text-sm font-medium text-white">1</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Add Your Provider Keys (BYOK)</p>
+                <p className="text-sm text-muted-foreground">
+                  Securely store your OpenAI, Anthropic, or Google AI API keys
+                </p>
+                {stats.totalProviderKeys === 0 && (
+                  <Link href="/dashboard/settings/providers">
+                    <Button variant="link" className="px-0 h-auto" size="sm">
+                      Add Provider Key <ArrowUpRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
 
-        {/* --- Recent Projects Section --- */}
-        <section>
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-zinc-900 dark:text-white">Recent Projects</h2>
-            <button className="text-sm font-medium text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white transition-colors">
-              View All
-            </button>
+            <div className="flex items-start gap-4">
+              <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full ${stats.totalPrompts > 0 ? 'bg-green-500' : 'bg-muted'}`}>
+                <span className="text-sm font-medium text-white">2</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Create Your First Prompt</p>
+                <p className="text-sm text-muted-foreground">
+                  Design versioned prompt templates with variables
+                </p>
+                {stats.totalPrompts === 0 && (
+                  <Link href="/dashboard/prompts">
+                    <Button variant="link" className="px-0 h-auto" size="sm">
+                      Create Prompt <ArrowUpRight className="ml-1 h-3 w-3" />
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <span className="text-sm font-medium text-white">3</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Execute Prompts via API</p>
+                <p className="text-sm text-muted-foreground">
+                  Generate an API key and start making requests
+                </p>
+                <Link href="/dashboard/api-keys">
+                  <Button variant="link" className="px-0 h-auto" size="sm">
+                    Generate API Key <ArrowUpRight className="ml-1 h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
+
+            <div className="flex items-start gap-4">
+              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-muted">
+                <span className="text-sm font-medium text-white">4</span>
+              </div>
+              <div className="space-y-1">
+                <p className="text-sm font-medium">Monitor & Govern</p>
+                <p className="text-sm text-muted-foreground">
+                  Track usage, manage teams, and maintain compliance
+                </p>
+                <Link href="/dashboard/governance">
+                  <Button variant="link" className="px-0 h-auto" size="sm">
+                    Open Governance <ArrowUpRight className="ml-1 h-3 w-3" />
+                  </Button>
+                </Link>
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
-            <ProjectCard 
-              title="Product Shoot v2" 
-              category="Image Processing" 
-              time="2 hours ago" 
-              icon={FileImage} 
-            />
-            <ProjectCard 
-              title="Marketing Reel" 
-              category="Video Editor" 
-              time="5 hours ago" 
-              icon={Video} 
-            />
-            <ProjectCard 
-              title="API Integration" 
-              category="Code Formatter" 
-              time="1 day ago" 
-              icon={Code} 
-            />
-            <ProjectCard 
-              title="Logo Brand Kit" 
-              category="Image Toolkit" 
-              time="2 days ago" 
-              icon={Package} 
-            />
-          </div>
-        </section>
-
-      </div>
+        </CardContent>
+      </Card>
     </div>
-  );
+  )
 }

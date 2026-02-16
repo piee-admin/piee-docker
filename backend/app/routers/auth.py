@@ -19,8 +19,14 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     """
     Register a new user account.
     
+    Automatically creates:
+    - User account
+    - Personal organization
+    - Organization membership (owner role)
+    - Onboarding progress tracker
+    
     Args:
-        user_data: User registration data (email, password)
+        user_data: User registration data (email, password, full_name)
         db: Database session
     
     Returns:
@@ -29,6 +35,8 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     Raises:
         HTTPException: If email already exists
     """
+    from app.db.models import Organization, OrganizationMember, OnboardingProgress
+    
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
@@ -41,10 +49,47 @@ async def register(user_data: UserRegister, db: Session = Depends(get_db)):
     hashed_password = get_password_hash(user_data.password)
     new_user = User(
         email=user_data.email,
-        hashed_password=hashed_password
+        hashed_password=hashed_password,
+        full_name=user_data.full_name,
+        onboarding_completed=False,
+        onboarding_step=0
     )
     
     db.add(new_user)
+    db.flush()  # Get user ID without committing
+    
+    # Create personal organization
+    org_name = f"{user_data.full_name or 'My'}'s Organization"
+    slug = org_name.lower().replace(" ", "-").replace("'", "")
+    
+    # Ensure unique slug
+    existing_org = db.query(Organization).filter(Organization.slug == slug).first()
+    if existing_org:
+        import uuid
+        slug = f"{slug}-{str(uuid.uuid4())[:8]}"
+    
+    org = Organization(
+        name=org_name,
+        slug=slug
+    )
+    db.add(org)
+    db.flush()
+    
+    # Add user as owner
+    member = OrganizationMember(
+        org_id=org.id,
+        user_id=new_user.id,
+        role="owner"
+    )
+    db.add(member)
+    
+    # Initialize onboarding progress
+    onboarding = OnboardingProgress(
+        user_id=new_user.id,
+        organization_created=True  # Auto-completed since we just created it
+    )
+    db.add(onboarding)
+    
     db.commit()
     db.refresh(new_user)
     
